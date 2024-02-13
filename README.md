@@ -1,1 +1,1 @@
-# the-cost-of-not-knowing-mongodb
+# The cost of not knowing MongoDB

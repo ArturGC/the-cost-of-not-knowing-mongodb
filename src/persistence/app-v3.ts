@@ -7,11 +7,17 @@ import {
 import type * as T from '../types';
 import mdb from '../mdb';
 
+const buildId = (key: string, date: Date): Buffer => {
+  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
+
+  return Buffer.from(`${key}${dateFormatted}`, 'hex');
+};
+
 export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV0>>((doc) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV3>>((doc) => {
     return {
       updateOne: {
-        filter: { '_id.date': doc.date, '_id.key': doc.key },
+        filter: { _id: buildId(doc.key, doc.date) },
         update: {
           $inc: {
             approved: doc.approved,
@@ -25,19 +31,21 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
     };
   });
 
-  return mdb.collections.appV0.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV3.bulkWrite(upsertOperations, { ordered: false });
 };
 
 export const getReport = async (filter: {
   date: { end: Date; start: Date };
   key: string;
 }): Promise<Document[]> => {
-  return mdb.collections.appV0
+  const lowerId = buildId(filter.key, filter.date.start);
+  const upperId = buildId(filter.key, filter.date.end);
+
+  return mdb.collections.appV3
     .aggregate([
       {
         $match: {
-          '_id.date': { $gte: filter.date.start, $lt: filter.date.end },
-          '_id.key': filter.key,
+          _id: { $gte: lowerId, $lt: upperId },
         },
       },
       {

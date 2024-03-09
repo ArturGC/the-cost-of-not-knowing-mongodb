@@ -1,23 +1,56 @@
+import { type ObjectId } from 'mongodb';
 import { z } from 'zod';
 
 export type DocDefault = z.infer<typeof DocDefaultSchema>;
 export const DocDefaultSchema = z.object({
-  approved: z.number().optional(),
   date: z.coerce.date(),
   key: z.string(),
+
+  approved: z.number().optional(),
   noFunds: z.number().optional(),
   pending: z.number().optional(),
   rejected: z.number().optional(),
 });
 
-export type DocV0 = z.infer<typeof DocV0Schema>;
-export const DocV0Schema = z.object({
-  _id: z.object({
-    date: z.coerce.date(),
-    key: z.string(),
-  }),
-  approved: z.number().optional(),
-  noFunds: z.number().optional(),
-  pending: z.number().optional(),
-  rejected: z.number().optional(),
-});
+export type Version = 'appV0' | 'appV1' | 'appV2' | 'appV3' | 'appV4';
+export type Body = z.infer<typeof BodySchema>;
+export const BodySchema = z.array(DocDefaultSchema);
+
+export type DocV0 = {
+  _id: {
+    date: Date;
+    key: string;
+  };
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+
+export type DocV1 = DocV0;
+
+export type DocV2 = {
+  _id: ObjectId;
+  date: Date;
+  key: string;
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+
+export type DocV3 = {
+  _id: Buffer;
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+
+export type DocV4 = {
+  _id: Buffer;
+  a?: number;
+  n?: number;
+  p?: number;
+  r?: number;
+};

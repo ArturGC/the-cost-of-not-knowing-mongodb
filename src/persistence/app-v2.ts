@@ -8,10 +8,10 @@ import type * as T from '../types';
 import mdb from '../mdb';
 
 export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV0>>((doc) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV2>>((doc) => {
     return {
       updateOne: {
-        filter: { '_id.date': doc.date, '_id.key': doc.key },
+        filter: { date: doc.date, key: doc.key },
         update: {
           $inc: {
             approved: doc.approved,
@@ -25,19 +25,19 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
     };
   });
 
-  return mdb.collections.appV0.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV2.bulkWrite(upsertOperations, { ordered: false });
 };
 
 export const getReport = async (filter: {
   date: { end: Date; start: Date };
   key: string;
 }): Promise<Document[]> => {
-  return mdb.collections.appV0
+  return mdb.collections.appV2
     .aggregate([
       {
         $match: {
-          '_id.date': { $gte: filter.date.start, $lt: filter.date.end },
-          '_id.key': filter.key,
+          date: { $gte: filter.date.start, $lt: filter.date.end },
+          key: filter.key,
         },
       },
       {

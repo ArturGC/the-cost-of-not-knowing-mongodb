@@ -58,10 +58,10 @@
       "name": "API Server",
       "color": "blue"
     },
-    "maxWorkers": "50%",
+    "maxWorkers": "1",
     "preset": "ts-jest",
     "slowTestThreshold": 20,
     "testTimeout": 30000,
-    "verbose": false
+    "verbose": true
   }
 }

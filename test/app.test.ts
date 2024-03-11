@@ -18,6 +18,7 @@ withDb(() => {
     'appV4',
     'appV5',
     'appV6',
+    'appV7',
   ] as const;
 
   for (const version of versions) {

@@ -19,7 +19,8 @@ export type Version =
   | 'appV3'
   | 'appV4'
   | 'appV5'
-  | 'appV6';
+  | 'appV6'
+  | 'appV7';
 
 export type Body = z.infer<typeof BodySchema>;
 export const BodySchema = z.array(DocDefaultSchema);
@@ -73,3 +74,5 @@ export type DocV6 = {
   report: { a?: number; n?: number; p?: number; r?: number };
   items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
 };
+
+export type DocV7 = DocV6;

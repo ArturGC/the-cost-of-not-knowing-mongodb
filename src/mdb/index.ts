@@ -17,6 +17,7 @@ type Collections = {
   appV4: Collection<T.DocV4>;
   appV5: Collection<T.DocV5>;
   appV6: Collection<T.DocV6>;
+  appV7: Collection<T.DocV7>;
 };
 
 class Mongo {
@@ -54,6 +55,7 @@ class Mongo {
       appV4: this.db.collection('appV4'),
       appV5: this.db.collection('appV5'),
       appV6: this.db.collection('appV6'),
+      appV7: this.db.collection('appV7'),
     };
   };
 
@@ -77,6 +79,10 @@ class Mongo {
       { key: 1, date: 1 },
       { unique: true }
     );
+
+    await this.db.createCollection('appV7', {
+      storageEngine: { wiredTiger: { configString: 'block_compressor=zstd' } },
+    });
   };
 }
 

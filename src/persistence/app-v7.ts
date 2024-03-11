@@ -53,20 +53,15 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
   return mdb.collections.appV7.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const buildIdDate = (key: string, date: Date): string => {
-  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
-
-  return `${key}${dateFormatted}`;
-  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
-};
-
 const buildLogicForType = (
   type: string,
   key: string,
   date: { end: Date; start: Date }
 ): Document => {
-  const lowerIdDate = buildIdDate(key, date.start);
-  const upperIdDate = buildIdDate(key, date.end);
+  const lowerId = buildId(key, date.start);
+  const lowerDay = date.start.getDate().toString();
+  const upperId = buildId(key, date.end);
+  const upperDay = date.end.getDate().toString();
 
   return {
     $add: [
@@ -75,8 +70,28 @@ const buildLogicForType = (
           {
             $and: [
               `$$this.v.${type}`,
-              { $gte: [{ $concat: ['$_id', '$$this.k'] }, lowerIdDate] },
-              { $lt: [{ $concat: ['$_id', '$$this.k'] }, upperIdDate] },
+              {
+                $or: [
+                  {
+                    $and: [
+                      { $eq: ['$_id', lowerId] },
+                      { $gte: ['$$this.k', lowerDay] },
+                    ],
+                  },
+                  {
+                    $and: [
+                      { $gt: ['$_id', lowerId] },
+                      { $lt: ['$_id', upperId] },
+                    ],
+                  },
+                  {
+                    $and: [
+                      { $eq: ['$_id', upperId] },
+                      { $lt: ['$$this.k', upperDay] },
+                    ],
+                  },
+                ],
+              },
             ],
           },
           `$$this.v.${type}`,
@@ -87,7 +102,6 @@ const buildLogicForType = (
     ],
   };
 };
-
 export const getReport = async (filter: {
   date: { end: Date; start: Date };
   key: string;

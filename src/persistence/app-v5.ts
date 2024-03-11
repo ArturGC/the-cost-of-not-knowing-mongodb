@@ -97,16 +97,16 @@ export const getReport = async (filter: {
           _id: { $gte: lowerId, $lte: upperId },
         },
       },
-      {
-        $addFields: {
-          items: { $objectToArray: '$items' },
-        },
-      },
+      // {
+      //   $addFields: {
+      //     items: { $objectToArray: '$items' },
+      //   },
+      // },
       {
         $addFields: {
           report: {
             $reduce: {
-              input: '$items',
+              input: { $objectToArray: '$items' },
               initialValue: { a: 0, n: 0, p: 0, r: 0 },
               in: {
                 a: buildOperatorForType('a', filter.key, filter.date),

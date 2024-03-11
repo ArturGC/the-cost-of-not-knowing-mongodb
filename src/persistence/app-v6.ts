@@ -8,15 +8,14 @@ import {
 import type * as T from '../types';
 import mdb from '../mdb';
 
-const buildId = (key: string, date: Date): string => {
+const buildId = (key: string, date: Date): Buffer => {
   const dateFormatted = date
     .toISOString()
     .split('T')[0]
     .replace(/-/g, '')
     .slice(0, 6);
 
-  return `${key}${dateFormatted}`;
-  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
+  return Buffer.from(`${key}${dateFormatted}`, 'hex');
 };
 
 const getDayFromDate = (date: Date): string => {

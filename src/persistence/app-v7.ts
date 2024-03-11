@@ -8,15 +8,14 @@ import {
 import type * as T from '../types';
 import mdb from '../mdb';
 
-const buildId = (key: string, date: Date): string => {
+const buildId = (key: string, date: Date): Buffer => {
   const dateFormatted = date
     .toISOString()
     .split('T')[0]
     .replace(/-/g, '')
     .slice(0, 6);
 
-  return `${key}${dateFormatted}`;
-  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
+  return Buffer.from(`${key}${dateFormatted}`, 'hex');
 };
 
 const getDayFromDate = (date: Date): string => {
@@ -34,15 +33,14 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
         },
         update: {
           $inc: {
-            [`items.${dayNumber}.a`]: doc.approved,
-            [`items.${dayNumber}.n`]: doc.noFunds,
-            [`items.${dayNumber}.p`]: doc.pending,
-            [`items.${dayNumber}.r`]: doc.rejected,
-
             'report.a': doc.approved,
             'report.n': doc.noFunds,
             'report.p': doc.pending,
             'report.r': doc.rejected,
+            [`items.${dayNumber}.a`]: doc.approved,
+            [`items.${dayNumber}.n`]: doc.noFunds,
+            [`items.${dayNumber}.p`]: doc.pending,
+            [`items.${dayNumber}.r`]: doc.rejected,
           },
         },
         upsert: true,

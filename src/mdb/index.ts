@@ -15,6 +15,8 @@ type Collections = {
   appV2: Collection<T.DocV2>;
   appV3: Collection<T.DocV3>;
   appV4: Collection<T.DocV4>;
+  appV5: Collection<T.DocV5>;
+  appV6: Collection<T.DocV6>;
 };
 
 class Mongo {
@@ -50,6 +52,8 @@ class Mongo {
       appV2: this.db.collection('appV2'),
       appV3: this.db.collection('appV3'),
       appV4: this.db.collection('appV4'),
+      appV5: this.db.collection('appV5'),
+      appV6: this.db.collection('appV6'),
     };
   };
 

@@ -12,7 +12,15 @@ export const DocDefaultSchema = z.object({
   rejected: z.number().optional(),
 });
 
-export type Version = 'appV0' | 'appV1' | 'appV2' | 'appV3' | 'appV4';
+export type Version =
+  | 'appV0'
+  | 'appV1'
+  | 'appV2'
+  | 'appV3'
+  | 'appV4'
+  | 'appV5'
+  | 'appV6';
+
 export type Body = z.infer<typeof BodySchema>;
 export const BodySchema = z.array(DocDefaultSchema);
 
@@ -53,4 +61,15 @@ export type DocV4 = {
   n?: number;
   p?: number;
   r?: number;
+};
+
+export type DocV5 = {
+  _id: string;
+  items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
+};
+
+export type DocV6 = {
+  _id: Buffer;
+  report: { a?: number; n?: number; p?: number; r?: number };
+  items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
 };

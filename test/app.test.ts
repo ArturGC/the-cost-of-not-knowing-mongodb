@@ -16,6 +16,8 @@ withDb(() => {
     'appV2',
     'appV3',
     'appV4',
+    'appV5',
+    // 'appV6',
   ] as const;
 
   for (const version of versions) {
@@ -41,19 +43,17 @@ withDb(() => {
         await buildReportScenery(postDocsUrl.replace(':version', version));
 
         const url = getReportsUrl.replace(':version', version);
+        const dateEnd = new Date('2021-02-20').toISOString();
+        const dateStart = new Date('2019-01-01').toISOString();
         const response = await request(app)
           .get(url)
-          .query({
-            dateEnd: new Date('2022-01-01').toISOString(),
-            dateStart: new Date('2019-01-01').toISOString(),
-            key: '01',
-          });
+          .query({ dateEnd, dateStart, key: '01' });
 
         expect(response.body).toEqual({
-          approved: 13,
-          noFunds: 3,
+          approved: 17,
+          noFunds: 4,
           pending: 3,
-          rejected: 3,
+          rejected: 6,
         });
       });
     });
@@ -62,35 +62,17 @@ withDb(() => {
 
 async function buildReportScenery(url: string) {
   const docs = [
-    {
-      date: new Date('2018-02-01'),
-      key: '01',
-      approved: 3,
-    },
-    {
-      date: new Date('2019-02-01'),
-      key: '01',
-      approved: 5,
-      pending: 3,
-    },
-    {
-      date: new Date('2020-02-01'),
-      key: '01',
-      approved: 7,
-      rejected: 3,
-    },
-    {
-      date: new Date('2021-02-01'),
-      key: '01',
-      approved: 1,
-      noFunds: 3,
-    },
-    {
-      date: new Date('2022-02-01'),
-      key: '01',
-      approved: 1,
-      rejected: 5,
-    },
+    { date: new Date('2018-02-01'), key: '01', approved: 3 },
+
+    { date: new Date('2019-02-01'), key: '01', approved: 5, pending: 3 },
+    { date: new Date('2019-02-10'), key: '01', approved: 3, noFunds: 1 },
+    { date: new Date('2019-02-15'), key: '01', rejected: 3 },
+    { date: new Date('2020-02-01'), key: '01', approved: 7, rejected: 3 },
+    { date: new Date('2021-02-01'), key: '01', approved: 1, noFunds: 3 },
+    { date: new Date('2021-02-15'), key: '01', approved: 1 },
+
+    { date: new Date('2021-02-25'), key: '01', approved: 1, pending: 1 },
+    { date: new Date('2022-02-01'), key: '01', approved: 1, rejected: 5 },
   ];
 
   await request(app).post(url).send(docs);

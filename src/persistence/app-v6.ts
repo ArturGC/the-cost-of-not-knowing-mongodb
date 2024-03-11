@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 import {
   type AnyBulkWriteOperation,
   type BulkWriteResult,
@@ -7,14 +8,15 @@ import {
 import type * as T from '../types';
 import mdb from '../mdb';
 
-const buildId = (key: string, date: Date): Buffer => {
+const buildId = (key: string, date: Date): string => {
   const dateFormatted = date
     .toISOString()
     .split('T')[0]
     .replace(/-/g, '')
     .slice(0, 6);
 
-  return Buffer.from(`${key}${dateFormatted}`, 'hex');
+  return `${key}${dateFormatted}`;
+  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
 };
 
 const getDayFromDate = (date: Date): string => {
@@ -51,6 +53,41 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
   return mdb.collections.appV6.bulkWrite(upsertOperations, { ordered: false });
 };
 
+const buildIdDate = (key: string, date: Date): string => {
+  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
+
+  return `${key}${dateFormatted}`;
+  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
+};
+
+const buildLogicForType = (
+  type: string,
+  key: string,
+  date: { end: Date; start: Date }
+): Document => {
+  const lowerIdDate = buildIdDate(key, date.start);
+  const upperIdDate = buildIdDate(key, date.end);
+
+  return {
+    $add: [
+      {
+        $cond: [
+          {
+            $and: [
+              `$$this.v.${type}`,
+              { $gte: [{ $concat: ['$_id', '$$this.k'] }, lowerIdDate] },
+              { $lt: [{ $concat: ['$_id', '$$this.k'] }, upperIdDate] },
+            ],
+          },
+          `$$this.v.${type}`,
+          0,
+        ],
+      },
+      `$$value.${type}`,
+    ],
+  };
+};
+
 export const getReport = async (filter: {
   date: { end: Date; start: Date };
   key: string;
@@ -62,16 +99,40 @@ export const getReport = async (filter: {
     .aggregate([
       {
         $match: {
-          _id: { $gte: lowerId, $lt: upperId },
+          _id: { $gte: lowerId, $lte: upperId },
+        },
+      },
+      {
+        $addFields: {
+          report: {
+            $cond: {
+              if: {
+                $and: [{ $gte: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
+              },
+              then: '$report',
+              else: {
+                $reduce: {
+                  input: { $objectToArray: '$items' },
+                  initialValue: { a: 0, n: 0, p: 0, r: 0 },
+                  in: {
+                    a: buildLogicForType('a', filter.key, filter.date),
+                    n: buildLogicForType('n', filter.key, filter.date),
+                    p: buildLogicForType('p', filter.key, filter.date),
+                    r: buildLogicForType('r', filter.key, filter.date),
+                  },
+                },
+              },
+            },
+          },
         },
       },
       {
         $group: {
           _id: null,
-          approved: { $sum: '$a' },
-          noFunds: { $sum: '$n' },
-          pending: { $sum: '$p' },
-          rejected: { $sum: '$r' },
+          approved: { $sum: '$report.a' },
+          noFunds: { $sum: '$report.n' },
+          pending: { $sum: '$report.p' },
+          rejected: { $sum: '$report.r' },
         },
       },
       {

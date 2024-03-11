@@ -19,13 +19,6 @@ const buildId = (key: string, date: Date): string => {
   // return Buffer.from(`${key}${dateFormatted}`, 'hex');
 };
 
-const buildIdDate = (key: string, date: Date): string => {
-  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
-
-  return `${key}${dateFormatted}`;
-  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
-};
-
 const getDayFromDate = (date: Date): string => {
   return date.toISOString().split('T')[0].replace(/-/g, '').slice(6);
 };
@@ -55,7 +48,14 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
   return mdb.collections.appV5.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const buildOperatorForType = (
+const buildIdDate = (key: string, date: Date): string => {
+  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
+
+  return `${key}${dateFormatted}`;
+  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
+};
+
+const buildLogicForType = (
   type: string,
   key: string,
   date: { end: Date; start: Date }
@@ -97,11 +97,6 @@ export const getReport = async (filter: {
           _id: { $gte: lowerId, $lte: upperId },
         },
       },
-      // {
-      //   $addFields: {
-      //     items: { $objectToArray: '$items' },
-      //   },
-      // },
       {
         $addFields: {
           report: {
@@ -109,10 +104,10 @@ export const getReport = async (filter: {
               input: { $objectToArray: '$items' },
               initialValue: { a: 0, n: 0, p: 0, r: 0 },
               in: {
-                a: buildOperatorForType('a', filter.key, filter.date),
-                n: buildOperatorForType('n', filter.key, filter.date),
-                p: buildOperatorForType('p', filter.key, filter.date),
-                r: buildOperatorForType('r', filter.key, filter.date),
+                a: buildLogicForType('a', filter.key, filter.date),
+                n: buildLogicForType('n', filter.key, filter.date),
+                p: buildLogicForType('p', filter.key, filter.date),
+                r: buildLogicForType('r', filter.key, filter.date),
               },
             },
           },

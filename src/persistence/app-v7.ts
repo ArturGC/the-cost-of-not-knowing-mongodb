@@ -8,14 +8,15 @@ import {
 import type * as T from '../types';
 import mdb from '../mdb';
 
-const buildId = (key: string, date: Date): Buffer => {
+const buildId = (key: string, date: Date): string => {
   const dateFormatted = date
     .toISOString()
     .split('T')[0]
     .replace(/-/g, '')
     .slice(0, 6);
 
-  return Buffer.from(`${key}${dateFormatted}`, 'hex');
+  return `${key}${dateFormatted}`;
+  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
 };
 
 const getDayFromDate = (date: Date): string => {
@@ -52,10 +53,11 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
   return mdb.collections.appV7.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const buildIdDate = (key: string, date: Date): Buffer => {
+const buildIdDate = (key: string, date: Date): string => {
   const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
 
-  return Buffer.from(`${key}${dateFormatted}`, 'hex');
+  return `${key}${dateFormatted}`;
+  // return Buffer.from(`${key}${dateFormatted}`, 'hex');
 };
 
 const buildLogicForType = (

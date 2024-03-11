@@ -70,7 +70,7 @@ export type DocV5 = {
 };
 
 export type DocV6 = {
-  _id: Buffer;
+  _id: string;
   report: { a?: number; n?: number; p?: number; r?: number };
   items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
 };

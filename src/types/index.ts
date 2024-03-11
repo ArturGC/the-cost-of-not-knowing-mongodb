@@ -65,12 +65,12 @@ export type DocV4 = {
 };
 
 export type DocV5 = {
-  _id: string;
+  _id: Buffer;
   items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
 };
 
 export type DocV6 = {
-  _id: string;
+  _id: Buffer;
   report: { a?: number; n?: number; p?: number; r?: number };
   items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
 };

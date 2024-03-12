@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 import {
   type AnyBulkWriteOperation,
   type BulkWriteResult,
@@ -11,7 +12,9 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV0>>((doc) => {
     return {
       updateOne: {
-        filter: { '_id.date': doc.date, '_id.key': doc.key },
+        filter: {
+          _id: { key: doc.key, date: doc.date },
+        },
         update: {
           $inc: {
             approved: doc.approved,

@@ -1,27 +1,36 @@
+import { vu } from 'k6/execution';
+import cfg from './cfg.js';
+
 export class Generator {
   constructor() {
-    this.date = new Date('2015-01-01');
+    this.date = cfg.dateStart;
+    this.keysQuantity = cfg.usersPerVu;
   }
 
   getDate() {
-    const deltaTime = 100 * Math.random();
+    const deltaTime = 2 * cfg.deltaTime * Math.random();
 
     this.date = new Date(this.date.getTime() + deltaTime);
 
     return new Date(this.date.toISOString().split('T')[0]);
   }
 
-  gaussianRandom(mean = 0, stdev = 1) {
-    const u = 1 - Math.random(); // Converting [0,1) to (0,1]
+  gaussianRandom(mean = 0, stdev = 0.05) {
+    const u = 1 - Math.random();
     const v = Math.random();
     const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-    const value = z * stdev + mean;
-    // Transform to the desired mean and standard deviation:
+
     return z * stdev + mean;
   }
 
   getKey() {
-    return Math.floor(100 * Math.abs(this.gaussianRandom())).toString();
+    const vuId = `${vu.idInTest}`.padStart(2, '0');
+    const keyNumber =
+      Math.random() > 0.25
+        ? Math.floor(this.keysQuantity * Math.abs(this.gaussianRandom()))
+        : Math.floor(this.keysQuantity * Math.random());
+
+    return `${vuId}A${keyNumber}`.padEnd(64, 'B');
   }
 
   getTransaction() {
@@ -39,7 +48,7 @@ export class Generator {
       const key = this.getKey();
       const transaction = this.getTransaction();
 
-      return Object.assign({ date, key }, transaction);
+      return Object.assign({ key, date }, transaction);
     });
   }
 }

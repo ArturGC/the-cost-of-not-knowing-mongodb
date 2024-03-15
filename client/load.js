@@ -2,15 +2,16 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 import cfg from './cfg.js';
-import { Generator } from './helpers.js';
+import { Generator } from './generator.js';
 
 export const options = {
   scenarios: {
-    post_docs_load: {
+    post_docs: {
       exec: 'postDocs',
       executor: 'per-vu-iterations',
-      vus: cfg.vuQuantity,
       iterations: cfg.iterations,
+      maxDuration: '5h',
+      vus: cfg.vuQuantity,
     },
   },
 };

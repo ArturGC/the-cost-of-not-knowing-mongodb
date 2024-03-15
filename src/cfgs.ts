@@ -6,7 +6,7 @@ export const TEST = {
       ignoreUndefined: true,
       readPreference: 'primary',
     },
-    URI: 'mongodb://localhost:27018',
+    URI: 'mongodb://localhost:27017',
   },
   SERVER: {
     PORT: 3000,
@@ -22,7 +22,7 @@ export const PROD = {
       readPreference: 'primary',
       writeConcern: { journal: true, w: 'majority' },
     },
-    URI: 'mongodb://localhost:27018',
+    URI: 'mongodb://arturgc:arturgc_123@agc.node.public.mdbtraining.net/?directConnection=true',
   },
   SERVER: {
     PORT: 3000,

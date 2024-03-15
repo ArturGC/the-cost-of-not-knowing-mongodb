@@ -1,4 +1,4 @@
-import { PROD, TEST } from './configs';
+import { PROD, TEST } from './cfgs';
 import app from './app';
 import mdb from './mdb';
 

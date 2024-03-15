@@ -7,7 +7,18 @@ export class Generator {
     this.keysQuantity = cfg.usersPerVu;
   }
 
-  getDate() {
+  getReportDateRange() {
+    const deltaTime = Math.floor(5 * cfg.oneYear * Math.random());
+    const dateEnd = this.date.getTime();
+    const dateStart = new Date(dateEnd.getTime() - deltaTime);
+
+    return {
+      start: dateStart.toISOString().split('T')[0],
+      end: dateEnd.toISOString().split('T')[0],
+    };
+  }
+
+  getNewDate() {
     const deltaTime = 2 * cfg.deltaTime * Math.random();
 
     this.date = new Date(this.date.getTime() + deltaTime);
@@ -44,7 +55,7 @@ export class Generator {
 
   body(count) {
     return Array.from({ length: count }, () => {
-      const date = this.getDate();
+      const date = this.getNewDate();
       const key = this.getKey();
       const transaction = this.getTransaction();
 

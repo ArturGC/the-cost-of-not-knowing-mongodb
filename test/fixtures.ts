@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import * as T from '../src/types';
+import * as T from '../server/types';
 
 export const generateDocDefault = (): T.DocDefault => {
   const doc: T.DocDefault = {

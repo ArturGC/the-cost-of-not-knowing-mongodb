@@ -1,7 +1,7 @@
 import { Db, ObjectId } from 'mongodb';
 
-import MDB from '../src/mdb';
-import { TEST } from '../src/configs';
+import MDB from '../server/mdb';
+import { TEST } from '../server/cfgs';
 
 export async function cleanAllCollections(db: Db) {
   const collections = await db.collections();

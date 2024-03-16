@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
     "module": "Node16" /* Specify what module code is generated. */,
-    "rootDir": "./src" /* Specify the root folder within your source files. */,
+    "rootDir": "server" /* Specify the root folder within your source files. */,
     "outDir": "./build" /* Specify an output folder for all emitted files. */,
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
@@ -11,5 +11,5 @@
     "allowJs": true
   },
   "extends": "@tsconfig/node18/tsconfig.json",
-  "include": ["./src/**/*"]
+  "include": ["server/**/*"]
 }

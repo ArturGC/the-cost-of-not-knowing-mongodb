@@ -1,28 +1,31 @@
 import http from 'k6/http';
 import { check } from 'k6';
 
-import cfg from './cfg.js';
+import * as cfg from './cfg.js';
 import { Generator } from './generator.js';
 
 export const options = {
   scenarios: {
-    post_docs: {
+    postDocs: {
       exec: 'postDocs',
       executor: 'per-vu-iterations',
-      iterations: cfg.iterations,
+      iterations: cfg.load.postDocs.Iterations,
       maxDuration: '5h',
-      vus: cfg.vuQuantity,
+      vus: cfg.load.postDocs.VusQuantity,
     },
   },
 };
 
-const url = 'http://localhost:3000/docs/appV0';
-const generator = new Generator();
+const appVersion = 'appV0';
+const url = `http://localhost:3000/docs/${appVersion}`;
+const generator = new Generator(cfg.load.postDocs.DateStart);
 const params = { headers: { 'Content-Type': 'application/json' } };
 
-export function postDocs() {
-  const payload = JSON.stringify(generator.body(cfg.batchSize));
-  const res = http.post(url, payload, params);
+export async function postDocs() {
+  const body = generator.getBody();
+  const res = http.post(url, body, params);
 
   check(res, { 'Is status 201?': (r) => r.status === 201 });
+
+  await cfg.sleep(2000 * Math.random() - res.timings.duration);
 }

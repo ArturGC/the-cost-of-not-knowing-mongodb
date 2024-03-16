@@ -1,13 +1,13 @@
 import request from 'supertest';
 
-import mdb from '../src/mdb';
+import mdb from '../server/mdb';
 import { withDb } from './helpers';
 import { generateDocDefault } from './fixtures';
 
-import * as T from '../src/types';
-import app from '../src/app';
-import { endPoint as postDocsUrl } from '../src/controllers/post-docs';
-import { endPoint as getReportsUrl } from '../src/controllers/get-reports';
+import * as T from '../server/types';
+import app from '../server/app';
+import { endPoint as postDocsUrl } from '../server/controllers/post-docs';
+import { endPoint as getReportsUrl } from '../server/controllers/get-reports';
 
 withDb(() => {
   const versions: T.Version[] = [

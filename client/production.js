@@ -1,42 +1,42 @@
 import http from 'k6/http';
 import { check } from 'k6';
 
-import { production } from './cfg.js';
+import * as cfg from './cfg.js';
 import { Generator } from './generator.js';
 
 export const options = {
   scenarios: {
-    post_docs: {
+    postDocs: {
       exec: 'postDocs',
       executor: 'constant-vus',
-      vus: production.vuQuantity,
-      duration: production.duration,
+      vus: cfg.production.postDocs.VusQuantity,
+      duration: cfg.production.duration,
     },
-    get_report: {
+    getReport: {
       exec: 'getReport',
       executor: 'constant-vus',
-      vus: production.vuQuantity,
-      duration: production.duration,
+      vus: cfg.production.getReport.VusQuantity,
+      duration: cfg.production.duration,
     },
   },
 };
 
-const urlDocs = 'http://localhost:3000/docs/appV0';
-const urlReports = 'http://localhost:3000/docs/appV0';
-const generator = new Generator();
+const appVersion = 'appV0';
+const urlDocs = `http://localhost:3000/docs/${appVersion}`;
+const urlReports = `http://localhost:3000/docs/${appVersion}`;
+const generator = new Generator(cfg.production.postDocs.DateEnd);
 const params = { headers: { 'Content-Type': 'application/json' } };
 
 export function postDocs() {
-  const body = JSON.stringify(generator.body(cfg.batchSize));
+  const body = generator.getBody();
   const res = http.post(urlDocs, body, params);
 
   check(res, { 'Is status 201?': (r) => r.status === 201 });
 }
 
 export function getReport() {
-  const { start, end } = generator.getReportDateRange();
-  const url = `${urlReports}/?dateStart=${start}&dateEnd=${end}`;
-  const res = http.get(url);
+  const queryParams = generator.getReportQueryParams();
+  const res = http.get(`${urlReports}/?${queryParams}`);
 
   check(res, { 'Is status 201?': (r) => r.status === 201 });
 }

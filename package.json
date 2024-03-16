@@ -2,11 +2,13 @@
   "name": "the-cost-of-not-knowing-mongodb",
   "version": "1.0.0",
   "description": "The cost of not knowing MongoDB",
-  "main": "./src/index.ts",
+  "main": "./server/index.ts",
   "scripts": {
     "build": "npx tsc --project ./tsconfig.json",
-    "format": "prettier --config .prettierrc.json 'src/**/*.ts' --write",
+    "format": "prettier --config .prettierrc.json 'server/**/*.ts' --write",
     "lint": "eslint --ignore-path .gitignore --fix --ext .ts .",
+    "start:load": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_PERIOD=1s K6_WEB_DASHBOARD_EXPORT=./client/report.html k6 run ./client/load.js",
+    "start:server": "npx ts-node server/index.ts",
     "test": "jest",
     "type:coverage": "npx type-coverage --detail"
   },
@@ -52,7 +54,7 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*.ts"
+      "server/**/*.ts"
     ],
     "displayName": {
       "name": "API Server",

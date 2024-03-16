@@ -1,62 +1,65 @@
+import { setTimeout } from 'k6/experimental/timers';
+
 // References
-const G = Math.pow(2, 30);
-const oneYear = 365 * 24 * 60 * 60 * 1000;
+const OneGigabyte = Math.pow(2, 30);
+const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
 
 // EC2 Configuration
-const groupingFactor = 1.42;
-const ram = 4 * G;
-const workingSetSize = 5 * ram * groupingFactor;
+const AppV0GroupingFactor = 1.425;
+const RAM = 4 * OneGigabyte;
+const LoadDataSize = OneGigabyte * AppV0GroupingFactor; // 5 * RAM * AppV0GroupingFactor;
 
 // Application/Load Data
-const maxInsertion = 5000;
-const v0DocSize = 118;
-const vuQuantity = 10;
-const userTransactionsPerMonth = 5;
-const dateStart = new Date('2015-01-01');
-const loadDateSpamInYeas = 5;
-const loadDateSpamInMonths = 12 * loadDateSpamInYeas;
-const loadDateSpamInMs = loadDateSpamInYeas * oneYear;
+const MaxConcurrentInsertions = 5000;
+const AppV0DocSize = 118;
+const VusQuantity = 10;
+const UserTransactionsPerMonth = 5;
+const DateStart = new Date('2015-01-01');
+const LoadDateSpamInYeas = 5;
+const LoadDateSpamInMonths = 12 * LoadDateSpamInYeas;
+const LoadDateSpamInMs = LoadDateSpamInYeas * OneYearInMs;
+const DateEnd = new Date(DateStart.getTime() + LoadDateSpamInMs);
 
 // Load Parameters
-const docsQuantity = Math.floor(workingSetSize / v0DocSize);
-const batchSize = Math.floor(maxInsertion / vuQuantity);
-const usersQuantity = Math.floor(
-  docsQuantity / (loadDateSpamInMonths * userTransactionsPerMonth)
+const DocsQuantity = Math.floor(LoadDataSize / AppV0DocSize);
+const BatchSize = Math.floor(MaxConcurrentInsertions / VusQuantity);
+const UsersQuantity = Math.floor(
+  DocsQuantity / (LoadDateSpamInMonths * UserTransactionsPerMonth)
 );
-const usersPerVu = Math.floor(usersQuantity / vuQuantity);
-const deltaTime = Math.floor((vuQuantity * loadDateSpamInMs) / docsQuantity);
-const iterations = Math.floor(docsQuantity / (vuQuantity * batchSize));
+const UsersPerVu = Math.floor(UsersQuantity / VusQuantity);
+const DeltaTime = Math.floor((VusQuantity * LoadDateSpamInMs) / DocsQuantity);
+const Iterations = Math.floor(DocsQuantity / (VusQuantity * BatchSize));
 
-export default {
-  deltaTime,
-  dateStart,
-  usersPerVu,
-  vuQuantity,
-  iterations,
-  batchSize,
-  oneYear,
+export const references = {
+  OneYearInMs,
 };
 
 export const load = {
   postDocs: {
-    deltaTime,
-    dateStart,
-    usersPerVu,
-    vuQuantity,
-    iterations,
-    batchSize,
-    oneYear,
+    BatchSize,
+    DateEnd,
+    DateStart,
+    DeltaTime,
+    Iterations,
+    UsersPerVu,
+    VusQuantity,
   },
 };
 
-// Production Parameters
-
 export const production = {
   duration: '10m',
-  getReport: {},
-  postDocs: {
-    batchSize: Math.floor(load.postDocs.batchSize / 2),
-    vuQuantity: load.postDocs.vuQuantity,
-    minIterationDuration: '1s',
+  getReport: {
+    MinIterationDuration: '5s',
+    VusQuantity,
   },
+  postDocs: {
+    BatchSize,
+    DateEnd,
+    MinIterationDuration: '10s',
+    VusQuantity,
+  },
+};
+
+export const sleep = async (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };

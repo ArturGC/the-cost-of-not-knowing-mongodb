@@ -56,6 +56,7 @@ export const production = {
     BatchSize,
     DateEnd,
     MinIterationDuration: '10s',
+    UsersPerVu,
     VusQuantity,
   },
 };

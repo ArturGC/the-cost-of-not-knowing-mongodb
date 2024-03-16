@@ -8,6 +8,7 @@
     "format": "prettier --config .prettierrc.json 'server/**/*.ts' --write",
     "lint": "eslint --ignore-path .gitignore --fix --ext .ts .",
     "start:load": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_PERIOD=1s K6_WEB_DASHBOARD_EXPORT=./client/report.html k6 run ./client/load.js",
+    "start:production": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_PERIOD=1s K6_WEB_DASHBOARD_EXPORT=./client/production.html k6 run ./client/production.js",
     "start:server": "npx ts-node server/index.ts",
     "test": "jest",
     "type:coverage": "npx type-coverage --detail"

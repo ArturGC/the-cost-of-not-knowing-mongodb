@@ -10,7 +10,7 @@ export class Generator {
 
   getDateRange() {
     const deltaTime = Math.ceil(5 * cfg.references.OneYearInMs * Math.random());
-    const dateEnd = this.date.current.getTime();
+    const dateEnd = this.date.current;
     const dateStart = new Date(dateEnd.getTime() - deltaTime);
 
     return {
@@ -29,8 +29,9 @@ export class Generator {
   getReportQueryParams() {
     const { start, end } = this.getDateRange();
     const key = this.getKeyReport();
+    console.log({ key, start, end });
 
-    return `?key=${key}&dateStart=${start}&dateEnd=${end}`;
+    return `key=${key}&dateStart=${start}&dateEnd=${end}`;
   }
 
   getNewDate() {

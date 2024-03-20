@@ -7,10 +7,10 @@ const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
 // EC2 Configuration
 const AppV0GroupingFactor = 1.425;
 const RAM = 4 * OneGigabyte;
-const LoadDataSize = OneGigabyte * AppV0GroupingFactor; // 5 * RAM * AppV0GroupingFactor;
+const LoadDataSize = 5 * RAM * AppV0GroupingFactor;
 
 // Application/Load Data
-const MaxConcurrentInsertions = 5000;
+const MaxConcurrentInsertions = 30000;
 const AppV0DocSize = 118;
 const VusQuantity = 10;
 const UserTransactionsPerMonth = 5;
@@ -49,15 +49,15 @@ export const load = {
 export const production = {
   duration: '10m',
   getReport: {
-    MinIterationDuration: '5s',
     VusQuantity,
+    sleep: async (duration) => sleep(2000 * Math.random() - duration),
   },
   postDocs: {
     BatchSize,
     DateEnd,
-    MinIterationDuration: '10s',
     UsersPerVu,
     VusQuantity,
+    sleep: async (duration) => sleep(5000 * Math.random() - duration),
   },
 };
 

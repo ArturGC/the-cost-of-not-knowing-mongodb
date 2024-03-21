@@ -10,7 +10,7 @@ const RAM = 4 * OneGigabyte;
 const LoadDataSize = 5 * RAM * AppV0GroupingFactor;
 
 // Application/Load Data
-const MaxConcurrentInsertions = 30000;
+const MaxConcurrentInsertions = 5000;
 const AppV0DocSize = 118;
 const VusQuantity = 10;
 const UserTransactionsPerMonth = 5;
@@ -50,14 +50,14 @@ export const production = {
   duration: '10m',
   getReport: {
     VusQuantity,
-    sleep: async (duration) => sleep(2000 * Math.random() - duration),
+    sleep: async (duration) => sleep(2000 - duration),
   },
   postDocs: {
     BatchSize,
     DateEnd,
     UsersPerVu,
     VusQuantity,
-    sleep: async (duration) => sleep(5000 * Math.random() - duration),
+    sleep: async (duration) => sleep(5000 - duration),
   },
 };
 

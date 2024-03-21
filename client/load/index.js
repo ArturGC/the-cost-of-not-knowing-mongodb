@@ -31,6 +31,4 @@ export function postDocs() {
 
   postDocsCounter.add(cfg.load.postDocs.BatchSize);
   postDocsTrend.add(res.timings.duration);
-
-  sleep(1);
 }

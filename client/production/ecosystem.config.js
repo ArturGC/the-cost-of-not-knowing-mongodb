@@ -14,6 +14,7 @@ module.exports = {
       env: {
         APP_VERSION,
         K6_WEB_DASHBOARD: true,
+        K6_WEB_DASHBOARD_HOST: '0.0.0.0',
         K6_WEB_DASHBOARD_PERIOD: '1s',
         K6_WEB_DASHBOARD_EXPORT: `../reports/${APP_VERSION}-production.html`,
       },

@@ -19,16 +19,17 @@ export DISK_OS='{
 export DISK_DB='{
   "DeviceName": "/dev/sdb", 
   "Ebs": {
-    "DeleteOnTermination": true, 
+    "DeleteOnTermination": true,
+    "Iops": 5000,
     "VolumeSize": 50, 
     "VolumeType": "gp3"
   }
 }'
 export DISKS="[$DISK_OS, $DISK_DB]"
 export TAG_OWNER="{Key=owner,Value='$(echo $YOUR_NAME | tr '[:upper:] ' '[:lower:].')'}"
-export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+1 days" +%Y-%m-%d)\"}"
+export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+4 days" +%Y-%m-%d)\"}"
 export TAG_TYPE="{Key=type,Value=\"node\"}"
-export TAG_NAME="{Key=Name,  Value='$YOUR_NAME Article Test MongoDB Instance'}"
+export TAG_NAME="{Key=Name,  Value='$YOUR_NAME Article Test MongoDB'}"
 export TAGS="ResourceType=instance,Tags=[$TAG_NAME, $TAG_OWNER, $TAG_EXPIRE, $TAG_TYPE]"
 
 aws ec2 run-instances \

@@ -10,7 +10,7 @@ export const options = {
       exec: 'postDocs',
       executor: 'per-vu-iterations',
       iterations: cfg.load.postDocs.Iterations,
-      maxDuration: '10h',
+      maxDuration: '20h',
       vus: cfg.load.postDocs.VusQuantity,
     },
   },

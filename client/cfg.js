@@ -12,7 +12,7 @@ const LoadDataSize = 5 * RAM * AppV0GroupingFactor;
 // Application/Load Data
 const MaxConcurrentInsertions = 5000;
 const AppV0DocSize = 118;
-const VusQuantity = 5;
+const VusQuantity = 10;
 const UserTransactionsPerMonth = 5;
 const DateStart = new Date('2015-01-01');
 const LoadDateSpamInYeas = 5;
@@ -47,7 +47,7 @@ export const load = {
 };
 
 export const production = {
-  duration: '10m',
+  duration: '20m',
   getReport: {
     VusQuantity,
     sleep: async (duration) => sleep(2000 - duration),

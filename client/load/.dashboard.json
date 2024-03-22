@@ -17,7 +17,7 @@
             },
             {
               "series": [
-                { "query": "docs_trend[?!tags && (avg || p90 || p95 || p99)]" }
+                { "query": "docs_trend[?!tags && (p90 || p95 || p99)]" }
               ],
               "title": "Docs Insertion Duration",
               "id": "tab-0.section-0.panel-1",

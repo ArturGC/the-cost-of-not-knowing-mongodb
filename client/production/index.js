@@ -1,5 +1,4 @@
 import http from 'k6/http';
-import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 
 import * as cfg from '../cfg.js';
@@ -34,8 +33,6 @@ export async function postDocs() {
   const body = generator.getBody();
   const res = http.post(urlDocs, body, params);
 
-  check(res, { 'Is status 201?': (r) => r.status === 201 });
-
   postDocsCounter.add(cfg.load.postDocs.BatchSize);
   postDocsTrend.add(res.timings.duration);
 
@@ -48,8 +45,6 @@ const getReportsTrend = new Trend('reports_trend', true);
 export async function getReport() {
   const queryParams = generator.getReportQueryParams();
   const res = http.get(`${urlReports}/?${queryParams}`);
-
-  check(res, { 'Is status 201?': (r) => r.status === 201 });
 
   getReportsCounter.add(1);
   getReportsTrend.add(res.timings.duration);

@@ -27,5 +27,16 @@
    nvm list-remote
    nvm install v20
    ```
+1. [`Instance`] Install K6:
+   ```bash
+   sudo gpg -k
+   sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+   echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+   sudo apt-get update
+   sudo apt-get install k6
+   ```
+1. [`Instance`] Install PM2: `npm install pm2 -g`
 1. [`Instance`] Reboot: `sudo reboot now`
-1. [`Local`] Copy client code: `scp ...`
+1. [`Instance|Local`] Configure VSCode Remote Access
+1. [`Local`] Copy client code: `rm -rf node_modules && scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* ubuntu@agc.client.public.mdbtraining.net:/home/ubuntu/app/`
+1. [`Local`] Dashboard: `http://agc.client.public.mdbtraining.net:5665/`

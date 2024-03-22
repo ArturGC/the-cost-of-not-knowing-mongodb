@@ -20,7 +20,8 @@ export type Version =
   | 'appV4'
   | 'appV5'
   | 'appV6'
-  | 'appV7';
+  | 'appV7'
+  | 'appV8';
 
 export type Body = z.infer<typeof BodySchema>;
 export const BodySchema = z.array(DocDefaultSchema);
@@ -76,3 +77,13 @@ export type DocV6 = {
 };
 
 export type DocV7 = DocV6;
+
+export type DocV8 = {
+  _id: ObjectId;
+  date: Date;
+  key: string;
+  a?: number;
+  n?: number;
+  p?: number;
+  r?: number;
+};

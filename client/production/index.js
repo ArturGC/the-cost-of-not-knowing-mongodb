@@ -33,7 +33,7 @@ export async function postDocs() {
   const body = generator.getBody();
   const res = http.post(urlDocs, body, params);
 
-  postDocsCounter.add(cfg.load.postDocs.BatchSize);
+  postDocsCounter.add(cfg.production.postDocs.BatchSize);
   postDocsTrend.add(res.timings.duration);
 
   await cfg.production.postDocs.sleep(res.timings.duration);

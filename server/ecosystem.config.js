@@ -14,3 +14,6 @@ module.exports = {
     },
   ],
 };
+
+
+// Transpilar para JS e utilizar exec_mode cluster com 4 instâncias. 

@@ -20,16 +20,18 @@ export class Generator {
   }
 
   getKeyReport() {
-    const vuId = `${vu.idInTest}`.padStart(2, '0');
+    const vuIdNumber = Math.ceil(cfg.load.postDocs.BatchSize * Math.random());
     const keyNumber = cfg.production.postDocs.UsersPerVu * Math.random();
 
-    return vuId + `${Math.ceil(keyNumber)}`.padStart(62, '0');
+    return (
+      `${vuIdNumber}`.padStart(2, '0') +
+      `${Math.ceil(keyNumber)}`.padStart(62, '0')
+    );
   }
 
   getReportQueryParams() {
     const { start, end } = this.getDateRange();
     const key = this.getKeyReport();
-    console.log({ key, start, end });
 
     return `key=${key}&dateStart=${start}&dateEnd=${end}`;
   }

@@ -37,6 +37,30 @@
    ```
 1. [`Instance`] Install PM2: `npm install pm2 -g`
 1. [`Instance`] Reboot: `sudo reboot now`
+1. [`Instance`] Configure Swap:
+
+   ```bash
+   cat /proc/swaps | grep -qv Filename
+
+   if [[ $? -eq 0 ]]; then
+      echo "Swap already configured"
+   else
+   echo "Configuring Swap"
+   sudo dd if=/dev/zero of=/root/swap.bin count=4096 bs=1M
+   sudo chmod 600 /root/swap.bin
+   sudo mkswap /root/swap.bin
+   grep -q 'swap' /etc/fstab || echo "/root/swap.bin    none    swap    defaults 0 0" | sudo tee --append /etc/fstab
+   sudo swapon /root/swap.bin
+
+   echo "Configuring Swappiness"
+   grep -q 'vm.swappiness' /etc/sysctl.conf || echo "vm.swappiness=1" | sudo tee --append /etc/sysctl.conf
+   sudo sysctl -w  vm.swappiness=1
+   sudo systemctl daemon-reload
+
+   echo "Swap Configured"
+   fi
+   ```
+
 1. [`Instance|Local`] Configure VSCode Remote Access
 1. [`Local`] Copy client code: `rm -rf node_modules && scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* ubuntu@agc.client.public.mdbtraining.net:/home/ubuntu/app/`
 1. [`Local`] Dashboard: `http://agc.client.public.mdbtraining.net:5665/`

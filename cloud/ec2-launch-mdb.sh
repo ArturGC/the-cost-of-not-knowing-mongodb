@@ -17,12 +17,13 @@ export DISK_OS='{
   }
 }'
 export DISK_DB='{
-  "DeviceName": "/dev/sdb", 
+  "DeviceName": "/dev/sdb",
   "Ebs": {
     "DeleteOnTermination": true,
     "Iops": 5000,
     "VolumeSize": 50, 
-    "VolumeType": "gp3"
+    "VolumeType": "gp3",
+    "Throughput": 200,
   }
 }'
 export DISKS="[$DISK_OS, $DISK_DB]"

@@ -35,7 +35,8 @@
    sudo apt-get update
    sudo apt-get install k6
    ```
-1. [`Instance`] Install PM2: `npm install pm2 -g`
+1. [`Instance`] Install PM2: `npm install -g pm2 bun`
+1. [`Instance`] Install PM2 TS: `pm2 install typescript`
 1. [`Instance`] Reboot: `sudo reboot now`
 1. [`Instance`] Configure Swap:
 

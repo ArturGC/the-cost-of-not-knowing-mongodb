@@ -6,6 +6,7 @@ import {
 } from 'mongodb';
 
 import type * as T from '../types';
+import { getReportDates } from '../helpers';
 import mdb from '../mdb';
 
 export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
@@ -31,11 +32,11 @@ export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
   return mdb.collections.appV0.bulkWrite(upsertOperations, { ordered: false });
 };
 
-export const getReport = async (filter: {
+const getReport = async (filter: {
   date: { end: Date; start: Date };
   key: string;
-}): Promise<Document[]> => {
-  return mdb.collections.appV0
+}): Promise<Document> => {
+  const [result] = await mdb.collections.appV0
     .aggregate([
       {
         $match: {
@@ -59,4 +60,18 @@ export const getReport = async (filter: {
       },
     ])
     .toArray();
+
+  return result;
+};
+
+export const getReports = async ({
+  date,
+  key,
+}: {
+  date: Date;
+  key: string;
+}): Promise<Document[]> => {
+  const reportDates = getReportDates(date);
+
+  return Promise.all(reportDates.map(async (date) => getReport({ date, key })));
 };

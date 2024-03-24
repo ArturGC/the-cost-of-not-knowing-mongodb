@@ -10,19 +10,17 @@ type Handler = (
     { version: T.Version },
     unknown,
     unknown,
-    { dateEnd: string; dateStart: string; key: string }
+    { date: string; key: string }
   >,
   res: Response
 ) => Promise<Response<unknown, Record<string, unknown>>>;
 
 export const handler: Handler = async ({ query, params }, res) => {
   const { version } = params;
-  const [result] = await P[version].getReport({
-    date: { end: new Date(query.dateEnd), start: new Date(query.dateStart) },
+  const result = await P[version].getReports({
+    date: new Date(query.date),
     key: query.key,
   });
 
-  return res
-    .status(201)
-    .send(result !== undefined ? { ...result } : { ok: false });
+  return res.status(201).send(result);
 };

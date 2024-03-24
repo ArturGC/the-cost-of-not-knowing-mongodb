@@ -8,21 +8,6 @@ export class Generator {
     };
   }
 
-  getDateRange() {
-    const deltaTime = Math.ceil(
-      cfg.load.postDocs.LoadDateSpamInYeas *
-        cfg.references.OneYearInMs *
-        Math.random()
-    );
-    const dateEnd = this.date.current;
-    const dateStart = new Date(dateEnd.getTime() - deltaTime);
-
-    return {
-      start: dateStart.toISOString().split('T')[0],
-      end: dateEnd.toISOString().split('T')[0],
-    };
-  }
-
   getKeyReport() {
     const vuIdNumber = Math.ceil(cfg.load.postDocs.VusQuantity * Math.random());
     const keyNumber = cfg.production.postDocs.UsersPerVu * Math.random();
@@ -34,10 +19,10 @@ export class Generator {
   }
 
   getReportQueryParams() {
-    const { start, end } = this.getDateRange();
+    const date = this.date.current.toISOString().split('T')[0];
     const key = this.getKeyReport();
 
-    return `key=${key}&dateStart=${start}&dateEnd=${end}`;
+    return `key=${key}&date=${date}`;
   }
 
   getNewDate() {

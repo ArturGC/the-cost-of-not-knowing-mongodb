@@ -6,6 +6,7 @@ import {
 } from 'mongodb';
 
 import type * as T from '../types';
+import { getReportDates } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: string, date: Date): Buffer => {
@@ -103,11 +104,10 @@ const buildLogicForType = (
 export const getReport = async (filter: {
   date: { end: Date; start: Date };
   key: string;
-}): Promise<Document[]> => {
+}): Promise<Document> => {
   const lowerId = buildId(filter.key, filter.date.start);
   const upperId = buildId(filter.key, filter.date.end);
-
-  return mdb.collections.appV7
+  const [result] = await mdb.collections.appV7
     .aggregate([
       {
         $match: {
@@ -154,4 +154,18 @@ export const getReport = async (filter: {
       },
     ])
     .toArray();
+
+  return result;
+};
+
+export const getReports = async ({
+  date,
+  key,
+}: {
+  date: Date;
+  key: string;
+}): Promise<Document[]> => {
+  const reportDates = getReportDates(date);
+
+  return Promise.all(reportDates.map(async (date) => getReport({ date, key })));
 };

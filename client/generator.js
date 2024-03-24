@@ -9,7 +9,11 @@ export class Generator {
   }
 
   getDateRange() {
-    const deltaTime = Math.ceil(5 * cfg.references.OneYearInMs * Math.random());
+    const deltaTime = Math.ceil(
+      cfg.load.postDocs.LoadDateSpamInYeas *
+        cfg.references.OneYearInMs *
+        Math.random()
+    );
     const dateEnd = this.date.current;
     const dateStart = new Date(dateEnd.getTime() - deltaTime);
 
@@ -20,7 +24,7 @@ export class Generator {
   }
 
   getKeyReport() {
-    const vuIdNumber = Math.ceil(cfg.load.postDocs.BatchSize * Math.random());
+    const vuIdNumber = Math.ceil(cfg.load.postDocs.VusQuantity * Math.random());
     const keyNumber = cfg.production.postDocs.UsersPerVu * Math.random();
 
     return (

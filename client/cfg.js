@@ -10,12 +10,12 @@ const RAM = 4 * OneGigabyte;
 const LoadDataSize = 5 * RAM * AppV0GroupingFactor;
 
 // Application/Load Data
-const MaxConcurrentInsertions = 5000;
+const MaxConcurrentInsertions = 7500;
 const AppV0DocSize = 118;
-const VusQuantity = 10;
-const UserTransactionsPerMonth = 5;
-const DateStart = new Date('2015-01-01');
-const LoadDateSpamInYeas = 5;
+const VusQuantity = 20;
+const UserTransactionsPerMonth = 3;
+const DateStart = new Date('2010-01-01');
+const LoadDateSpamInYeas = 10;
 const LoadDateSpamInMonths = 12 * LoadDateSpamInYeas;
 const LoadDateSpamInMs = LoadDateSpamInYeas * OneYearInMs;
 const DateEnd = new Date(DateStart.getTime() + LoadDateSpamInMs);
@@ -41,6 +41,7 @@ export const load = {
     DateStart,
     DeltaTime,
     Iterations,
+    LoadDateSpamInYeas,
     UsersPerVu,
     VusQuantity,
   },
@@ -57,7 +58,7 @@ export const production = {
     DateEnd,
     UsersPerVu,
     VusQuantity,
-    sleep: async (duration) => sleep(2000 - duration),
+    sleep: async (duration) => sleep(1000 - duration),
   },
 };
 

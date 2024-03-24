@@ -23,7 +23,7 @@ export DISK_DB='{
     "Iops": 7500,
     "VolumeSize": 50, 
     "VolumeType": "gp3",
-    "Throughput": 150,
+    "Throughput": 150
   }
 }'
 export DISKS="[$DISK_OS, $DISK_DB]"

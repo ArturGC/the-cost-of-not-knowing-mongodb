@@ -6,11 +6,11 @@ module.exports = {
       instances: 4,
       max_memory_restart: '1024M',
       name: 'server',
-      script: './index.ts',
+      script: './build/index.js',
       watch: true,
 
       env: {
-        EXEC_ENV: 'test',
+        EXEC_ENV: 'prod',
       },
     },
   ],

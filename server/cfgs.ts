@@ -23,7 +23,7 @@ export const PROD = {
       readPreference: 'primary',
       writeConcern: { journal: true, w: 'majority' },
     },
-    URI: 'mongodb://arturgc:arturgc_123@agc.node.public.mdbtraining.net/?directConnection=true',
+    URI: 'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
   },
   SERVER: {
     PORT: 3000,

@@ -67,13 +67,34 @@ export type DocV4 = {
 
 export type DocV5 = {
   _id: Buffer;
-  items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
+  items: Record<
+    string,
+    {
+      a?: number;
+      n?: number;
+      p?: number;
+      r?: number;
+    }
+  >;
 };
 
 export type DocV6 = {
   _id: Buffer;
-  report: { a?: number; n?: number; p?: number; r?: number };
-  items: Record<string, { a?: number; n?: number; p?: number; r?: number }>;
+  report: {
+    a?: number;
+    n?: number;
+    p?: number;
+    r?: number;
+  };
+  items: Record<
+    string,
+    {
+      a?: number;
+      n?: number;
+      p?: number;
+      r?: number;
+    }
+  >;
 };
 
 export type DocV7 = DocV6;

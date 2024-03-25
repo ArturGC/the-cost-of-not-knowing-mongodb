@@ -7,7 +7,7 @@ module.exports = {
       max_memory_restart: '1024M',
       name: 'server',
       script: './build/index.js',
-      watch: true,
+      watch: false,
 
       env: {
         EXEC_ENV: 'prod',

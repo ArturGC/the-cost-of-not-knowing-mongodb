@@ -5,7 +5,7 @@ const OneGigabyte = Math.pow(2, 30);
 const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
 
 // EC2 Configuration
-const AppV0GroupingFactor = 1.238;
+const AppV0GroupingFactor = 1.2379;
 const RAM = 4 * OneGigabyte;
 const LoadDataSize = 5 * RAM * AppV0GroupingFactor;
 

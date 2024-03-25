@@ -48,17 +48,17 @@ export const load = {
 };
 
 export const production = {
-  duration: '10m',
+  duration: '30m',
   getReport: {
-    VusQuantity: 5 * VusQuantity,
-    sleep: async (duration) => sleep(20 - duration),
+    VusQuantity: VusQuantity,
+    sleep: async (duration) => sleep(200 - duration),
   },
   postDocs: {
     BatchSize,
     DateEnd,
     UsersPerVu,
     VusQuantity,
-    sleep: async (duration) => sleep(1000 - duration),
+    sleep: async (duration) => sleep(2500 - duration),
   },
 };
 

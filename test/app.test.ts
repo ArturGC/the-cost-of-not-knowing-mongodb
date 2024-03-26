@@ -19,7 +19,8 @@ withDb(() => {
     'appV5',
     'appV6',
     'appV7',
-    'appV8',
+    // 'appV8',
+    'appV9',
   ] as const;
 
   for (const version of versions) {
@@ -45,15 +46,40 @@ withDb(() => {
         await buildReportScenery(postDocsUrl.replace(':version', version));
 
         const url = getReportsUrl.replace(':version', version);
-        const date = new Date('2022-01-01').toISOString();
+        const date = new Date('2022-06-15').toISOString();
         const response = await request(app).get(url).query({ date, key: '01' });
 
         expect(response.body).toEqual([
-          { approved: 4, noFunds: 1, pending: 1, rejected: 1 },
-          { approved: 8, noFunds: 2, pending: 2, rejected: 2 },
-          { approved: 12, noFunds: 3, pending: 3, rejected: 3 },
-          { approved: 16, noFunds: 4, pending: 4, rejected: 4 },
-          { approved: 20, noFunds: 5, pending: 5, rejected: 5 },
+          {
+            id: 'oneYear',
+            end: '2022-06-15T00:00:00.000Z',
+            start: '2021-06-15T00:00:00.000Z',
+            report: { approved: 2, noFunds: 1, pending: 0, rejected: 0 },
+          },
+          {
+            id: 'threeYears',
+            end: '2022-06-15T00:00:00.000Z',
+            start: '2019-06-16T00:00:00.000Z',
+            report: { approved: 6, noFunds: 2, pending: 1, rejected: 1 },
+          },
+          {
+            id: 'fiveYears',
+            end: '2022-06-15T00:00:00.000Z',
+            start: '2017-06-16T00:00:00.000Z',
+            report: { approved: 10, noFunds: 3, pending: 2, rejected: 2 },
+          },
+          {
+            id: 'sevenYears',
+            end: '2022-06-15T00:00:00.000Z',
+            start: '2015-06-17T00:00:00.000Z',
+            report: { approved: 14, noFunds: 4, pending: 3, rejected: 3 },
+          },
+          {
+            id: 'tenYears',
+            end: '2022-06-15T00:00:00.000Z',
+            start: '2012-06-17T00:00:00.000Z',
+            report: { approved: 18, noFunds: 5, pending: 4, rejected: 4 },
+          },
         ]);
       });
     });
@@ -62,30 +88,30 @@ withDb(() => {
 
 async function buildReportScenery(url: string) {
   const docs = [
-    { date: new Date('2013-02-01'), key: '01', approved: 1, rejected: 1 },
-    { date: new Date('2013-02-01'), key: '01', approved: 1, pending: 1 },
-    { date: new Date('2013-02-01'), key: '01', approved: 1, noFunds: 1 },
-    { date: new Date('2013-02-01'), key: '01', approved: 1 },
+    { date: new Date('2021-06-25'), key: '01', approved: 1 },
+    { date: new Date('2021-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2021-06-10'), key: '01', approved: 1, pending: 1 },
+    { date: new Date('2021-06-05'), key: '01', approved: 1, rejected: 1 },
 
-    { date: new Date('2015-02-01'), key: '01', approved: 1, rejected: 1 },
-    { date: new Date('2015-02-01'), key: '01', approved: 1, pending: 1 },
-    { date: new Date('2015-02-01'), key: '01', approved: 1, noFunds: 1 },
-    { date: new Date('2015-02-01'), key: '01', approved: 1 },
+    { date: new Date('2019-06-25'), key: '01', approved: 1 },
+    { date: new Date('2019-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2019-06-10'), key: '01', approved: 1, pending: 1 },
+    { date: new Date('2019-06-05'), key: '01', approved: 1, rejected: 1 },
 
-    { date: new Date('2018-02-01'), key: '01', approved: 1, rejected: 1 },
-    { date: new Date('2018-02-01'), key: '01', approved: 1, pending: 1 },
-    { date: new Date('2018-02-01'), key: '01', approved: 1, noFunds: 1 },
-    { date: new Date('2018-02-01'), key: '01', approved: 1 },
+    { date: new Date('2017-06-25'), key: '01', approved: 1 },
+    { date: new Date('2017-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2017-06-10'), key: '01', approved: 1, pending: 1 },
+    { date: new Date('2017-06-05'), key: '01', approved: 1, rejected: 1 },
 
-    { date: new Date('2020-02-01'), key: '01', approved: 1, rejected: 1 },
-    { date: new Date('2020-02-01'), key: '01', approved: 1, pending: 1 },
-    { date: new Date('2020-02-01'), key: '01', approved: 1, noFunds: 1 },
-    { date: new Date('2020-02-01'), key: '01', approved: 1 },
+    { date: new Date('2015-06-25'), key: '01', approved: 1 },
+    { date: new Date('2015-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2015-06-10'), key: '01', approved: 1, pending: 1 },
+    { date: new Date('2015-06-05'), key: '01', approved: 1, rejected: 1 },
 
-    { date: new Date('2021-02-01'), key: '01', approved: 1, rejected: 1 },
-    { date: new Date('2021-02-01'), key: '01', approved: 1, pending: 1 },
-    { date: new Date('2021-02-01'), key: '01', approved: 1, noFunds: 1 },
-    { date: new Date('2021-02-01'), key: '01', approved: 1 },
+    { date: new Date('2012-06-25'), key: '01', approved: 1 },
+    { date: new Date('2012-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2012-06-10'), key: '01', approved: 1, pending: 1 },
+    { date: new Date('2012-06-05'), key: '01', approved: 1, rejected: 1 },
   ];
 
   await request(app).post(url).send(docs);

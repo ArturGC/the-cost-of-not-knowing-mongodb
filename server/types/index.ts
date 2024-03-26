@@ -1,5 +1,16 @@
-import { type ObjectId } from 'mongodb';
+import { type BulkWriteResult, type Document, type ObjectId } from 'mongodb';
 import { z } from 'zod';
+
+export type BulkUpsert = (docs: Body) => Promise<BulkWriteResult>;
+export type GetReport = (filter: {
+  date: { end: Date; start: Date };
+  key: string;
+}) => Promise<Document>;
+
+export type GetReports = (filter: {
+  date: Date;
+  key: string;
+}) => Promise<Document[]>;
 
 export type DocDefault = z.infer<typeof DocDefaultSchema>;
 export const DocDefaultSchema = z.object({
@@ -21,7 +32,8 @@ export type Version =
   | 'appV5'
   | 'appV6'
   | 'appV7'
-  | 'appV8';
+  | 'appV8'
+  | 'appV9';
 
 export type Body = z.infer<typeof BodySchema>;
 export const BodySchema = z.array(DocDefaultSchema);
@@ -99,12 +111,11 @@ export type DocV6 = {
 
 export type DocV7 = DocV6;
 
-export type DocV8 = {
+export type DocV8 = DocV6;
+
+export type DocV9 = {
   _id: ObjectId;
   date: Date;
-  key: string;
-  a?: number;
-  n?: number;
-  p?: number;
-  r?: number;
+  key: Buffer;
+  values: [number, number, number, number];
 };

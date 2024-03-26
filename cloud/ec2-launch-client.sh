@@ -18,7 +18,7 @@ export DISK_OS='{
 }'
 export DISKS="[$DISK_OS]"
 export TAG_OWNER="{Key=owner,Value='$(echo $YOUR_NAME | tr '[:upper:] ' '[:lower:].')'}"
-export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+4 days" +%Y-%m-%d)\"}"
+export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+5 days" +%Y-%m-%d)\"}"
 export TAG_TYPE="{Key=type,Value=\"client\"}"
 export TAG_NAME="{Key=Name,  Value='$YOUR_NAME Article Test Client'}"
 export TAGS="ResourceType=instance,Tags=[$TAG_NAME, $TAG_OWNER, $TAG_EXPIRE, $TAG_TYPE]"

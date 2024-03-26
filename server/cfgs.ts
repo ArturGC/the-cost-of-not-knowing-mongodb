@@ -5,9 +5,9 @@ export const TEST = {
       appName: 'API Server TEST',
       ignoreUndefined: true,
       readPreference: 'primary',
-      writeConcern: { journal: true, w: 'majority' },
+      // writeConcern: { journal: true, w: 'majority' },
     },
-    URI: 'mongodb://localhost:27017',
+    URI: 'mongodb://localhost:27018',
   },
   SERVER: {
     PORT: 3000,

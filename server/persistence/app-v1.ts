@@ -1,74 +1,61 @@
-import {
-  type AnyBulkWriteOperation,
-  type BulkWriteResult,
-  type Document,
-} from 'mongodb';
+/* eslint-disable sort-keys */
+import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportDates } from '../helpers';
+import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
-export const bulkUpsert = async (docs: T.Body): Promise<BulkWriteResult> => {
+export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV1>>((doc) => {
-    return {
-      updateOne: {
-        filter: { '_id.date': doc.date, '_id.key': doc.key },
-        update: {
-          $inc: {
-            approved: doc.approved,
-            noFunds: doc.noFunds,
-            pending: doc.pending,
-            rejected: doc.rejected,
-          },
-        },
-        upsert: true,
+    const query = { '_id.date': doc.date, '_id.key': doc.key };
+
+    const mutation = {
+      $inc: {
+        approved: doc.approved,
+        noFunds: doc.noFunds,
+        pending: doc.pending,
+        rejected: doc.rejected,
       },
     };
+
+    return { updateOne: { filter: query, update: mutation, upsert: true } };
   });
 
   return mdb.collections.appV1.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const getReport = async (filter: {
-  date: { end: Date; start: Date };
-  key: string;
-}): Promise<Document> => {
-  const [result] = await mdb.collections.appV1
-    .aggregate([
-      {
-        $match: {
-          '_id.date': { $gte: filter.date.start, $lt: filter.date.end },
-          '_id.key': filter.key,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          approved: { $sum: '$approved' },
-          noFunds: { $sum: '$noFunds' },
-          pending: { $sum: '$pending' },
-          rejected: { $sum: '$rejected' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-        },
-      },
-    ])
-    .toArray();
+const getReport: T.GetReport = async ({ date, key }) => {
+  const docsFromKeyBetweenDate = {
+    '_id.key': key,
+    '_id.date': { $gte: date.start, $lt: date.end },
+  };
 
-  return result;
+  const groupCountItems = {
+    _id: null,
+    approved: { $sum: '$approved' },
+    noFunds: { $sum: '$noFunds' },
+    pending: { $sum: '$pending' },
+    rejected: { $sum: '$rejected' },
+  };
+
+  const pipeline = [
+    { $match: docsFromKeyBetweenDate },
+    { $group: groupCountItems },
+    { $project: { _id: 0 } },
+  ];
+
+  return mdb.collections.appV1
+    .aggregate(pipeline)
+    .toArray()
+    .then(([result]) => result);
 };
 
-export const getReports = async ({
-  date,
-  key,
-}: {
-  date: Date;
-  key: string;
-}): Promise<Document[]> => {
-  const reportDates = getReportDates(date);
+export const getReports: T.GetReports = async ({ date, key }) => {
+  const dates = getReportsDates(date);
 
-  return Promise.all(reportDates.map(async (date) => getReport({ date, key })));
+  return Promise.all(
+    dates.map(async (date) => {
+      return { ...date, report: await getReport({ date, key }) };
+    })
+  );
 };

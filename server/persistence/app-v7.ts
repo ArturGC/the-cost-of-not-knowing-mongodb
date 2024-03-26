@@ -62,18 +62,18 @@ const buildLoopLogic = (
   date: { end: Date; start: Date }
 ): Record<string, unknown> => {
   const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
-  const [lowerDay, upperDay] = [
+  const [lowerMonthDay, upperMonthDay] = [
     getMonthDayFromDate(date.start),
     getMonthDayFromDate(date.end),
   ];
 
-  const InLowerYearMonthAndGteLowerDay = {
-    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerDay] }],
+  const InLowerYearQuarterAndGteLowerDay = {
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMonthDay] }],
   };
-  const InUpperYearMonthAndLtUpperDay = {
-    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperDay] }],
+  const InUpperYearQuarterAndLtUpperDay = {
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMonthDay] }],
   };
-  const BetweenLowerAndUpperYearMonths = {
+  const BetweenLowerAndUpperYearQuarters = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
   };
 
@@ -81,9 +81,9 @@ const buildLoopLogic = (
     $cond: {
       if: {
         $or: [
-          InLowerYearMonthAndGteLowerDay,
-          BetweenLowerAndUpperYearMonths,
-          InUpperYearMonthAndLtUpperDay,
+          InLowerYearQuarterAndGteLowerDay,
+          BetweenLowerAndUpperYearQuarters,
+          InUpperYearQuarterAndLtUpperDay,
         ],
       },
       then: {

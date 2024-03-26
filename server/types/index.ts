@@ -33,7 +33,14 @@ export type Version =
   | 'appV6'
   | 'appV7'
   | 'appV8'
-  | 'appV9';
+  | 'appV10';
+
+export type ReportYear =
+  | 'oneYear'
+  | 'threeYears'
+  | 'fiveYears'
+  | 'sevenYears'
+  | 'tenYears';
 
 export type Body = z.infer<typeof BodySchema>;
 export const BodySchema = z.array(DocDefaultSchema);
@@ -111,11 +118,14 @@ export type DocV6 = {
 
 export type DocV7 = DocV6;
 
-export type DocV8 = DocV6;
+export type DocV8 = DocV5;
 
-export type DocV9 = {
+export type DocV10 = {
   _id: ObjectId;
   date: Date;
   key: Buffer;
-  values: [number, number, number, number];
+  a?: number;
+  n?: number;
+  p?: number;
+  r?: number;
 };

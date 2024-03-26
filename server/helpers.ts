@@ -1,9 +1,11 @@
 /* eslint-disable sort-keys */
+import type * as T from './types';
+
 const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
 
 export const getReportsDates = (
   date: Date
-): Array<{ id: string; end: Date; start: Date }> => {
+): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
   return [
     {
       id: 'oneYear',

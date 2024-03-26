@@ -19,7 +19,7 @@ type Collections = {
   appV6: Collection<T.DocV6>;
   appV7: Collection<T.DocV7>;
   appV8: Collection<T.DocV8>;
-  appV9: Collection<T.DocV9>;
+  appV10: Collection<T.DocV10>;
 };
 
 class Mongo {
@@ -59,7 +59,7 @@ class Mongo {
       appV6: this.db.collection('appV6'),
       appV7: this.db.collection('appV7'),
       appV8: this.db.collection('appV8'),
-      appV9: this.db.collection('appV9'),
+      appV10: this.db.collection('appV10'),
     };
   };
 
@@ -93,7 +93,7 @@ class Mongo {
       .catch(() => {});
 
     await this.db
-      .createCollection('appV9', {
+      .createCollection('appV10', {
         timeseries: {
           timeField: 'date',
           metaField: 'key',

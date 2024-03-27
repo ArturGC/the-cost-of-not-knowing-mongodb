@@ -22,41 +22,47 @@ export const bulkUpsert = async (
   return mdb.collections.appV10.insertMany(docsV9, { ordered: false });
 };
 
-export const getReport = async (filter: {
-  date: { end: Date; start: Date };
-  key: string;
-}): Promise<Document> => {
+const buildFieldSum = (
+  date: { start: Date; end: Date },
+  field: string
+): Record<string, unknown> => {
+  return {
+    $cond: [
+      { $and: [{ $gte: ['$date', date.start] }, { $lt: ['$date', date.end] }] },
+      `$${field}`,
+      0,
+    ],
+  };
+};
+
+export const getReports: T.GetReports = async ({ date, key }) => {
+  const reportDates = getReportsDates(date);
+
   const docsFromKeyBetweenDate = {
-    date: { $gte: filter.date.start, $lt: filter.date.end },
-    key: Buffer.from(filter.key, 'hex'),
+    date: { $gte: reportDates[4].start, $lt: reportDates[4].end },
+    key: Buffer.from(key, 'hex'),
   };
 
   const groupCountItems = {
     _id: null,
-    approved: { $sum: '$a' },
-    noFunds: { $sum: '$n' },
-    pending: { $sum: '$p' },
-    rejected: { $sum: '$r' },
+    oneYearApproved: { $sum: buildFieldSum(reportDates[0], 'a') },
+    oneYearNoFunds: { $sum: buildFieldSum(reportDates[0], 'n') },
+    oneYearPending: { $sum: buildFieldSum(reportDates[0], 'p') },
+    oneYearRejected: { $sum: buildFieldSum(reportDates[0], 'r') },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
     { $group: groupCountItems },
-    { $project: { _id: 0 } },
+    // { $project: { _id: 0 } },
   ];
 
   return mdb.collections.appV10
     .aggregate(pipeline)
     .toArray()
-    .then(([result]) => result);
-};
+    .then((result) => {
+      console.dir(result, { depth: null });
 
-export const getReports: T.GetReports = async ({ date, key }) => {
-  const dates = getReportsDates(date);
-
-  return Promise.all(
-    dates.map(async (date) => {
-      return { ...date, report: await getReport({ date, key }) };
-    })
-  );
+      return result;
+    });
 };

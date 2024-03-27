@@ -11,16 +11,16 @@ import { endPoint as getReportsUrl } from '../server/controllers/get-reports';
 
 withDb(() => {
   const versions: T.Version[] = [
-    'appV0',
-    'appV1',
-    'appV2',
-    'appV3',
-    'appV4',
-    'appV5',
-    'appV6',
-    'appV7',
-    'appV8',
-    'appV9',
+    // 'appV0',
+    // 'appV1',
+    // 'appV2',
+    // 'appV3',
+    // 'appV4',
+    // 'appV5',
+    // 'appV6',
+    // 'appV7',
+    // 'appV8',
+    // 'appV9',
     'appV10',
   ] as const;
 

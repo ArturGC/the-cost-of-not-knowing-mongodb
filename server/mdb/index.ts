@@ -99,8 +99,8 @@ class Mongo {
         timeseries: {
           timeField: 'date',
           metaField: 'key',
-          bucketMaxSpanSeconds: 60 * 60 * 24 * 30 * 6,
-          bucketRoundingSeconds: 60 * 60 * 24 * 30 * 6,
+          bucketMaxSpanSeconds: 60 * 60 * 24 * 30.42 * 3,
+          bucketRoundingSeconds: 60 * 60 * 24 * 30.42 * 3,
         },
       })
       .catch(() => {});

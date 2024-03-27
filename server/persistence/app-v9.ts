@@ -14,7 +14,7 @@ const getYYYYMMDDFromDate = (date: Date): string => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV8>>((doc) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV9>>((doc) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
     const YYYYMMDD = getYYYYMMDDFromDate(doc.date);
@@ -30,7 +30,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     return { updateOne: { filter: query, update: mutation, upsert: true } };
   });
 
-  return mdb.collections.appV8.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV9.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const buildFieldAccumulator = (
@@ -251,7 +251,7 @@ export const getReports: T.GetReports = async ({ date, key }) => {
     { $project: format },
   ];
 
-  const result = await mdb.collections.appV8
+  const result = await mdb.collections.appV9
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

@@ -20,6 +20,7 @@ withDb(() => {
     'appV6',
     'appV7',
     'appV8',
+    'appV9',
     'appV10',
   ] as const;
 

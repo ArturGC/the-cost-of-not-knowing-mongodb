@@ -6,25 +6,25 @@ import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: string, date: Date): Buffer => {
-  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
+  const YYYYMM = date.toISOString().split('T')[0].replace(/-/g, '').slice(0, 6);
 
-  return Buffer.from(`${key}${dateFormatted.slice(0, 6)}`, 'hex');
+  return Buffer.from(`${key}${YYYYMM}`, 'hex');
 };
 
 const getDayFromDate = (date: Date): string => {
-  return date.toISOString().split('T')[0].replace(/-/g, '').slice(6);
+  return date.getDate().toString().padStart(2, '0');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV6>>((doc) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
-    const dayNumber = getDayFromDate(doc.date);
+    const DD = getDayFromDate(doc.date);
     const incrementItems = {
-      [`items.${dayNumber}.a`]: doc.approved,
-      [`items.${dayNumber}.n`]: doc.noFunds,
-      [`items.${dayNumber}.p`]: doc.pending,
-      [`items.${dayNumber}.r`]: doc.rejected,
+      [`items.${DD}.a`]: doc.approved,
+      [`items.${DD}.n`]: doc.noFunds,
+      [`items.${DD}.p`]: doc.pending,
+      [`items.${DD}.r`]: doc.rejected,
     };
     const incrementReports = {
       'report.a': doc.approved,
@@ -54,16 +54,16 @@ const buildLoopLogic = (
   date: { end: Date; start: Date }
 ): Record<string, unknown> => {
   const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
-  const [lowerDay, upperDay] = [
+  const [lowerDD, upperDD] = [
     getDayFromDate(date.start),
     getDayFromDate(date.end),
   ];
 
   const InLowerYearMonthAndGteLowerDay = {
-    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerDay] }],
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerDD] }],
   };
   const InUpperYearMonthAndLtUpperDay = {
-    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperDay] }],
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperDD] }],
   };
   const BetweenLowerAndUpperYearMonths = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
@@ -94,10 +94,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
   const upperId = buildId(key, date.end);
 
   const docsFromKeyBetweenDate = {
-    _id: {
-      $gte: lowerId,
-      $lt: upperId,
-    },
+    _id: { $gte: lowerId, $lte: upperId },
   };
 
   const BetweenLowerAndUpperYearMonths = {

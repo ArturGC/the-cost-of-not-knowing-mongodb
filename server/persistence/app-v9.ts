@@ -5,8 +5,18 @@ import type * as T from '../types';
 import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
+const getQuarter = (month: number): string => {
+  if (month >= 0 && month <= 2) return '01';
+  else if (month >= 3 && month <= 5) return '02';
+  else if (month >= 6 && month <= 8) return '03';
+  else return '04';
+};
+
 const buildId = (key: string, date: Date): Buffer => {
-  return Buffer.from(`${key}${date.getFullYear()}`, 'hex');
+  const year = date.getFullYear();
+  const QQ = getQuarter(date.getMonth());
+
+  return Buffer.from(`${key}${year}${QQ}`, 'hex');
 };
 
 const getYYYYMMDDFromDate = (date: Date): string => {
@@ -162,7 +172,7 @@ export const getReports: T.GetReports = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
     _id: {
       $gte: buildId(key, reportDates[4].start),
-      $lte: buildId(key, reportDates[4].end), // Check the other implementations for this $lte
+      $lte: buildId(key, reportDates[4].end),
     },
   };
 

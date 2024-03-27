@@ -85,6 +85,8 @@ export type DocV4 = {
   r?: number;
 };
 
+export type DocV9 = DocV8;
+export type DocV8 = DocV5;
 export type DocV5 = {
   _id: Buffer;
   items: Record<
@@ -98,6 +100,7 @@ export type DocV5 = {
   >;
 };
 
+export type DocV7 = DocV6;
 export type DocV6 = {
   _id: Buffer;
   report: {
@@ -116,12 +119,6 @@ export type DocV6 = {
     }
   >;
 };
-
-export type DocV7 = DocV6;
-
-export type DocV8 = DocV5;
-
-export type DocV9 = DocV8;
 
 export type DocV10 = {
   _id: ObjectId;

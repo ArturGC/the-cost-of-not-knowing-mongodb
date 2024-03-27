@@ -5,9 +5,9 @@ import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: string, date: Date): Buffer => {
-  const dateFormatted = date.toISOString().split('T')[0].replace(/-/g, '');
+  const YYYYMMDD = date.toISOString().split('T')[0].replace(/-/g, '');
 
-  return Buffer.from(`${key}${dateFormatted}`, 'hex');
+  return Buffer.from(`${key}${YYYYMMDD}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {

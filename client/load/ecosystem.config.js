@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = 'appV1';
+const APP_VERSION = 'appV0';
 
 module.exports = {
   apps: [

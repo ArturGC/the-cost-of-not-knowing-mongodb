@@ -5,18 +5,16 @@ import type * as T from '../types';
 import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
-const getQuarter = (month: number): string => {
-  if (month >= 0 && month <= 2) return '01';
-  else if (month >= 3 && month <= 5) return '02';
-  else if (month >= 6 && month <= 8) return '03';
-  else return '04';
+const getSemester = (month: number): string => {
+  if (month >= 0 && month <= 5) return '01';
+  else return '02';
 };
 
 const buildId = (key: string, date: Date): Buffer => {
-  const year = date.getFullYear();
-  const QQ = getQuarter(date.getMonth());
+  const YYYY = date.getFullYear();
+  const SS = getSemester(date.getMonth());
 
-  return Buffer.from(`${key}${year}${QQ}`, 'hex');
+  return Buffer.from(`${key}${YYYY}${SS}`, 'hex');
 };
 
 const getMMDDFromDate = (date: Date): string => {

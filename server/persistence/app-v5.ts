@@ -5,27 +5,35 @@ import type * as T from '../types';
 import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
-const buildId = (key: string, date: Date): Buffer => {
-  const YYYYMM = date.toISOString().split('T')[0].replace(/-/g, '').slice(0, 6);
-
-  return Buffer.from(`${key}${YYYYMM}`, 'hex');
+const getQuarter = (month: number): string => {
+  if (month >= 0 && month <= 2) return '01';
+  else if (month >= 3 && month <= 5) return '02';
+  else if (month >= 6 && month <= 8) return '03';
+  else return '04';
 };
 
-const getDayFromDate = (date: Date): string => {
-  return date.getDate().toString().padStart(2, '0');
+const buildId = (key: string, date: Date): Buffer => {
+  const YYYY = date.getFullYear();
+  const QQ = getQuarter(date.getMonth());
+
+  return Buffer.from(`${key}${YYYY}${QQ}`, 'hex');
+};
+
+const getMMDDFromDate = (date: Date): string => {
+  return date.toISOString().split('T')[0].replace(/-/g, '').slice(4);
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV5>>((doc) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
-    const DD = getDayFromDate(doc.date);
+    const MMDD = getMMDDFromDate(doc.date);
     const mutation = {
       $inc: {
-        [`items.${DD}.a`]: doc.approved,
-        [`items.${DD}.n`]: doc.noFunds,
-        [`items.${DD}.p`]: doc.pending,
-        [`items.${DD}.r`]: doc.rejected,
+        [`items.${MMDD}.a`]: doc.approved,
+        [`items.${MMDD}.n`]: doc.noFunds,
+        [`items.${MMDD}.p`]: doc.pending,
+        [`items.${MMDD}.r`]: doc.rejected,
       },
     };
 
@@ -49,16 +57,16 @@ const buildLoopLogic = (
   date: { end: Date; start: Date }
 ): Record<string, unknown> => {
   const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
-  const [lowerDD, upperDD] = [
-    getDayFromDate(date.start),
-    getDayFromDate(date.end),
+  const [lowerMMDD, upperMMDD] = [
+    getMMDDFromDate(date.start),
+    getMMDDFromDate(date.end),
   ];
 
   const InLowerYearMonthAndGteLowerDay = {
-    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerDD] }],
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
   };
   const InUpperYearMonthAndLtUpperDay = {
-    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperDD] }],
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
   };
   const BetweenLowerAndUpperYearMonths = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],

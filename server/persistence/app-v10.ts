@@ -1,151 +1,154 @@
 /* eslint-disable sort-keys */
-import { type BulkWriteResult } from 'mongodb';
+import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
 import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
-export const bulkUpsert = async (
-  docs: T.Body
-): Promise<BulkWriteResult | unknown> => {
-  const docsV9 = docs.map<Omit<T.DocV10, '_id'>>((doc) => {
-    return {
-      date: doc.date,
-      key: Buffer.from(doc.key, 'hex'),
-      a: doc.approved,
-      n: doc.noFunds,
-      p: doc.pending,
-      r: doc.rejected,
-    };
-  }) as T.DocV10[];
-
-  return mdb.collections.appV10.insertMany(docsV9, { ordered: false });
+const getQuarter = (month: number): string => {
+  if (month >= 0 && month <= 2) return '01';
+  else if (month >= 3 && month <= 5) return '02';
+  else if (month >= 6 && month <= 8) return '03';
+  else return '04';
 };
 
-const buildFieldSum = (
-  date: { start: Date; end: Date },
-  field: string
-): Record<string, unknown> => {
+const buildId = (key: string, date: Date): Buffer => {
+  const year = date.getFullYear();
+  const QQ = getQuarter(date.getMonth());
+
+  return Buffer.from(`${key}${year}${QQ}`, 'hex');
+};
+
+const getMMDDFromDate = (date: Date): string => {
+  return date.toISOString().split('T')[0].replace(/-/g, '').slice(4);
+};
+
+export const bulkUpsert: T.BulkUpsert = async (docs) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV10>>((doc) => {
+    const query = { _id: buildId(doc.key, doc.date) };
+
+    const MMDD = getMMDDFromDate(doc.date);
+    const incrementItems = {
+      [`items.${MMDD}.a`]: doc.approved,
+      [`items.${MMDD}.n`]: doc.noFunds,
+      [`items.${MMDD}.p`]: doc.pending,
+      [`items.${MMDD}.r`]: doc.rejected,
+    };
+    const incrementReports = {
+      'report.a': doc.approved,
+      'report.n': doc.noFunds,
+      'report.p': doc.pending,
+      'report.r': doc.rejected,
+    };
+    const mutation = { $inc: { ...incrementItems, ...incrementReports } };
+
+    return { updateOne: { filter: query, update: mutation, upsert: true } };
+  });
+
+  return mdb.collections.appV10.bulkWrite(upsertOperations, { ordered: false });
+};
+
+const buildFieldAccumulator = (field: string): Record<string, unknown> => {
   return {
-    $cond: [
-      { $and: [{ $gte: ['$date', date.start] }, { $lt: ['$date', date.end] }] },
-      `$${field}`,
-      0,
+    $add: [
+      `$$value.${field}`,
+      { $cond: [`$$this.v.${field}`, `$$this.v.${field}`, 0] },
     ],
   };
 };
 
-export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportDates = getReportsDates(date);
+const buildLoopLogic = (
+  key: string,
+  date: { end: Date; start: Date }
+): Record<string, unknown> => {
+  const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
+  const [lowerMMDD, upperMMDD] = [
+    getMMDDFromDate(date.start),
+    getMMDDFromDate(date.end),
+  ];
+
+  const InLowerYearQuarterAndGteLowerDay = {
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
+  };
+  const InUpperYearQuarterAndLtUpperDay = {
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
+  };
+  const BetweenLowerAndUpperYearQuarters = {
+    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
+  };
+
+  return {
+    $cond: {
+      if: {
+        $or: [
+          InLowerYearQuarterAndGteLowerDay,
+          BetweenLowerAndUpperYearQuarters,
+          InUpperYearQuarterAndLtUpperDay,
+        ],
+      },
+      then: {
+        a: buildFieldAccumulator('a'),
+        n: buildFieldAccumulator('n'),
+        p: buildFieldAccumulator('p'),
+        r: buildFieldAccumulator('r'),
+      },
+      else: '$$value',
+    },
+  };
+};
+
+const getReport: T.GetReport = async ({ date, key }) => {
+  const lowerId = buildId(key, date.start);
+  const upperId = buildId(key, date.end);
 
   const docsFromKeyBetweenDate = {
-    date: { $gte: reportDates[4].start, $lt: reportDates[4].end },
-    key: Buffer.from(key, 'hex'),
+    _id: { $gte: lowerId, $lte: upperId },
+  };
+
+  const BetweenLowerAndUpperYearQuarter = {
+    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
+  };
+  const buildReportField = {
+    $cond: {
+      if: BetweenLowerAndUpperYearQuarter,
+      then: '$report',
+      else: {
+        $reduce: {
+          input: { $objectToArray: '$items' },
+          initialValue: { a: 0, n: 0, p: 0, r: 0 },
+          in: buildLoopLogic(key, date),
+        },
+      },
+    },
   };
 
   const groupCountItems = {
     _id: null,
-    oneYearApproved: { $sum: buildFieldSum(reportDates[0], 'a') },
-    oneYearNoFunds: { $sum: buildFieldSum(reportDates[0], 'n') },
-    oneYearPending: { $sum: buildFieldSum(reportDates[0], 'p') },
-    oneYearRejected: { $sum: buildFieldSum(reportDates[0], 'r') },
-
-    threeYearsApproved: { $sum: buildFieldSum(reportDates[1], 'a') },
-    threeYearsNoFunds: { $sum: buildFieldSum(reportDates[1], 'n') },
-    threeYearsPending: { $sum: buildFieldSum(reportDates[1], 'p') },
-    threeYearsRejected: { $sum: buildFieldSum(reportDates[1], 'r') },
-
-    fiveYearsApproved: { $sum: buildFieldSum(reportDates[2], 'a') },
-    fiveYearsNoFunds: { $sum: buildFieldSum(reportDates[2], 'n') },
-    fiveYearsPending: { $sum: buildFieldSum(reportDates[2], 'p') },
-    fiveYearsRejected: { $sum: buildFieldSum(reportDates[2], 'r') },
-
-    sevenYearsApproved: { $sum: buildFieldSum(reportDates[3], 'a') },
-    sevenYearsNoFunds: { $sum: buildFieldSum(reportDates[3], 'n') },
-    sevenYearsPending: { $sum: buildFieldSum(reportDates[3], 'p') },
-    sevenYearsRejected: { $sum: buildFieldSum(reportDates[3], 'r') },
-
-    tenYearsApproved: { $sum: buildFieldSum(reportDates[4], 'a') },
-    tenYearsNoFunds: { $sum: buildFieldSum(reportDates[4], 'n') },
-    tenYearsPending: { $sum: buildFieldSum(reportDates[4], 'p') },
-    tenYearsRejected: { $sum: buildFieldSum(reportDates[4], 'r') },
-  };
-
-  const format = {
-    _id: 0,
-    oneYear: {
-      approved: '$oneYearApproved',
-      noFunds: '$oneYearNoFunds',
-      pending: '$oneYearPending',
-      rejected: '$oneYearRejected',
-    },
-    threeYears: {
-      approved: '$threeYearsApproved',
-      noFunds: '$threeYearsNoFunds',
-      pending: '$threeYearsPending',
-      rejected: '$threeYearsRejected',
-    },
-    fiveYears: {
-      approved: '$fiveYearsApproved',
-      noFunds: '$fiveYearsNoFunds',
-      pending: '$fiveYearsPending',
-      rejected: '$fiveYearsRejected',
-    },
-    sevenYears: {
-      approved: '$sevenYearsApproved',
-      noFunds: '$sevenYearsNoFunds',
-      pending: '$sevenYearsPending',
-      rejected: '$sevenYearsRejected',
-    },
-    tenYears: {
-      approved: '$tenYearsApproved',
-      noFunds: '$tenYearsNoFunds',
-      pending: '$tenYearsPending',
-      rejected: '$tenYearsRejected',
-    },
+    approved: { $sum: '$report.a' },
+    noFunds: { $sum: '$report.n' },
+    pending: { $sum: '$report.p' },
+    rejected: { $sum: '$report.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
+    { $addFields: { report: buildReportField } },
     { $group: groupCountItems },
-    { $project: format },
+    { $project: { _id: 0 } },
   ];
 
-  const result = await mdb.collections.appV10
+  return mdb.collections.appV10
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);
+};
 
-  return [
-    {
-      id: 'oneYear',
-      end: reportDates[0].end,
-      start: reportDates[0].start,
-      report: result.oneYear,
-    },
-    {
-      id: 'threeYears',
-      end: reportDates[1].end,
-      start: reportDates[1].start,
-      report: result.threeYears,
-    },
-    {
-      id: 'fiveYears',
-      end: reportDates[2].end,
-      start: reportDates[2].start,
-      report: result.fiveYears,
-    },
-    {
-      id: 'sevenYears',
-      end: reportDates[3].end,
-      start: reportDates[3].start,
-      report: result.sevenYears,
-    },
-    {
-      id: 'tenYears',
-      end: reportDates[4].end,
-      start: reportDates[4].start,
-      report: result.tenYears,
-    },
-  ];
+export const getReports: T.GetReports = async ({ date, key }) => {
+  const dates = getReportsDates(date);
+
+  return Promise.all(
+    dates.map(async (date) => {
+      return { ...date, report: await getReport({ date, key }) };
+    })
+  );
 };

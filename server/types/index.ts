@@ -34,7 +34,8 @@ export type Version =
   | 'appV7'
   | 'appV8'
   | 'appV9'
-  | 'appV10';
+  | 'appV10'
+  | 'appV11';
 
 export type ReportYear =
   | 'oneYear'
@@ -85,8 +86,6 @@ export type DocV4 = {
   r?: number;
 };
 
-export type DocV9 = DocV8;
-export type DocV8 = DocV5;
 export type DocV5 = {
   _id: Buffer;
   items: Record<
@@ -99,9 +98,11 @@ export type DocV5 = {
     }
   >;
 };
+export type DocV6 = DocV5;
+export type DocV7 = DocV5;
+export type DocV8 = DocV5;
 
-export type DocV7 = DocV6;
-export type DocV6 = {
+export type DocV9 = {
   _id: Buffer;
   report: {
     a?: number;
@@ -119,13 +120,5 @@ export type DocV6 = {
     }
   >;
 };
-
-export type DocV10 = {
-  _id: ObjectId;
-  date: Date;
-  key: Buffer;
-  a?: number;
-  n?: number;
-  p?: number;
-  r?: number;
-};
+export type DocV10 = DocV9;
+export type DocV11 = DocV9;

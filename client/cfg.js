@@ -1,19 +1,13 @@
 import { setTimeout } from 'k6/experimental/timers';
 
 // References
-const OneGigabyte = Math.pow(2, 30);
 const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
 
-// EC2 Configuration
-const AppV0GroupingFactor = 1.2379;
-const RAM = 4 * OneGigabyte;
-const LoadDataSize = 5 * RAM * AppV0GroupingFactor;
-
 // Application/Load Data
+const DocsQuantity = 300 * Math.pow(10, 6);
 const MaxConcurrentInsertions = 7500;
-const AppV0DocSize = 118;
 const VusQuantity = 20;
-const UserTransactionsPerMonth = 3;
+const UserTransactionsPerMonth = 5;
 const DateStart = new Date('2010-01-01');
 const LoadDateSpamInYeas = 10;
 const LoadDateSpamInMonths = 12 * LoadDateSpamInYeas;
@@ -21,7 +15,6 @@ const LoadDateSpamInMs = LoadDateSpamInYeas * OneYearInMs;
 const DateEnd = new Date(DateStart.getTime() + LoadDateSpamInMs);
 
 // Load Parameters
-const DocsQuantity = Math.floor(LoadDataSize / AppV0DocSize);
 const BatchSize = Math.floor(MaxConcurrentInsertions / VusQuantity);
 const UsersQuantity = Math.floor(
   DocsQuantity / (LoadDateSpamInMonths * UserTransactionsPerMonth)
@@ -51,7 +44,7 @@ export const production = {
   duration: '30m',
   getReport: {
     VusQuantity: VusQuantity,
-    sleep: async (duration) => sleep(200 - duration),
+    sleep: async (duration) => sleep(100 - duration),
   },
   postDocs: {
     BatchSize,

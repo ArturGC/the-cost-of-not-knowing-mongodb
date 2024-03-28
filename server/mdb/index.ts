@@ -21,6 +21,7 @@ type Collections = {
   appV8: Collection<T.DocV8>;
   appV9: Collection<T.DocV9>;
   appV10: Collection<T.DocV10>;
+  appV11: Collection<T.DocV11>;
 };
 
 class Mongo {
@@ -62,6 +63,7 @@ class Mongo {
       appV8: this.db.collection('appV8'),
       appV9: this.db.collection('appV9'),
       appV10: this.db.collection('appV10'),
+      appV11: this.db.collection('appV11'),
     };
   };
 
@@ -87,7 +89,7 @@ class Mongo {
     );
 
     await this.db
-      .createCollection('appV9', {
+      .createCollection('appV8', {
         storageEngine: {
           wiredTiger: { configString: 'block_compressor=zstd' },
         },
@@ -95,12 +97,9 @@ class Mongo {
       .catch(() => {});
 
     await this.db
-      .createCollection('appV10', {
-        timeseries: {
-          timeField: 'date',
-          metaField: 'key',
-          bucketMaxSpanSeconds: 60 * 60 * 24 * 30.42 * 3,
-          bucketRoundingSeconds: 60 * 60 * 24 * 30.42 * 3,
+      .createCollection('appV11', {
+        storageEngine: {
+          wiredTiger: { configString: 'block_compressor=zstd' },
         },
       })
       .catch(() => {});

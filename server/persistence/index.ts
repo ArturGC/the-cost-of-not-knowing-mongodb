@@ -9,3 +9,4 @@ export * as appV7 from './app-v7';
 export * as appV8 from './app-v8';
 export * as appV9 from './app-v9';
 export * as appV10 from './app-v10';
+export * as appV11 from './app-v11';

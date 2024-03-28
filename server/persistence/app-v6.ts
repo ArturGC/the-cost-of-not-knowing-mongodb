@@ -20,19 +20,14 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
     const DD = getDayFromDate(doc.date);
-    const incrementItems = {
-      [`items.${DD}.a`]: doc.approved,
-      [`items.${DD}.n`]: doc.noFunds,
-      [`items.${DD}.p`]: doc.pending,
-      [`items.${DD}.r`]: doc.rejected,
+    const mutation = {
+      $inc: {
+        [`items.${DD}.a`]: doc.approved,
+        [`items.${DD}.n`]: doc.noFunds,
+        [`items.${DD}.p`]: doc.pending,
+        [`items.${DD}.r`]: doc.rejected,
+      },
     };
-    const incrementReports = {
-      'report.a': doc.approved,
-      'report.n': doc.noFunds,
-      'report.p': doc.pending,
-      'report.r': doc.rejected,
-    };
-    const mutation = { $inc: { ...incrementItems, ...incrementReports } };
 
     return { updateOne: { filter: query, update: mutation, upsert: true } };
   });
@@ -88,29 +83,16 @@ const buildLoopLogic = (
     },
   };
 };
-
 const getReport: T.GetReport = async ({ date, key }) => {
-  const lowerId = buildId(key, date.start);
-  const upperId = buildId(key, date.end);
-
   const docsFromKeyBetweenDate = {
-    _id: { $gte: lowerId, $lte: upperId },
+    _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const BetweenLowerAndUpperYearMonths = {
-    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
-  };
   const buildReportField = {
-    $cond: {
-      if: BetweenLowerAndUpperYearMonths,
-      then: '$report',
-      else: {
-        $reduce: {
-          input: { $objectToArray: '$items' },
-          initialValue: { a: 0, n: 0, p: 0, r: 0 },
-          in: buildLoopLogic(key, date),
-        },
-      },
+    $reduce: {
+      input: { $objectToArray: '$items' },
+      initialValue: { a: 0, n: 0, p: 0, r: 0 },
+      in: buildLoopLogic(key, date),
     },
   };
 

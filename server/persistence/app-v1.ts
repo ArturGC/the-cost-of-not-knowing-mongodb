@@ -51,10 +51,10 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const dates = getReportsDates(date);
+  const reportsDates = getReportsDates(date);
 
   return Promise.all(
-    dates.map(async (date) => {
+    reportsDates.map(async (date) => {
       return { ...date, report: await getReport({ date, key }) };
     })
   );

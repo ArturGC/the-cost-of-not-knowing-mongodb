@@ -1,31 +1,18 @@
-/* eslint-disable sort-keys */
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportsDates } from '../helpers';
+import { getReportsDates, getSemester, getYYYYMMDD, getYYYY } from '../helpers';
 import mdb from '../mdb';
 
-const getSemester = (month: number): string => {
-  if (month >= 0 && month <= 5) return '01';
-  else return '02';
-};
-
 const buildId = (key: string, date: Date): Buffer => {
-  const YYYY = date.getFullYear();
-  const SS = getSemester(date.getMonth());
-
-  return Buffer.from(`${key}${YYYY}${SS}`, 'hex');
-};
-
-const getYYYYMMDDFromDate = (date: Date): string => {
-  return date.toISOString().split('T')[0].replace(/-/g, '');
+  return Buffer.from(`${key}${getYYYY(date)}${getSemester(date)}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV7>>((doc) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
-    const YYYYMMDD = getYYYYMMDDFromDate(doc.date);
+    const YYYYMMDD = getYYYYMMDD(doc.date);
     const mutation = {
       $inc: {
         [`items.${YYYYMMDD}.a`]: doc.approved,
@@ -113,12 +100,12 @@ const buildReportAccumulator = (
 const buildLoopLogic = (
   reportDates: Array<{ id: T.ReportYear; end: Date; start: Date }>
 ): Record<string, unknown> => {
-  const YYYYMMDDUpper = getYYYYMMDDFromDate(reportDates[0].end);
-  const YYYYMMDDOneYear = getYYYYMMDDFromDate(reportDates[0].start);
-  const YYYYMMDDThreeYears = getYYYYMMDDFromDate(reportDates[1].start);
-  const YYYYMMDDFiveYears = getYYYYMMDDFromDate(reportDates[2].start);
-  const YYYYMMDDSevenYears = getYYYYMMDDFromDate(reportDates[3].start);
-  const YYYYMMDDTenYears = getYYYYMMDDFromDate(reportDates[4].start);
+  const YYYYMMDDUpper = getYYYYMMDD(reportDates[0].end);
+  const YYYYMMDDOneYear = getYYYYMMDD(reportDates[0].start);
+  const YYYYMMDDThreeYears = getYYYYMMDD(reportDates[1].start);
+  const YYYYMMDDFiveYears = getYYYYMMDD(reportDates[2].start);
+  const YYYYMMDDSevenYears = getYYYYMMDD(reportDates[3].start);
+  const YYYYMMDDTenYears = getYYYYMMDD(reportDates[4].start);
 
   const IsInOneYear = {
     $and: [
@@ -165,12 +152,12 @@ const buildLoopLogic = (
   };
 };
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportDates = getReportsDates(date);
+  const reportsDates = getReportsDates(date);
 
   const docsFromKeyBetweenDate = {
     _id: {
-      $gte: buildId(key, reportDates[4].start),
-      $lte: buildId(key, reportDates[4].end),
+      $gte: buildId(key, reportsDates[4].start),
+      $lte: buildId(key, reportsDates[4].end),
     },
   };
 
@@ -185,7 +172,7 @@ export const getReports: T.GetReports = async ({ date, key }) => {
     $reduce: {
       input: { $objectToArray: '$items' },
       initialValue: initialReportValue,
-      in: buildLoopLogic(reportDates),
+      in: buildLoopLogic(reportsDates),
     },
   };
 
@@ -267,32 +254,32 @@ export const getReports: T.GetReports = async ({ date, key }) => {
   return [
     {
       id: 'oneYear',
-      end: reportDates[0].end,
-      start: reportDates[0].start,
+      end: reportsDates[0].end,
+      start: reportsDates[0].start,
       report: result.oneYear,
     },
     {
       id: 'threeYears',
-      end: reportDates[1].end,
-      start: reportDates[1].start,
+      end: reportsDates[1].end,
+      start: reportsDates[1].start,
       report: result.threeYears,
     },
     {
       id: 'fiveYears',
-      end: reportDates[2].end,
-      start: reportDates[2].start,
+      end: reportsDates[2].end,
+      start: reportsDates[2].start,
       report: result.fiveYears,
     },
     {
       id: 'sevenYears',
-      end: reportDates[3].end,
-      start: reportDates[3].start,
+      end: reportsDates[3].end,
+      start: reportsDates[3].start,
       report: result.sevenYears,
     },
     {
       id: 'tenYears',
-      end: reportDates[4].end,
-      start: reportDates[4].start,
+      end: reportsDates[4].end,
+      start: reportsDates[4].start,
       report: result.tenYears,
     },
   ];

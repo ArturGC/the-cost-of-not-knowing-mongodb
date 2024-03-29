@@ -6,7 +6,7 @@ import mdb from '../mdb';
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV2>>((doc) => {
-    const query = { date: doc.date, key: doc.key };
+    const query = { key: doc.key, date: doc.date };
 
     const mutation = {
       $inc: {
@@ -25,8 +25,8 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
 
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
-    date: { $gte: date.start, $lt: date.end },
     key,
+    date: { $gte: date.start, $lt: date.end },
   };
 
   const groupCountItems = {
@@ -50,10 +50,10 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const dates = getReportsDates(date);
+  const reportsDates = getReportsDates(date);
 
   return Promise.all(
-    dates.map(async (date) => {
+    reportsDates.map(async (date) => {
       return { ...date, report: await getReport({ date, key }) };
     })
   );

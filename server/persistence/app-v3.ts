@@ -1,13 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportsDates } from '../helpers';
+import { getReportsDates, getYYYYMMDD } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: string, date: Date): Buffer => {
-  const YYYYMMDD = date.toISOString().split('T')[0].replace(/-/g, '');
-
-  return Buffer.from(`${key}${YYYYMMDD}`, 'hex');
+  return Buffer.from(`${key}${getYYYYMMDD(date)}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
@@ -31,10 +29,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
 
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
-    _id: {
-      $gte: buildId(key, date.start),
-      $lt: buildId(key, date.end),
-    },
+    _id: { $gte: buildId(key, date.start), $lt: buildId(key, date.end) },
   };
 
   const groupCountItems = {
@@ -58,10 +53,10 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const dates = getReportsDates(date);
+  const reportsDates = getReportsDates(date);
 
   return Promise.all(
-    dates.map(async (date) => {
+    reportsDates.map(async (date) => {
       return { ...date, report: await getReport({ date, key }) };
     })
   );

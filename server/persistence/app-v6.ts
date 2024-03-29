@@ -1,31 +1,24 @@
-/* eslint-disable sort-keys */
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportsDates } from '../helpers';
+import {
+  buildFieldAccumulator,
+  getMMDD,
+  getReportsDates,
+  getSemester,
+  getYYYY,
+} from '../helpers';
 import mdb from '../mdb';
 
-const getSemester = (month: number): string => {
-  if (month >= 0 && month <= 5) return '01';
-  else return '02';
-};
-
 const buildId = (key: string, date: Date): Buffer => {
-  const YYYY = date.getFullYear();
-  const SS = getSemester(date.getMonth());
-
-  return Buffer.from(`${key}${YYYY}${SS}`, 'hex');
-};
-
-const getMMDDFromDate = (date: Date): string => {
-  return date.toISOString().split('T')[0].replace(/-/g, '').slice(4);
+  return Buffer.from(`${key}${getYYYY(date)}${getSemester(date)}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV6>>((doc) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
-    const MMDD = getMMDDFromDate(doc.date);
+    const MMDD = getMMDD(doc.date);
     const mutation = {
       $inc: {
         [`items.${MMDD}.a`]: doc.approved,
@@ -41,24 +34,12 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
   return mdb.collections.appV6.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const buildFieldAccumulator = (field: string): Record<string, unknown> => {
-  return {
-    $add: [
-      `$$value.${field}`,
-      { $cond: [`$$this.v.${field}`, `$$this.v.${field}`, 0] },
-    ],
-  };
-};
-
 const buildLoopLogic = (
   key: string,
   date: { end: Date; start: Date }
 ): Record<string, unknown> => {
   const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
-  const [lowerMMDD, upperMMDD] = [
-    getMMDDFromDate(date.start),
-    getMMDDFromDate(date.end),
-  ];
+  const [lowerMMDD, upperMMDD] = [getMMDD(date.start), getMMDD(date.end)];
 
   const InLowerYearMonthAndGteLowerDay = {
     $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
@@ -124,10 +105,10 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const dates = getReportsDates(date);
+  const reportsDates = getReportsDates(date);
 
   return Promise.all(
-    dates.map(async (date) => {
+    reportsDates.map(async (date) => {
       return { ...date, report: await getReport({ date, key }) };
     })
   );

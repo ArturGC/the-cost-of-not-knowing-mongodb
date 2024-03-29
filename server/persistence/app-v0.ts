@@ -1,4 +1,3 @@
-/* eslint-disable sort-keys */
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
@@ -7,9 +6,7 @@ import mdb from '../mdb';
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV0>>((doc) => {
-    const query = {
-      _id: { key: doc.key, date: doc.date },
-    };
+    const query = { _id: { key: doc.key, date: doc.date } };
 
     const mutation = {
       $inc: {
@@ -53,10 +50,10 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const dates = getReportsDates(date);
+  const reportsDates = getReportsDates(date);
 
   return Promise.all(
-    dates.map(async (date) => {
+    reportsDates.map(async (date) => {
       return { ...date, report: await getReport({ date, key }) };
     })
   );

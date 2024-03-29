@@ -49,8 +49,8 @@ export const BodySchema = z.array(DocDefaultSchema);
 
 export type DocV0 = {
   _id: {
-    date: Date;
     key: string;
+    date: Date;
   };
   approved?: number;
   noFunds?: number;
@@ -62,8 +62,8 @@ export type DocV1 = DocV0;
 
 export type DocV2 = {
   _id: ObjectId;
-  date: Date;
   key: string;
+  date: Date;
   approved?: number;
   noFunds?: number;
   pending?: number;

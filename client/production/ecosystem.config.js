@@ -16,7 +16,7 @@ module.exports = {
         K6_WEB_DASHBOARD: true,
         K6_WEB_DASHBOARD_HOST: '0.0.0.0',
         K6_WEB_DASHBOARD_PERIOD: '1s',
-        K6_WEB_DASHBOARD_EXPORT: `../../results/${APP_VERSION}/load.html`
+        K6_WEB_DASHBOARD_EXPORT: `../../results/${APP_VERSION}/production.html`,
       },
     },
   ],

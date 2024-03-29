@@ -4,8 +4,8 @@
   "description": "The cost of not knowing MongoDB",
   "main": "./server/index.ts",
   "scripts": {
-    "client:load": "cd ./client/load && pm2 start ./ecosystem.config.js",
-    "client:production": "cd ./client/production && pm2 start ./ecosystem.config.js",
+    "load": "cd ./client/load && pm2 start ./ecosystem.config.js",
+    "production": "cd ./client/production && pm2 start ./ecosystem.config.js",
     "server": "npx tsc && cd server && pm2 start ./ecosystem.config.js",
     "test": "jest"
   },

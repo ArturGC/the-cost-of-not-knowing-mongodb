@@ -8,7 +8,7 @@ module.exports = {
       autorestart: false,
       exec_mode: 'fork',
       instances: 1,
-      name: 'k6-production',
+      name: 'production',
       script: 'k6 run ./index.js',
       watch: false,
       env: {

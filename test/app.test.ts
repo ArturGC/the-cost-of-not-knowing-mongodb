@@ -61,25 +61,25 @@ withDb(() => {
           {
             id: 'threeYears',
             end: '2022-06-15T00:00:00.000Z',
-            start: '2019-06-16T00:00:00.000Z',
+            start: '2019-06-15T00:00:00.000Z',
             report: { approved: 6, noFunds: 2, pending: 1, rejected: 1 },
           },
           {
             id: 'fiveYears',
             end: '2022-06-15T00:00:00.000Z',
-            start: '2017-06-16T00:00:00.000Z',
+            start: '2017-06-15T00:00:00.000Z',
             report: { approved: 10, noFunds: 3, pending: 2, rejected: 2 },
           },
           {
             id: 'sevenYears',
             end: '2022-06-15T00:00:00.000Z',
-            start: '2015-06-17T00:00:00.000Z',
+            start: '2015-06-15T00:00:00.000Z',
             report: { approved: 14, noFunds: 4, pending: 3, rejected: 3 },
           },
           {
             id: 'tenYears',
             end: '2022-06-15T00:00:00.000Z',
-            start: '2012-06-17T00:00:00.000Z',
+            start: '2012-06-15T00:00:00.000Z',
             report: { approved: 18, noFunds: 5, pending: 4, rejected: 4 },
           },
         ]);
@@ -91,27 +91,27 @@ withDb(() => {
 async function buildReportScenery(url: string) {
   const docs = [
     { date: new Date('2021-06-25'), key: '01', approved: 1 },
-    { date: new Date('2021-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2021-06-15'), key: '01', approved: 1, noFunds: 1 },
     { date: new Date('2021-06-10'), key: '01', approved: 1, pending: 1 },
     { date: new Date('2021-06-05'), key: '01', approved: 1, rejected: 1 },
 
     { date: new Date('2019-06-25'), key: '01', approved: 1 },
-    { date: new Date('2019-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2019-06-15'), key: '01', approved: 1, noFunds: 1 },
     { date: new Date('2019-06-10'), key: '01', approved: 1, pending: 1 },
     { date: new Date('2019-06-05'), key: '01', approved: 1, rejected: 1 },
 
     { date: new Date('2017-06-25'), key: '01', approved: 1 },
-    { date: new Date('2017-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2017-06-15'), key: '01', approved: 1, noFunds: 1 },
     { date: new Date('2017-06-10'), key: '01', approved: 1, pending: 1 },
     { date: new Date('2017-06-05'), key: '01', approved: 1, rejected: 1 },
 
     { date: new Date('2015-06-25'), key: '01', approved: 1 },
-    { date: new Date('2015-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2015-06-15'), key: '01', approved: 1, noFunds: 1 },
     { date: new Date('2015-06-10'), key: '01', approved: 1, pending: 1 },
     { date: new Date('2015-06-05'), key: '01', approved: 1, rejected: 1 },
 
     { date: new Date('2012-06-25'), key: '01', approved: 1 },
-    { date: new Date('2012-06-20'), key: '01', approved: 1, noFunds: 1 },
+    { date: new Date('2012-06-15'), key: '01', approved: 1, noFunds: 1 },
     { date: new Date('2012-06-10'), key: '01', approved: 1, pending: 1 },
     { date: new Date('2012-06-05'), key: '01', approved: 1, rejected: 1 },
   ];

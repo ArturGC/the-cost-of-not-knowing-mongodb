@@ -1,8 +1,6 @@
 /* eslint-disable sort-keys */
 import type * as T from './types';
 
-const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
-
 export const getReportsDates = (
   date: Date
 ): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
@@ -10,27 +8,37 @@ export const getReportsDates = (
     {
       id: 'oneYear',
       end: date,
-      start: new Date(date.getTime() - oneYearInMs),
+      start: new Date(
+        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 1)
+      ),
     },
     {
       id: 'threeYears',
       end: date,
-      start: new Date(date.getTime() - 3 * oneYearInMs),
+      start: new Date(
+        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 3)
+      ),
     },
     {
       id: 'fiveYears',
       end: date,
-      start: new Date(date.getTime() - 5 * oneYearInMs),
+      start: new Date(
+        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 5)
+      ),
     },
     {
       id: 'sevenYears',
       end: date,
-      start: new Date(date.getTime() - 7 * oneYearInMs),
+      start: new Date(
+        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 7)
+      ),
     },
     {
       id: 'tenYears',
       end: date,
-      start: new Date(date.getTime() - 10 * oneYearInMs),
+      start: new Date(
+        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 10)
+      ),
     },
   ];
 };

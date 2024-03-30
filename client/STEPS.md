@@ -3,6 +3,7 @@
 - Delete Database
 - Change instance size to c7a.xlarge
 - Change `APP_VERSION` on `client/load/ecosystem.config.js` and `client/production/ecosystem.config.js`
+- Run server: `npm run server`
 - Run load: `npm run load`
 - When finish loading:
   - Stop load: `pm2 delete load`

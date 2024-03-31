@@ -4,7 +4,7 @@ import { setTimeout } from 'k6/experimental/timers';
 const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
 
 // Application/Load Data
-const DocsQuantity = 300 * Math.pow(10, 6);
+const DocsQuantity = 500 * Math.pow(10, 6);
 const MaxConcurrentInsertions = 7500;
 const VusQuantity = 20;
 const UserTransactionsPerMonth = 5;

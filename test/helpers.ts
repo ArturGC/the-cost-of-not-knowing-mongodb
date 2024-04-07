@@ -1,7 +1,6 @@
-import { Db, ObjectId } from 'mongodb';
+import { Db } from 'mongodb';
 
-import MDB from '../server/mdb';
-import { TEST } from '../server/cfgs';
+import mdb from '../src/mdb';
 
 export async function cleanAllCollections(db: Db) {
   const collections = await db.collections();
@@ -17,19 +16,16 @@ export async function dropAllCollections(db: Db) {
 
 export function withDb(test: () => void): void {
   beforeAll(async () => {
-    await MDB.connect(
-      { dbName: TEST.MDB.DB_NAME, uri: TEST.MDB.URI },
-      TEST.MDB.OPTIONS
-    );
-    await MDB.checkIndexes();
+    await mdb.checkCollections();
   });
 
   beforeEach(async () => {
-    await cleanAllCollections(MDB.db);
+    await cleanAllCollections(mdb.dbApp);
+    await cleanAllCollections(mdb.dbBase);
   });
 
   afterAll(async () => {
-    await MDB.close();
+    await mdb.close();
   });
 
   test();

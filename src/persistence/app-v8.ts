@@ -2,294 +2,253 @@ import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
 import {
+  buildFieldAccumulator,
   buildKey,
+  getMM,
+  getMMDD,
   getReportsDates,
-  getSemester,
   getYYYY,
-  getYYYYMMDD,
 } from '../helpers';
 import mdb from '../mdb';
 
+// Implementação utilizando Array
+
 const buildId = (key: number, date: Date): Buffer => {
-  return Buffer.from(
-    `${buildKey(key)}${getYYYY(date)}${getSemester(date)}`,
-    'hex'
-  );
+  const id = `${buildKey(key)}${getYYYY(date)}${getMM(date)}`;
+
+  return Buffer.from(id, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV8>>((doc) => {
-    const query = { _id: buildId(doc.key, doc.date) };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6>>(
+    (doc) => {
+      const query = {
+        _id: buildId(doc.key, doc.date),
+      };
 
-    const YYYYMMDD = getYYYYMMDD(doc.date);
-    const mutation = {
-      $inc: {
-        [`items.${YYYYMMDD}.a`]: doc.a,
-        [`items.${YYYYMMDD}.n`]: doc.n,
-        [`items.${YYYYMMDD}.p`]: doc.p,
-        [`items.${YYYYMMDD}.r`]: doc.r,
-      },
-    };
+      const mutation = [
+        {
+          $set: {
+            result: {
+              $reduce: {
+                input: {
+                  $cond: ['$items', '$items', []],
+                },
+                initialValue: {
+                  found: false,
+                  items: [],
+                },
+                in: {
+                  $cond: {
+                    if: {
+                      $not: { $eq: ['$$this.date', doc.date] },
+                    },
+                    then: {
+                      found: '$$value.found',
+                      items: { $concatArrays: ['$$value.items', ['$$this']] },
+                    },
+                    else: {
+                      found: true,
+                      items: {
+                        $concatArrays: [
+                          '$$value.items',
+                          [
+                            {
+                              $switch: {
+                                branches: [
+                                  {
+                                    case: { $and: [doc.a] },
+                                    then: {
+                                      date: '$$this.date',
+                                      a: { $add: [doc.a, '$$this.a'] },
+                                      n: '$$this.n',
+                                      p: '$$this.p',
+                                      r: '$$this.r',
+                                    },
+                                  },
+                                  {
+                                    case: { $and: [doc.n] },
+                                    then: {
+                                      date: '$$this.date',
+                                      a: '$$this.a',
+                                      n: { $add: [doc.n, '$$this.n'] },
+                                      p: '$$this.p',
+                                      r: '$$this.r',
+                                    },
+                                  },
+                                  {
+                                    case: { $and: [doc.p] },
+                                    then: {
+                                      date: '$$this.date',
+                                      a: '$$this.a',
+                                      n: '$$this.n',
+                                      p: { $add: [doc.p, '$$this.p'] },
+                                      r: '$$this.r',
+                                    },
+                                  },
+                                  {
+                                    case: { $and: [doc.r] },
+                                    then: {
+                                      date: '$$this.date',
+                                      a: '$$this.a',
+                                      n: '$$this.n',
+                                      p: '$$this.p',
+                                      r: { $add: [doc.r, '$$this.r'] },
+                                    },
+                                  },
+                                ],
+                                default: {
+                                  date: '$$this.date',
+                                  a: '$$this.a',
+                                  n: '$$this.n',
+                                  p: '$$this.p',
+                                  r: '$$this.r',
+                                },
+                              },
+                            },
+                          ],
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $set: {
+            items: {
+              $cond: {
+                if: '$result.found',
+                then: '$result.items',
+                else: {
+                  $concatArrays: [
+                    { $cond: ['$items', '$items', []] },
+                    [
+                      {
+                        date: doc.date,
+                        a: doc.a,
+                        n: doc.n,
+                        p: doc.p,
+                        r: doc.r,
+                      },
+                    ],
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $unset: ['result'],
+        },
+      ];
 
-    return { updateOne: { filter: query, update: mutation, upsert: true } };
-  });
+      return {
+        updateOne: {
+          filter: query,
+          update: mutation,
+          upsert: true,
+        },
+      };
+    }
+  );
 
   return mdb.collections.appV8.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const buildFieldAccumulator = (
-  field: string,
-  reportYear: string
-): Record<string, unknown> => {
-  return {
-    $add: [
-      `$$value.${reportYear}.${field}`,
-      { $cond: [`$$this.v.${field}`, `$$this.v.${field}`, 0] },
-    ],
-  };
-};
-
-const buildReportAccumulator = (
-  dateRange: T.ReportYear
-): Record<T.ReportYear, unknown> => {
-  const base: Record<T.ReportYear, unknown> = {
-    oneYear: ['oneYear'].includes(dateRange)
-      ? {
-          a: buildFieldAccumulator('a', 'oneYear'),
-          n: buildFieldAccumulator('n', 'oneYear'),
-          p: buildFieldAccumulator('p', 'oneYear'),
-          r: buildFieldAccumulator('r', 'oneYear'),
-        }
-      : '$$value.oneYear',
-    threeYears: ['oneYear', 'threeYears'].includes(dateRange)
-      ? {
-          a: buildFieldAccumulator('a', 'threeYears'),
-          n: buildFieldAccumulator('n', 'threeYears'),
-          p: buildFieldAccumulator('p', 'threeYears'),
-          r: buildFieldAccumulator('r', 'threeYears'),
-        }
-      : '$$value.threeYears',
-    fiveYears: ['oneYear', 'threeYears', 'fiveYears'].includes(dateRange)
-      ? {
-          a: buildFieldAccumulator('a', 'fiveYears'),
-          n: buildFieldAccumulator('n', 'fiveYears'),
-          p: buildFieldAccumulator('p', 'fiveYears'),
-          r: buildFieldAccumulator('r', 'fiveYears'),
-        }
-      : '$$value.fiveYears',
-    sevenYears: ['oneYear', 'threeYears', 'fiveYears', 'sevenYears'].includes(
-      dateRange
-    )
-      ? {
-          a: buildFieldAccumulator('a', 'sevenYears'),
-          n: buildFieldAccumulator('n', 'sevenYears'),
-          p: buildFieldAccumulator('p', 'sevenYears'),
-          r: buildFieldAccumulator('r', 'sevenYears'),
-        }
-      : '$$value.sevenYears',
-    tenYears: [
-      'oneYear',
-      'threeYears',
-      'fiveYears',
-      'sevenYears',
-      'tenYears',
-    ].includes(dateRange)
-      ? {
-          a: buildFieldAccumulator('a', 'tenYears'),
-          n: buildFieldAccumulator('n', 'tenYears'),
-          p: buildFieldAccumulator('p', 'tenYears'),
-          r: buildFieldAccumulator('r', 'tenYears'),
-        }
-      : '$$value.tenYears',
-  };
-
-  return base;
-};
-
 const buildLoopLogic = (
-  reportDates: Array<{ id: T.ReportYear; end: Date; start: Date }>
+  key: number,
+  date: { end: Date; start: Date }
 ): Record<string, unknown> => {
-  const YYYYMMDDUpper = getYYYYMMDD(reportDates[0].end);
-  const YYYYMMDDOneYear = getYYYYMMDD(reportDates[0].start);
-  const YYYYMMDDThreeYears = getYYYYMMDD(reportDates[1].start);
-  const YYYYMMDDFiveYears = getYYYYMMDD(reportDates[2].start);
-  const YYYYMMDDSevenYears = getYYYYMMDD(reportDates[3].start);
-  const YYYYMMDDTenYears = getYYYYMMDD(reportDates[4].start);
+  const [lowerId, lowerMMDD] = [buildId(key, date.start), getMMDD(date.start)];
+  const [upperId, upperMMDD] = [buildId(key, date.end), getMMDD(date.end)];
 
-  const IsInOneYear = {
-    $and: [
-      { $gte: ['$$this.k', YYYYMMDDOneYear] },
-      { $lt: ['$$this.k', YYYYMMDDUpper] },
-    ],
+  const InLowerYYYYMMAndGteLowerMMDD = {
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
   };
-  const IsInThreeYears = {
-    $and: [
-      { $gte: ['$$this.k', YYYYMMDDThreeYears] },
-      { $lt: ['$$this.k', YYYYMMDDUpper] },
-    ],
+  const InUpperYYYYMMAndLtUpperDD = {
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
   };
-  const IsInFiveYears = {
-    $and: [
-      { $gte: ['$$this.k', YYYYMMDDFiveYears] },
-      { $lt: ['$$this.k', YYYYMMDDUpper] },
-    ],
-  };
-  const IsInSevenYears = {
-    $and: [
-      { $gte: ['$$this.k', YYYYMMDDSevenYears] },
-      { $lt: ['$$this.k', YYYYMMDDUpper] },
-    ],
-  };
-  const IsInTenYears = {
-    $and: [
-      { $gte: ['$$this.k', YYYYMMDDTenYears] },
-      { $lt: ['$$this.k', YYYYMMDDUpper] },
-    ],
+  const BetweenLowerAndUpperYYYYMM = {
+    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
   };
 
   return {
-    $switch: {
-      branches: [
-        { case: IsInOneYear, then: buildReportAccumulator('oneYear') },
-        { case: IsInThreeYears, then: buildReportAccumulator('threeYears') },
-        { case: IsInFiveYears, then: buildReportAccumulator('fiveYears') },
-        { case: IsInSevenYears, then: buildReportAccumulator('sevenYears') },
-        { case: IsInTenYears, then: buildReportAccumulator('tenYears') },
-      ],
-      default: '$$value',
+    $cond: {
+      if: {
+        $or: [
+          InLowerYYYYMMAndGteLowerMMDD,
+          BetweenLowerAndUpperYYYYMM,
+          InUpperYYYYMMAndLtUpperDD,
+        ],
+      },
+      then: {
+        a: buildFieldAccumulator('a'),
+        n: buildFieldAccumulator('n'),
+        p: buildFieldAccumulator('p'),
+        r: buildFieldAccumulator('r'),
+      },
+      else: '$$value',
     },
   };
 };
-export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = getReportsDates(date);
-
+const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
-    _id: {
-      $gte: buildId(key, reportsDates[4].start),
-      $lte: buildId(key, reportsDates[4].end),
-    },
+    _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const initialReportValue = {
-    oneYear: { a: 0, n: 0, p: 0, r: 0 },
-    threeYears: { a: 0, n: 0, p: 0, r: 0 },
-    fiveYears: { a: 0, n: 0, p: 0, r: 0 },
-    sevenYears: { a: 0, n: 0, p: 0, r: 0 },
-    tenYears: { a: 0, n: 0, p: 0, r: 0 },
-  };
   const buildReportField = {
     $reduce: {
-      input: { $objectToArray: '$items' },
-      initialValue: initialReportValue,
-      in: buildLoopLogic(reportsDates),
+      input: '$items',
+      initialValue: { a: 0, n: 0, p: 0, r: 0 },
+      in: {
+        $cond: {
+          if: {
+            $and: [
+              { $gte: ['$$this.date', date.start] },
+              { $lt: ['$$this.date', date.end] },
+            ],
+          },
+          then: {
+            a: { $add: ['$$value.a', { $cond: ['$$this.a', '$$this.a', 0] }] },
+            n: { $add: ['$$value.n', { $cond: ['$$this.n', '$$this.n', 0] }] },
+            p: { $add: ['$$value.p', { $cond: ['$$this.p', '$$this.p', 0] }] },
+            r: { $add: ['$$value.r', { $cond: ['$$this.r', '$$this.r', 0] }] },
+          },
+          else: '$$value',
+        },
+      },
     },
   };
 
   const groupCountItems = {
     _id: null,
-
-    oneYearApproved: { $sum: '$report.oneYear.a' },
-    oneYearNoFunds: { $sum: '$report.oneYear.n' },
-    oneYearPending: { $sum: '$report.oneYear.p' },
-    oneYearRejected: { $sum: '$report.oneYear.r' },
-
-    threeYearsApproved: { $sum: '$report.threeYears.a' },
-    threeYearsNoFunds: { $sum: '$report.threeYears.n' },
-    threeYearsPending: { $sum: '$report.threeYears.p' },
-    threeYearsRejected: { $sum: '$report.threeYears.r' },
-
-    fiveYearsApproved: { $sum: '$report.fiveYears.a' },
-    fiveYearsNoFunds: { $sum: '$report.fiveYears.n' },
-    fiveYearsPending: { $sum: '$report.fiveYears.p' },
-    fiveYearsRejected: { $sum: '$report.fiveYears.r' },
-
-    sevenYearsApproved: { $sum: '$report.sevenYears.a' },
-    sevenYearsNoFunds: { $sum: '$report.sevenYears.n' },
-    sevenYearsPending: { $sum: '$report.sevenYears.p' },
-    sevenYearsRejected: { $sum: '$report.sevenYears.r' },
-
-    tenYearsApproved: { $sum: '$report.tenYears.a' },
-    tenYearsNoFunds: { $sum: '$report.tenYears.n' },
-    tenYearsPending: { $sum: '$report.tenYears.p' },
-    tenYearsRejected: { $sum: '$report.tenYears.r' },
-  };
-
-  const format = {
-    _id: 0,
-    oneYear: {
-      approved: '$oneYearApproved',
-      noFunds: '$oneYearNoFunds',
-      pending: '$oneYearPending',
-      rejected: '$oneYearRejected',
-    },
-    threeYears: {
-      approved: '$threeYearsApproved',
-      noFunds: '$threeYearsNoFunds',
-      pending: '$threeYearsPending',
-      rejected: '$threeYearsRejected',
-    },
-    fiveYears: {
-      approved: '$fiveYearsApproved',
-      noFunds: '$fiveYearsNoFunds',
-      pending: '$fiveYearsPending',
-      rejected: '$fiveYearsRejected',
-    },
-    sevenYears: {
-      approved: '$sevenYearsApproved',
-      noFunds: '$sevenYearsNoFunds',
-      pending: '$sevenYearsPending',
-      rejected: '$sevenYearsRejected',
-    },
-    tenYears: {
-      approved: '$tenYearsApproved',
-      noFunds: '$tenYearsNoFunds',
-      pending: '$tenYearsPending',
-      rejected: '$tenYearsRejected',
-    },
+    approved: { $sum: '$report.a' },
+    noFunds: { $sum: '$report.n' },
+    pending: { $sum: '$report.p' },
+    rejected: { $sum: '$report.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
     { $addFields: { report: buildReportField } },
     { $group: groupCountItems },
-    { $project: format },
+    { $project: { _id: 0 } },
   ];
 
-  const result = await mdb.collections.appV8
+  return mdb.collections.appV8
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);
+};
 
-  return [
-    {
-      id: 'oneYear',
-      end: reportsDates[0].end,
-      start: reportsDates[0].start,
-      report: result.oneYear,
-    },
-    {
-      id: 'threeYears',
-      end: reportsDates[1].end,
-      start: reportsDates[1].start,
-      report: result.threeYears,
-    },
-    {
-      id: 'fiveYears',
-      end: reportsDates[2].end,
-      start: reportsDates[2].start,
-      report: result.fiveYears,
-    },
-    {
-      id: 'sevenYears',
-      end: reportsDates[3].end,
-      start: reportsDates[3].start,
-      report: result.sevenYears,
-    },
-    {
-      id: 'tenYears',
-      end: reportsDates[4].end,
-      start: reportsDates[4].start,
-      report: result.tenYears,
-    },
-  ];
+export const getReports: T.GetReports = async ({ date, key }) => {
+  const reportsDates = getReportsDates(date);
+  const reports = reportsDates.map(async (date) => {
+    return { ...date, report: await getReport({ date, key }) };
+  });
+
+  return Promise.all(reports);
 };

@@ -6,46 +6,35 @@ import {
   buildKey,
   getMMDD,
   getReportsDates,
-  getSemester,
+  getSS,
   getYYYY,
 } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: number, date: Date): Buffer => {
-  return Buffer.from(
-    `${buildKey(key)}${getYYYY(date)}${getSemester(date)}`,
-    'hex'
-  );
+  return Buffer.from(`${buildKey(key)}${getYYYY(date)}${getSS(date)}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV11>>((doc) => {
-    const query = { _id: buildId(doc.key, doc.date) };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV3>>(
+    (doc) => {
+      const query = { _id: buildId(doc.key, doc.date) };
 
-    const MMDD = getMMDD(doc.date);
-    const incrementItems = {
-      [`items.${MMDD}.a`]: doc.a,
-      [`items.${MMDD}.n`]: doc.n,
-      [`items.${MMDD}.p`]: doc.p,
-      [`items.${MMDD}.r`]: doc.r,
-    };
-    const incrementReports = {
-      'report.a': doc.a,
-      'report.n': doc.n,
-      'report.p': doc.p,
-      'report.r': doc.r,
-    };
-    const mutation = {
-      $inc: {
-        ...incrementItems,
-        ...incrementReports,
-      },
-    };
+      const MMDD = getMMDD(doc.date);
+      const mutation = {
+        $inc: {
+          [`items.${MMDD}.a`]: doc.a,
+          [`items.${MMDD}.n`]: doc.n,
+          [`items.${MMDD}.p`]: doc.p,
+          [`items.${MMDD}.r`]: doc.r,
+        },
+      };
 
-    return { updateOne: { filter: query, update: mutation, upsert: true } };
-  });
+      return { updateOne: { filter: query, update: mutation, upsert: true } };
+    }
+  );
 
-  return mdb.collections.appV11.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV6.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const buildLoopLogic = (
@@ -55,13 +44,13 @@ const buildLoopLogic = (
   const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
   const [lowerMMDD, upperMMDD] = [getMMDD(date.start), getMMDD(date.end)];
 
-  const InLowerYearQuarterAndGteLowerDay = {
+  const InLowerYearMonthAndGteLowerDay = {
     $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
   };
-  const InUpperYearQuarterAndLtUpperDay = {
+  const InUpperYearMonthAndLtUpperDay = {
     $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
   };
-  const BetweenLowerAndUpperYearQuarters = {
+  const BetweenLowerAndUpperYearMonths = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
   };
 
@@ -69,9 +58,9 @@ const buildLoopLogic = (
     $cond: {
       if: {
         $or: [
-          InLowerYearQuarterAndGteLowerDay,
-          BetweenLowerAndUpperYearQuarters,
-          InUpperYearQuarterAndLtUpperDay,
+          InLowerYearMonthAndGteLowerDay,
+          BetweenLowerAndUpperYearMonths,
+          InUpperYearMonthAndLtUpperDay,
         ],
       },
       then: {
@@ -84,29 +73,16 @@ const buildLoopLogic = (
     },
   };
 };
-
 const getReport: T.GetReport = async ({ date, key }) => {
-  const lowerId = buildId(key, date.start);
-  const upperId = buildId(key, date.end);
-
   const docsFromKeyBetweenDate = {
-    _id: { $gte: lowerId, $lte: upperId },
+    _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const BetweenLowerAndUpperYearQuarter = {
-    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
-  };
   const buildReportField = {
-    $cond: {
-      if: BetweenLowerAndUpperYearQuarter,
-      then: '$report',
-      else: {
-        $reduce: {
-          input: { $objectToArray: '$items' },
-          initialValue: { a: 0, n: 0, p: 0, r: 0 },
-          in: buildLoopLogic(key, date),
-        },
-      },
+    $reduce: {
+      input: { $objectToArray: '$items' },
+      initialValue: { a: 0, n: 0, p: 0, r: 0 },
+      in: buildLoopLogic(key, date),
     },
   };
 
@@ -125,7 +101,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     { $project: { _id: 0 } },
   ];
 
-  return mdb.collections.appV11
+  return mdb.collections.appV6
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

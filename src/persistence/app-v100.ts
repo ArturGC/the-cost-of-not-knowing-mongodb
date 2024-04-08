@@ -6,44 +6,43 @@ import {
   buildKey,
   getMMDD,
   getReportsDates,
-  getSemester,
+  getSS,
   getYYYY,
 } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: number, date: Date): Buffer => {
-  return Buffer.from(
-    `${buildKey(key)}${getYYYY(date)}${getSemester(date)}`,
-    'hex'
-  );
+  return Buffer.from(`${buildKey(key)}${getYYYY(date)}${getSS(date)}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV10>>((doc) => {
-    const query = { _id: buildId(doc.key, doc.date) };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5>>(
+    (doc) => {
+      const query = { _id: buildId(doc.key, doc.date) };
 
-    const MMDD = getMMDD(doc.date);
-    const incrementItems = {
-      [`items.${MMDD}.a`]: doc.a,
-      [`items.${MMDD}.n`]: doc.n,
-      [`items.${MMDD}.p`]: doc.p,
-      [`items.${MMDD}.r`]: doc.r,
-    };
-    const incrementReports = {
-      'report.a': doc.a,
-      'report.n': doc.n,
-      'report.p': doc.p,
-      'report.r': doc.r,
-    };
-    const mutation = {
-      $inc: {
-        ...incrementItems,
-        ...incrementReports,
-      },
-    };
+      const MMDD = getMMDD(doc.date);
+      const incrementItems = {
+        [`items.${MMDD}.a`]: doc.a,
+        [`items.${MMDD}.n`]: doc.n,
+        [`items.${MMDD}.p`]: doc.p,
+        [`items.${MMDD}.r`]: doc.r,
+      };
+      const incrementReports = {
+        'report.a': doc.a,
+        'report.n': doc.n,
+        'report.p': doc.p,
+        'report.r': doc.r,
+      };
+      const mutation = {
+        $inc: {
+          ...incrementItems,
+          ...incrementReports,
+        },
+      };
 
-    return { updateOne: { filter: query, update: mutation, upsert: true } };
-  });
+      return { updateOne: { filter: query, update: mutation, upsert: true } };
+    }
+  );
 
   return mdb.collections.appV10.bulkWrite(upsertOperations, { ordered: false });
 };

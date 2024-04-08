@@ -1,13 +1,20 @@
 import { type BulkWriteResult, type Document, type ObjectId } from 'mongodb';
 
-export type Transaction = {
-  key: number;
-  date: Date;
+export type Events = {
   a?: number;
   n?: number;
   p?: number;
   r?: number;
 };
+
+type EventsLong = {
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+
+export type Transaction = { key: number; date: Date } & Events;
 
 export type Base = {
   _id: ObjectId;
@@ -35,10 +42,10 @@ export type AppVersion =
   | 'appV5'
   | 'appV6'
   | 'appV7'
-  | 'appV8'
-  | 'appV9'
-  | 'appV10'
-  | 'appV11';
+  | 'appV8';
+// | 'appV9'
+// | 'appV10'
+// | 'appV11';
 
 export type ReportYear =
   | 'oneYear'
@@ -47,81 +54,42 @@ export type ReportYear =
   | 'sevenYears'
   | 'tenYears';
 
-export type DocV0 = {
+export type SchemaV0 = {
   _id: {
     key: string;
     date: Date;
   };
-  approved?: number;
-  noFunds?: number;
-  pending?: number;
-  rejected?: number;
-};
+} & EventsLong;
 
-export type DocV1 = DocV0;
-
-export type DocV2 = {
+export type SchemaV1 = {
   _id: ObjectId;
   key: string;
   date: Date;
-  approved?: number;
-  noFunds?: number;
-  pending?: number;
-  rejected?: number;
+} & EventsLong;
+
+export type SchemaV2 = {
+  _id: Buffer;
+} & EventsLong;
+
+export type SchemaV3 = {
+  _id: Buffer;
+} & Events;
+
+export type SchemaV4 = {
+  _id: Buffer;
+  items: Record<string, Events>;
 };
 
-export type DocV3 = {
+export type SchemaV5 = {
   _id: Buffer;
-  approved?: number;
-  noFunds?: number;
-  pending?: number;
-  rejected?: number;
+  report: Events;
+  items: Record<string, Events>;
 };
 
-export type DocV4 = {
+export type SchemaV6 = {
   _id: Buffer;
-  a?: number;
-  n?: number;
-  p?: number;
-  r?: number;
+  items: Array<{ date: Date } & Events>;
 };
-
-export type DocV5 = {
-  _id: Buffer;
-  items: Record<
-    string,
-    {
-      a?: number;
-      n?: number;
-      p?: number;
-      r?: number;
-    }
-  >;
-};
-export type DocV6 = DocV5;
-export type DocV7 = DocV5;
-export type DocV8 = DocV5;
-
-export type DocV9 = {
-  _id: Buffer;
-  report: {
-    a?: number;
-    n?: number;
-    p?: number;
-    r?: number;
-  };
-  items: Record<
-    string,
-    {
-      a?: number;
-      n?: number;
-      p?: number;
-      r?: number;
-    }
-  >;
-};
-export type DocV10 = DocV9;
-export type DocV11 = DocV9;
 
 export type BulkUpsert = (docs: Transaction[]) => Promise<BulkWriteResult>;
 

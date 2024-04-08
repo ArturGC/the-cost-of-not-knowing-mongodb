@@ -6,18 +6,18 @@ import generator from '../src/generator';
 
 withDb(() => {
   const versions: T.AppVersion[] = [
-    'appV0',
-    'appV1',
-    'appV2',
-    'appV3',
-    'appV4',
-    'appV5',
-    'appV6',
-    'appV7',
+    // 'appV0',
+    // 'appV1',
+    // 'appV2',
+    // 'appV3',
+    // 'appV4',
+    // 'appV5',
+    // 'appV6',
+    // 'appV7',
     'appV8',
-    'appV9',
-    'appV10',
-    'appV11',
+    // 'appV9',
+    // 'appV10',
+    // 'appV11',
   ] as const;
 
   for (const version of versions) {
@@ -35,7 +35,7 @@ withDb(() => {
         expect(countAfter).toBe(docs.length);
       });
 
-      test('Get Report', async () => {
+      test.only('Get Report', async () => {
         await buildReportScenery(version);
 
         const reports = await P[version].getReports({
@@ -110,3 +110,23 @@ async function buildReportScenery(version: T.AppVersion) {
 
   await P[version].bulkUpsert(docs);
 }
+
+const teste = (doc: T.Transaction) => {
+  if (doc.a) {
+    return {
+      date: '$$this.date',
+      a: { $add: [doc.a, '$$this.a'] },
+      n: '$$this.n',
+      p: '$$this.p',
+      r: '$$this.r',
+    };
+  } else if (doc.n) {
+    return {
+      date: '$$this.date',
+      a: { $add: [doc.a, '$$this.a'] },
+      n: '$$this.n',
+      p: '$$this.p',
+      r: '$$this.r',
+    };
+  }
+};

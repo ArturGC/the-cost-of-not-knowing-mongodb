@@ -46,28 +46,6 @@ export const getYYYYMMDD = (date: Date): string => {
   return date.toISOString().split('T')[0].replace(/-/g, '');
 };
 
-export const getQuarter = (date: Date): string => {
-  const month = date.getMonth();
-  if (month >= 0 && month <= 2) return '01';
-  else if (month >= 3 && month <= 5) return '02';
-  else if (month >= 6 && month <= 8) return '03';
-  else return '04';
-};
-
-export const getSemester = (date: Date): string => {
-  const month = date.getMonth();
-
-  return month >= 0 && month <= 5 ? '01' : '02';
-};
-
-export const getYYYY = (date: Date): string => {
-  return date.getFullYear().toString();
-};
-
-export const getMMDD = (date: Date): string => {
-  return date.toISOString().split('T')[0].replace(/-/g, '').slice(4);
-};
-
 export const buildFieldAccumulator = (
   field: string
 ): Record<string, unknown> => {
@@ -81,4 +59,35 @@ export const buildFieldAccumulator = (
 
 export const buildKey = (key: number): string => {
   return key.toString().padStart(64, '0');
+};
+
+export const getYYYY = (date: Date): string => {
+  return date.toISOString().split('-')[0];
+};
+
+export const getMM = (date: Date): string => {
+  return date.toISOString().split('-')[1];
+};
+
+export const getDD = (date: Date): string => {
+  return date.toISOString().split('T')[0].split('-')[2];
+};
+
+export const getQQ = (date: Date): string => {
+  const month = Number(getMM(date));
+
+  if (month >= 1 && month <= 3) return '01';
+  else if (month >= 4 && month <= 6) return '02';
+  else if (month >= 7 && month <= 9) return '03';
+  else return '04';
+};
+
+export const getMMDD = (date: Date): string => {
+  return `${getMM(date)}${getDD(date)}`;
+};
+
+export const getSS = (date: Date): string => {
+  const month = Number(getMM(date));
+
+  return month <= 6 ? '01' : '02';
 };

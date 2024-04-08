@@ -5,47 +5,46 @@ import {
   buildFieldAccumulator,
   buildKey,
   getMMDD,
-  getQuarter,
   getReportsDates,
+  getSS,
   getYYYY,
 } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: number, date: Date): Buffer => {
-  return Buffer.from(
-    `${buildKey(key)}${getYYYY(date)}${getQuarter(date)}`,
-    'hex'
-  );
+  return Buffer.from(`${buildKey(key)}${getYYYY(date)}${getSS(date)}`, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV9>>((doc) => {
-    const query = { _id: buildId(doc.key, doc.date) };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5>>(
+    (doc) => {
+      const query = { _id: buildId(doc.key, doc.date) };
 
-    const MMDD = getMMDD(doc.date);
-    const incrementItems = {
-      [`items.${MMDD}.a`]: doc.a,
-      [`items.${MMDD}.n`]: doc.n,
-      [`items.${MMDD}.p`]: doc.p,
-      [`items.${MMDD}.r`]: doc.r,
-    };
-    const incrementReports = {
-      'report.a': doc.a,
-      'report.n': doc.n,
-      'report.p': doc.p,
-      'report.r': doc.r,
-    };
-    const mutation = {
-      $inc: {
-        ...incrementItems,
-        ...incrementReports,
-      },
-    };
+      const MMDD = getMMDD(doc.date);
+      const incrementItems = {
+        [`items.${MMDD}.a`]: doc.a,
+        [`items.${MMDD}.n`]: doc.n,
+        [`items.${MMDD}.p`]: doc.p,
+        [`items.${MMDD}.r`]: doc.r,
+      };
+      const incrementReports = {
+        'report.a': doc.a,
+        'report.n': doc.n,
+        'report.p': doc.p,
+        'report.r': doc.r,
+      };
+      const mutation = {
+        $inc: {
+          ...incrementItems,
+          ...incrementReports,
+        },
+      };
 
-    return { updateOne: { filter: query, update: mutation, upsert: true } };
-  });
+      return { updateOne: { filter: query, update: mutation, upsert: true } };
+    }
+  );
 
-  return mdb.collections.appV9.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV11.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const buildLoopLogic = (
@@ -125,7 +124,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     { $project: { _id: 0 } },
   ];
 
-  return mdb.collections.appV9
+  return mdb.collections.appV11
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

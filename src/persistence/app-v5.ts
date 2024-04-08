@@ -4,36 +4,45 @@ import type * as T from '../types';
 import {
   buildFieldAccumulator,
   buildKey,
-  getMMDD,
-  getQuarter,
+  getDD,
+  getMM,
   getReportsDates,
   getYYYY,
 } from '../helpers';
 import mdb from '../mdb';
 
 const buildId = (key: number, date: Date): Buffer => {
-  return Buffer.from(
-    `${buildKey(key)}${getYYYY(date)}${getQuarter(date)}`,
-    'hex'
-  );
+  const id = `${buildKey(key)}${getYYYY(date)}${getMM(date)}`;
+
+  return Buffer.from(id, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.DocV5>>((doc) => {
-    const query = { _id: buildId(doc.key, doc.date) };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4>>(
+    (doc) => {
+      const query = {
+        _id: buildId(doc.key, doc.date),
+      };
 
-    const MMDD = getMMDD(doc.date);
-    const mutation = {
-      $inc: {
-        [`items.${MMDD}.a`]: doc.a,
-        [`items.${MMDD}.n`]: doc.n,
-        [`items.${MMDD}.p`]: doc.p,
-        [`items.${MMDD}.r`]: doc.r,
-      },
-    };
+      const DD = getDD(doc.date);
+      const mutation = {
+        $inc: {
+          [`items.${DD}.a`]: doc.a,
+          [`items.${DD}.n`]: doc.n,
+          [`items.${DD}.p`]: doc.p,
+          [`items.${DD}.r`]: doc.r,
+        },
+      };
 
-    return { updateOne: { filter: query, update: mutation, upsert: true } };
-  });
+      return {
+        updateOne: {
+          filter: query,
+          update: mutation,
+          upsert: true,
+        },
+      };
+    }
+  );
 
   return mdb.collections.appV5.bulkWrite(upsertOperations, { ordered: false });
 };
@@ -42,16 +51,16 @@ const buildLoopLogic = (
   key: number,
   date: { end: Date; start: Date }
 ): Record<string, unknown> => {
-  const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
-  const [lowerMMDD, upperMMDD] = [getMMDD(date.start), getMMDD(date.end)];
+  const [lowerId, lowerDD] = [buildId(key, date.start), getDD(date.start)];
+  const [upperId, upperDD] = [buildId(key, date.end), getDD(date.end)];
 
-  const InLowerYearMonthAndGteLowerDay = {
-    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
+  const InLowerYYYYMMAndGteLowerDD = {
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerDD] }],
   };
-  const InUpperYearMonthAndLtUpperDay = {
-    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
+  const InUpperYYYYMMAndLtUpperDD = {
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperDD] }],
   };
-  const BetweenLowerAndUpperYearMonths = {
+  const BetweenLowerAndUpperYYYYMM = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
   };
 
@@ -59,9 +68,9 @@ const buildLoopLogic = (
     $cond: {
       if: {
         $or: [
-          InLowerYearMonthAndGteLowerDay,
-          BetweenLowerAndUpperYearMonths,
-          InUpperYearMonthAndLtUpperDay,
+          InLowerYYYYMMAndGteLowerDD,
+          BetweenLowerAndUpperYYYYMM,
+          InUpperYYYYMMAndLtUpperDD,
         ],
       },
       then: {
@@ -110,10 +119,9 @@ const getReport: T.GetReport = async ({ date, key }) => {
 
 export const getReports: T.GetReports = async ({ date, key }) => {
   const reportsDates = getReportsDates(date);
+  const reports = reportsDates.map(async (date) => {
+    return { ...date, report: await getReport({ date, key }) };
+  });
 
-  return Promise.all(
-    reportsDates.map(async (date) => {
-      return { ...date, report: await getReport({ date, key }) };
-    })
-  );
+  return Promise.all(reports);
 };

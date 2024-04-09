@@ -4,7 +4,7 @@ import type * as T from '../types';
 import { buildKey, getReportsDates, getYYYYMMDD } from '../helpers';
 import mdb from '../mdb';
 
-const buildId = (key: number, date: Date): Buffer => {
+export const buildId = (key: number, date: Date): Buffer => {
   return Buffer.from(`${buildKey(key)}${getYYYYMMDD(date)}`, 'hex');
 };
 

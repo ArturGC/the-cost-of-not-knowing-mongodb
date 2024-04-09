@@ -17,7 +17,7 @@ export const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6R0>>(
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R0>>(
     (doc) => {
       const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
       const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);

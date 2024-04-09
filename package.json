@@ -48,7 +48,7 @@
       "server/**/*.ts"
     ],
     "displayName": {
-      "name": "API Server",
+      "name": "Server",
       "color": "blue"
     },
     "maxWorkers": "1",

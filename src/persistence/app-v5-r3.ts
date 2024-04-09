@@ -17,7 +17,7 @@ export const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6R1>>(
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R1>>(
     (doc) => {
       const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
       const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
@@ -42,7 +42,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
   });
 };
 
-const buildReduceInLogic = (date: {
+const buildReduceLoopLogic = (date: {
   end: Date;
   start: Date;
 }): Record<string, unknown> => {
@@ -83,7 +83,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
         $reduce: {
           input: '$items',
           initialValue: { a: 0, n: 0, p: 0, r: 0 },
-          in: buildReduceInLogic(date),
+          in: buildReduceLoopLogic(date),
         },
       },
     },

@@ -18,7 +18,7 @@ const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4>>(
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5R0>>(
     (doc) => {
       const query = {
         _id: buildId(doc.key, doc.date),

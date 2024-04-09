@@ -42,13 +42,10 @@ export type AppVersion =
   | 'appV5R0'
   | 'appV5R1'
   | 'appV5R2'
-  | 'appV5R3';
-// | 'appV6'
-// | 'appV7'
-// | 'appV8';
-// | 'appV9'
-// | 'appV10'
-// | 'appV11';
+  | 'appV5R3'
+  | 'appV6R0'
+  | 'appV6R1'
+  | 'appV6R2';
 
 export type ReportYear =
   | 'oneYear'
@@ -78,26 +75,26 @@ export type SchemaV3 = {
   _id: Buffer;
 } & Events;
 
-export type SchemaV4 = {
-  _id: Buffer;
-  items: Record<string, Events>;
-};
-
-export type SchemaV5 = {
-  _id: Buffer;
-  report: Events;
-  items: Record<string, Events>;
-};
-
-export type SchemaV6R0 = {
+export type SchemaV4R0 = {
   _id: Buffer;
   items: Array<{ date: Date } & Events>;
 };
 
-export type SchemaV6R1 = {
+export type SchemaV4R1 = {
   _id: Buffer;
   report: Events;
   items: Array<{ date: Date } & Events>;
+};
+
+export type SchemaV5R0 = {
+  _id: Buffer;
+  items: Record<string, Events>;
+};
+
+export type SchemaV5R1 = {
+  _id: Buffer;
+  report: Events;
+  items: Record<string, Events>;
 };
 
 export type BulkUpsert = (docs: Transaction[]) => Promise<BulkWriteResult>;

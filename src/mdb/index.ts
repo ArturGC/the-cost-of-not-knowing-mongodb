@@ -10,16 +10,13 @@ type Collections = {
   appV2: Collection<T.SchemaV1>;
   appV3: Collection<T.SchemaV2>;
   appV4: Collection<T.SchemaV3>;
-  appV5: Collection<T.SchemaV4>;
-  appV6: Collection<T.SchemaV4>;
-  appV7: Collection<T.SchemaV4>;
-  appV5R0: Collection<T.SchemaV6R0>;
-  appV5R1: Collection<T.SchemaV6R0>;
-  appV5R2: Collection<T.SchemaV6R0>;
-  appV5R3: Collection<T.SchemaV6R1>;
-  appV9: Collection<T.SchemaV5>;
-  appV10: Collection<T.SchemaV5>;
-  appV11: Collection<T.SchemaV5>;
+  appV5R0: Collection<T.SchemaV4R0>;
+  appV5R1: Collection<T.SchemaV4R0>;
+  appV5R2: Collection<T.SchemaV4R0>;
+  appV5R3: Collection<T.SchemaV4R1>;
+  appV6R0: Collection<T.SchemaV5R0>;
+  appV6R1: Collection<T.SchemaV5R0>;
+  appV6R2: Collection<T.SchemaV5R1>;
   base: Collection<T.Base>;
   measurements: Collection<T.Measurement>;
 };
@@ -44,16 +41,13 @@ class Mongo {
       appV2: this.dbApp.collection('appV02'),
       appV3: this.dbApp.collection('appV03'),
       appV4: this.dbApp.collection('appV04'),
-      appV5: this.dbApp.collection('appV05'),
-      appV6: this.dbApp.collection('appV06'),
-      appV7: this.dbApp.collection('appV07'),
       appV5R0: this.dbApp.collection('appV5R0'),
       appV5R1: this.dbApp.collection('appV5R1'),
       appV5R2: this.dbApp.collection('appV5R2'),
       appV5R3: this.dbApp.collection('appV5R3'),
-      appV9: this.dbApp.collection('appV09'),
-      appV10: this.dbApp.collection('appV10'),
-      appV11: this.dbApp.collection('appV11'),
+      appV6R0: this.dbApp.collection('appV6R0'),
+      appV6R1: this.dbApp.collection('appV6R1'),
+      appV6R2: this.dbApp.collection('appV6R2'),
       base: this.dbBase.collection('base'),
       measurements: this.dbBase.collection('measurements'),
     };
@@ -91,21 +85,21 @@ class Mongo {
       appSynced: 1,
     });
 
-    await this.dbApp
-      .createCollection('appV8', {
-        storageEngine: {
-          wiredTiger: { configString: 'block_compressor=zstd' },
-        },
-      })
-      .catch(() => {});
+    // await this.dbApp
+    //   .createCollection('appV8', {
+    //     storageEngine: {
+    //       wiredTiger: { configString: 'block_compressor=zstd' },
+    //     },
+    //   })
+    //   .catch(() => {});
 
-    await this.dbApp
-      .createCollection('appV11', {
-        storageEngine: {
-          wiredTiger: { configString: 'block_compressor=zstd' },
-        },
-      })
-      .catch(() => {});
+    // await this.dbApp
+    //   .createCollection('appV11', {
+    //     storageEngine: {
+    //       wiredTiger: { configString: 'block_compressor=zstd' },
+    //     },
+    //   })
+    //   .catch(() => {});
 
     await this.dbBase
       .createCollection('measurements', {

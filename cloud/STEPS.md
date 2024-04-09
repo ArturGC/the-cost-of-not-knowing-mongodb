@@ -63,7 +63,6 @@
 
 1. [`Instance|Local`] Configure VSCode Remote Access
 1. [`Local`] Copy client code: `rm -rf node_modules && scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* ubuntu@agc.client.public.mdbtraining.net:/home/ubuntu/app/`
-1. [`Local`] Dashboard: `http://agc.client.public.mdbtraining.net:5665/`
 
 ## Others
 

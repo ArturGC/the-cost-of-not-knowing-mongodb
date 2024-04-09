@@ -21,7 +21,7 @@ export DISK_DB='{
   "Ebs": {
     "DeleteOnTermination": true,
     "Iops": 7500,
-    "VolumeSize": 20, 
+    "VolumeSize": 50, 
     "VolumeType": "gp3",
     "Throughput": 200
   }

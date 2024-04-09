@@ -21,7 +21,7 @@ const buildItemSum = (doc: T.Transaction): Record<string, unknown> => {
   return newDoc;
 };
 
-export const buildSumIfItemExists = (
+export const buildResultIfItemExists = (
   doc: T.Transaction
 ): Record<string, unknown> => {
   const itemsOrEmptyArray = {
@@ -49,17 +49,44 @@ export const buildSumIfItemExists = (
       else: valueWithSumDoc,
     },
   };
+
   return {
-    $set: {
-      result: {
-        $reduce: {
-          input: itemsOrEmptyArray,
-          initialValue: reduceInitialValue,
-          in: reduceLoopLogic,
-        },
-      },
+    $reduce: {
+      input: itemsOrEmptyArray,
+      initialValue: reduceInitialValue,
+      in: reduceLoopLogic,
     },
   };
+};
+
+export const buildNewReport = (doc: T.Transaction): Record<string, unknown> => {
+  const newReport: Record<string, unknown> = {};
+
+  if (doc.a != null) {
+    newReport['report.a'] = {
+      $add: [doc.a, { $cond: ['$report.a', '$report.a', 0] }],
+    };
+  }
+
+  if (doc.n != null) {
+    newReport['report.n'] = {
+      $add: [doc.n, { $cond: ['$report.n', '$report.n', 0] }],
+    };
+  }
+
+  if (doc.p != null) {
+    newReport['report.p'] = {
+      $add: [doc.p, { $cond: ['$report.p', '$report.p', 0] }],
+    };
+  }
+
+  if (doc.r != null) {
+    newReport['report.r'] = {
+      $add: [doc.r, { $cond: ['$report.r', '$report.r', 0] }],
+    };
+  }
+
+  return newReport;
 };
 
 export const buildItemsOrCreateNew = (
@@ -68,19 +95,17 @@ export const buildItemsOrCreateNew = (
   const { key, ...newDoc } = doc;
 
   return {
-    $set: {
-      items: {
-        $cond: {
-          if: '$result.found',
-          then: '$result.items',
-          else: { $concatArrays: ['$result.items', [newDoc]] },
-        },
-      },
+    $cond: {
+      if: '$result.found',
+      then: '$result.items',
+      else: { $concatArrays: ['$result.items', [newDoc]] },
     },
   };
 };
 
-const buildFieldAccumulator = (field: string): Record<string, unknown> => {
+export const buildFieldAccumulator = (
+  field: string
+): Record<string, unknown> => {
   return {
     $add: [
       `$$value.${field}`,

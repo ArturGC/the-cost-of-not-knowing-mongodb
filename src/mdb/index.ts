@@ -13,7 +13,10 @@ type Collections = {
   appV5: Collection<T.SchemaV4>;
   appV6: Collection<T.SchemaV4>;
   appV7: Collection<T.SchemaV4>;
-  appV8: Collection<T.SchemaV6R0>;
+  appV5R0: Collection<T.SchemaV6R0>;
+  appV5R1: Collection<T.SchemaV6R0>;
+  appV5R2: Collection<T.SchemaV6R0>;
+  appV5R3: Collection<T.SchemaV6R1>;
   appV9: Collection<T.SchemaV5>;
   appV10: Collection<T.SchemaV5>;
   appV11: Collection<T.SchemaV5>;
@@ -44,7 +47,10 @@ class Mongo {
       appV5: this.dbApp.collection('appV05'),
       appV6: this.dbApp.collection('appV06'),
       appV7: this.dbApp.collection('appV07'),
-      appV8: this.dbApp.collection('appV08'),
+      appV5R0: this.dbApp.collection('appV5R0'),
+      appV5R1: this.dbApp.collection('appV5R1'),
+      appV5R2: this.dbApp.collection('appV5R2'),
+      appV5R3: this.dbApp.collection('appV5R3'),
       appV9: this.dbApp.collection('appV09'),
       appV10: this.dbApp.collection('appV10'),
       appV11: this.dbApp.collection('appV11'),
@@ -53,7 +59,10 @@ class Mongo {
     };
   }
 
-  close = async (): Promise<void> => this.clientApp.close();
+  close = async (): Promise<void> => {
+    await this.clientApp.close();
+    await this.clientBase.close();
+  };
 
   dropDb = async (): Promise<void> => {
     await this.dbApp.dropDatabase();

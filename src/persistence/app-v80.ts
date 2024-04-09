@@ -33,7 +33,9 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     }
   );
 
-  return mdb.collections.appV8.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV5R0.bulkWrite(upsertOperations, {
+    ordered: false,
+  });
 };
 
 const buildFieldAccumulator = (
@@ -254,7 +256,7 @@ export const getReports: T.GetReports = async ({ date, key }) => {
     { $project: format },
   ];
 
-  const result = await mdb.collections.appV8
+  const result = await mdb.collections.appV5R0
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

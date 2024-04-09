@@ -10,7 +10,7 @@ import {
 } from '../helpers';
 import mdb from '../mdb';
 
-const buildId = (key: number, date: Date): Buffer => {
+export const buildId = (key: number, date: Date): Buffer => {
   const id = `${buildKey(key)}${getYYYY(date)}${getMM(date)}`;
 
   return Buffer.from(id, 'hex');
@@ -19,21 +19,26 @@ const buildId = (key: number, date: Date): Buffer => {
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6R0>>(
     (doc) => {
-      const sumIfItemExists = itemsArray.buildSumIfItemExists(doc);
+      const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
       const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
-      const removeResult = { $unset: ['result'] };
 
       return {
         updateOne: {
           filter: { _id: buildId(doc.key, doc.date) },
-          update: [sumIfItemExists, returnItemsOrCreateNew, removeResult],
+          update: [
+            { $set: { result: sumIfItemExists } },
+            { $set: { items: returnItemsOrCreateNew } },
+            { $unset: ['result'] },
+          ],
           upsert: true,
         },
       };
     }
   );
 
-  return mdb.collections.appV8.bulkWrite(upsertOperations, { ordered: false });
+  return mdb.collections.appV5R0.bulkWrite(upsertOperations, {
+    ordered: false,
+  });
 };
 
 const getReport: T.GetReport = async ({ date, key }) => {
@@ -41,26 +46,32 @@ const getReport: T.GetReport = async ({ date, key }) => {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const itemsReduceAccumulator = itemsArray.buildItemsReduceAccumulator({
-    date,
-  });
+  const openItemsArray = {
+    path: '$items',
+    preserveNullAndEmptyArrays: false,
+  };
+
+  const itemsBetweenDates = {
+    'items.date': { $gte: date.start, $lt: date.end },
+  };
 
   const groupSumReports = {
     _id: null,
-    approved: { $sum: '$report.a' },
-    noFunds: { $sum: '$report.n' },
-    pending: { $sum: '$report.p' },
-    rejected: { $sum: '$report.r' },
+    approved: { $sum: '$items.a' },
+    noFunds: { $sum: '$items.n' },
+    pending: { $sum: '$items.p' },
+    rejected: { $sum: '$items.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: itemsReduceAccumulator } },
+    { $unwind: openItemsArray },
+    { $match: itemsBetweenDates },
     { $group: groupSumReports },
     { $project: { _id: 0 } },
   ];
 
-  return mdb.collections.appV8
+  return mdb.collections.appV5R0
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

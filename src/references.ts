@@ -22,6 +22,18 @@ const sleep = async (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
+const oneMinuteInMs = 60 * 1000;
+const dateStart = new Date();
+const getSleepFactor = (): number => {
+  const msPassed = new Date().getTime() - dateStart.getTime();
+
+  if (msPassed < 5 * oneMinuteInMs) return 1;
+  else if (msPassed < 10 * oneMinuteInMs) return 2;
+  else if (msPassed < 15 * oneMinuteInMs) return 3;
+  else if (msPassed < 20 * oneMinuteInMs) return 4;
+  else return 5;
+};
+
 export default {
   base: {
     ...base,
@@ -36,8 +48,8 @@ export default {
   production: {
     ...production,
     sleep: {
-      bulkUpsert: async (time: number) => sleep(2500 - time),
-      getReports: async (time: number) => sleep(50 - time),
+      bulkUpsert: async (ms: number) => sleep(10000 / getSleepFactor() - ms),
+      getReports: async (ms: number) => sleep(200 / getSleepFactor() - ms),
     },
   },
   clustersBatch,

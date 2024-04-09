@@ -11,7 +11,7 @@ const apps = Array.from({ length: 5 }).map((_, clusterId) => {
     env: {
       APP_VERSION: 'appV0',
       CLUSTER_ID: clusterId,
-      EXEC_ENV: 'test',
+      EXEC_ENV: 'prod',
     },
   };
 });

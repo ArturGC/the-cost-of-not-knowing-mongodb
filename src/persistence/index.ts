@@ -6,7 +6,7 @@ export * as appV4 from './app-v4';
 export * as appV5 from './app-v5';
 export * as appV6 from './app-v6';
 export * as appV7 from './app-v7';
-export * as appV8 from './app-v8';
+export * as appV8 from './app-v5-r0';
 // export * as appV9 from './app-v90';
 // export * as appV10 from './app-v100';
 // export * as appV11 from './app-v110';

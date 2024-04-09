@@ -86,8 +86,14 @@ export type SchemaV5 = {
   items: Record<string, Events>;
 };
 
-export type SchemaV6 = {
+export type SchemaV6R0 = {
   _id: Buffer;
+  items: Array<{ date: Date } & Events>;
+};
+
+export type SchemaV6R1 = {
+  _id: Buffer;
+  report: Events;
   items: Array<{ date: Date } & Events>;
 };
 

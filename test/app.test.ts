@@ -83,7 +83,14 @@ withDb(() => {
 async function buildReportScenery(version: T.AppVersion) {
   const docs = [
     { date: new Date('2021-06-25'), key: 1, a: 1 },
+    { date: new Date('2021-06-25'), key: 1, n: 1 },
+    { date: new Date('2021-06-25'), key: 1, a: 1, p: 1 },
+    { date: new Date('2021-06-25'), key: 1, p: 1, r: 1 },
+
+    { date: new Date('2021-06-15'), key: 1, a: 1 },
+    { date: new Date('2021-06-15'), key: 1, n: 1 },
     { date: new Date('2021-06-15'), key: 1, a: 1, n: 1 },
+
     { date: new Date('2021-06-10'), key: 1, a: 1, p: 1 },
     { date: new Date('2021-06-05'), key: 1, a: 1, r: 1 },
 

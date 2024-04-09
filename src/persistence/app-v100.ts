@@ -2,7 +2,7 @@ import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
 import {
-  buildFieldAccumulator,
+  buildFieldAccumulatorFromObject,
   buildKey,
   getMMDD,
   getReportsDates,
@@ -74,10 +74,10 @@ const buildLoopLogic = (
         ],
       },
       then: {
-        a: buildFieldAccumulator('a'),
-        n: buildFieldAccumulator('n'),
-        p: buildFieldAccumulator('p'),
-        r: buildFieldAccumulator('r'),
+        a: buildFieldAccumulatorFromObject('a'),
+        n: buildFieldAccumulatorFromObject('n'),
+        p: buildFieldAccumulatorFromObject('p'),
+        r: buildFieldAccumulatorFromObject('r'),
       },
       else: '$$value',
     },

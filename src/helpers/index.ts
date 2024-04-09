@@ -1,4 +1,6 @@
-import type * as T from './types';
+import type * as T from '../types';
+
+export * as itemsArray from './items-array';
 
 export const getReportsDates = (
   date: Date
@@ -46,13 +48,24 @@ export const getYYYYMMDD = (date: Date): string => {
   return date.toISOString().split('T')[0].replace(/-/g, '');
 };
 
-export const buildFieldAccumulator = (
+export const buildFieldAccumulatorFromObject = (
   field: string
 ): Record<string, unknown> => {
   return {
     $add: [
       `$$value.${field}`,
       { $cond: [`$$this.v.${field}`, `$$this.v.${field}`, 0] },
+    ],
+  };
+};
+
+export const buildFieldAccumulatorFromArray = (
+  field: string
+): Record<string, unknown> => {
+  return {
+    $add: [
+      `$$value.${field}`,
+      { $cond: [`$$this.${field}`, `$$this.${field}`, 0] },
     ],
   };
 };
@@ -90,4 +103,25 @@ export const getSS = (date: Date): string => {
   const month = Number(getMM(date));
 
   return month <= 6 ? '01' : '02';
+};
+
+export const buildItemSum = (doc: T.Transaction): Record<string, unknown> => {
+  const newDoc: Record<string, unknown> = {
+    date: '$$this.date',
+    a: '$$this.a',
+    n: '$$this.n',
+    p: '$$this.p',
+    r: '$$this.r',
+  };
+
+  if (doc.a != null)
+    newDoc.a = { $add: [doc.a, { $cond: ['$$this.a', '$$this.a', 0] }] };
+  if (doc.n != null)
+    newDoc.n = { $add: [doc.n, { $cond: ['$$this.n', '$$this.n', 0] }] };
+  if (doc.p != null)
+    newDoc.p = { $add: [doc.p, { $cond: ['$$this.p', '$$this.p', 0] }] };
+  if (doc.r != null)
+    newDoc.r = { $add: [doc.r, { $cond: ['$$this.r', '$$this.r', 0] }] };
+
+  return newDoc;
 };

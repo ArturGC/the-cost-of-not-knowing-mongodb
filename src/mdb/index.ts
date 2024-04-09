@@ -13,7 +13,7 @@ type Collections = {
   appV5: Collection<T.SchemaV4>;
   appV6: Collection<T.SchemaV4>;
   appV7: Collection<T.SchemaV4>;
-  appV8: Collection<T.SchemaV6>;
+  appV8: Collection<T.SchemaV6R0>;
   appV9: Collection<T.SchemaV5>;
   appV10: Collection<T.SchemaV5>;
   appV11: Collection<T.SchemaV5>;

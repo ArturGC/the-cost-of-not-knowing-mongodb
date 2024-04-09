@@ -2,10 +2,9 @@ import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
 import {
-  buildFieldAccumulator,
+  buildFieldAccumulatorFromArray,
   buildKey,
   getMM,
-  getMMDD,
   getReportsDates,
   getYYYY,
 } from '../helpers';
@@ -20,7 +19,7 @@ const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6>>(
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6R0>>(
     (doc) => {
       const query = {
         _id: buildId(doc.key, doc.date),
@@ -158,42 +157,6 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
   return mdb.collections.appV8.bulkWrite(upsertOperations, { ordered: false });
 };
 
-const buildLoopLogic = (
-  key: number,
-  date: { end: Date; start: Date }
-): Record<string, unknown> => {
-  const [lowerId, lowerMMDD] = [buildId(key, date.start), getMMDD(date.start)];
-  const [upperId, upperMMDD] = [buildId(key, date.end), getMMDD(date.end)];
-
-  const InLowerYYYYMMAndGteLowerMMDD = {
-    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
-  };
-  const InUpperYYYYMMAndLtUpperDD = {
-    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
-  };
-  const BetweenLowerAndUpperYYYYMM = {
-    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
-  };
-
-  return {
-    $cond: {
-      if: {
-        $or: [
-          InLowerYYYYMMAndGteLowerMMDD,
-          BetweenLowerAndUpperYYYYMM,
-          InUpperYYYYMMAndLtUpperDD,
-        ],
-      },
-      then: {
-        a: buildFieldAccumulator('a'),
-        n: buildFieldAccumulator('n'),
-        p: buildFieldAccumulator('p'),
-        r: buildFieldAccumulator('r'),
-      },
-      else: '$$value',
-    },
-  };
-};
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
@@ -212,10 +175,10 @@ const getReport: T.GetReport = async ({ date, key }) => {
             ],
           },
           then: {
-            a: { $add: ['$$value.a', { $cond: ['$$this.a', '$$this.a', 0] }] },
-            n: { $add: ['$$value.n', { $cond: ['$$this.n', '$$this.n', 0] }] },
-            p: { $add: ['$$value.p', { $cond: ['$$this.p', '$$this.p', 0] }] },
-            r: { $add: ['$$value.r', { $cond: ['$$this.r', '$$this.r', 0] }] },
+            a: buildFieldAccumulatorFromArray('a'),
+            n: buildFieldAccumulatorFromArray('n'),
+            p: buildFieldAccumulatorFromArray('p'),
+            r: buildFieldAccumulatorFromArray('r'),
           },
           else: '$$value',
         },
@@ -223,7 +186,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     },
   };
 
-  const groupCountItems = {
+  const groupSumReports = {
     _id: null,
     approved: { $sum: '$report.a' },
     noFunds: { $sum: '$report.n' },
@@ -234,7 +197,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
     { $addFields: { report: buildReportField } },
-    { $group: groupCountItems },
+    { $group: groupSumReports },
     { $project: { _id: 0 } },
   ];
 

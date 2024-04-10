@@ -39,7 +39,7 @@ const PROD = {
     URI_APP:
       'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
     URI_BASE:
-      'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
+      'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
   },
   TYPE:
     (process.env.TYPE as Measurement['metadata']['type']) ??

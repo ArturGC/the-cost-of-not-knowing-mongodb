@@ -16,7 +16,15 @@ export DISK_OS='{
     "VolumeType": "gp3"
   }
 }'
-export DISKS="[$DISK_OS]"
+export DISK_DB='{
+  "DeviceName": "/dev/sdb",
+  "Ebs": {
+    "DeleteOnTermination": true,
+    "VolumeSize": 15, 
+    "VolumeType": "gp3"
+  }
+}'
+export DISKS="[$DISK_OS, $DISK_DB]"
 export TAG_OWNER="{Key=owner,Value='$(echo $YOUR_NAME | tr '[:upper:] ' '[:lower:].')'}"
 export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+5 days" +%Y-%m-%d)\"}"
 export TAG_TYPE="{Key=type,Value=\"client\"}"

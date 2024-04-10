@@ -12,6 +12,7 @@ const apps = Array.from({ length: 5 }).map((_, clusterId) => {
       APP_VERSION: 'appV0',
       CLUSTER_ID: clusterId,
       EXEC_ENV: 'prod',
+      TYPE: 'bulkUpsert',
     },
   };
 });

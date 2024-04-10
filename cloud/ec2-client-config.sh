@@ -3,11 +3,12 @@
 sudo apt update -y
 sudo apt upgrade -y
 
-# Disk
+## DISK CONGIFURATION ##
+# DISK
 export PARTITION_DISK="/dev/nvme1n1"
 export PARTITION_PATH="/dev/nvme1n1p1"
 export FOLDER_PATH="/data"
-export DISK_SIZE_GB=40
+export DISK_SIZE_GB=20
 export DISK_FORMAT="xfs"
 
 # Configure Partition
@@ -44,9 +45,6 @@ grep -q $PARTITION_PATH /etc/fstab \
 # Verify auto mount configuration
 sudo findmnt --verify
 
-
-# Production notes
-
 # NUMA Configure
 grep -q 'vm.zone_reclaim_mode' /etc/sysctl.conf
 
@@ -60,11 +58,13 @@ fi
 
 sudo systemctl daemon-reload
 
+
+
+## PRODUCTION NOTES ##
 # NUMA Verify
 sudo sysctl vm.zone_reclaim_mode | grep -q "= 0$" \
   && echo "Zone reclaim setting correct" \
   || echo "Zone reclaim setting incorrect"
-
 
 # Max Map Count Configure
 grep -q 'vm.max_map_count' /etc/sysctl.conf
@@ -83,7 +83,6 @@ sudo systemctl daemon-reload
 sudo sysctl vm.max_map_count | grep -q "= 128000$" \
   && echo "Max Map Count setting correct" \
   || echo "Max Map Count setting incorrect"
-
 
 # Swap Configure
 cat /proc/swaps | grep -qv Filename
@@ -116,12 +115,10 @@ sudo sysctl vm.swappiness | grep -q "= 1$" \
   && echo "Swappiness setting correct" \
   || echo "Swappiness setting incorrect"
 
-
 # Disk Access Time Verify
 grep /data /etc/fstab | grep -q noatime \
   && echo "Access time on data drive is disabled" \
   || echo "Access time on data drive isn't disabled"
-
 
 # User Resources Limits Configure
 for limit in fsize cpu as memlock
@@ -133,7 +130,6 @@ for limit in nofile noproc
 do
   grep "mongod" /etc/security/limits.conf | grep -q $limit || echo -e "mongod  hard  $limit  64000\nmongod  soft  $limit  64000" | sudo tee --append /etc/security/limits.conf
 done
-
 
 # Disable Transparent Huge Pages Configure
 SCRIPT=$(cat << 'ENDSCRIPT'
@@ -156,7 +152,6 @@ sudo chmod 755 /etc/systemd/system/disable-transparent-huge-pages.service
 sudo systemctl daemon-reload
 sudo systemctl start disable-transparent-huge-pages
 sudo systemctl enable disable-transparent-huge-pages
-
 
 # Set Readahead Configure
 SCRIPT=$(cat << 'ENDSCRIPT'
@@ -186,7 +181,18 @@ sudo blockdev --getra /dev/nvme1n1 | grep -Eq '^8|32$' \
   || echo "Readahead on data disk is wrong"
 
 
-# Hostname
-sudo hostnamectl set-hostname agc.node.internal.mdbtraining.net
 
+## EC2 CONGIFURATION ##
+# DNS
+sudo hostnamectl set-hostname agc.client.internal.mdbtraining.net
+
+# Node and TypeScript
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm list-remote
+nvm install v20
+npm install -g pm2 bun typescript ts-node
+pm2 install typescript
+
+# Reboot
 sudo reboot now

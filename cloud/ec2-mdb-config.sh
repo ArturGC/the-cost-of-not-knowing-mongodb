@@ -1,5 +1,51 @@
 #!/bin/bash
 
+sudo apt update -y
+sudo apt upgrade -y
+
+
+## DISK CONGIFURATION ##
+# Disk Parameters
+export PARTITION_DISK="/dev/nvme1n1"
+export PARTITION_PATH="/dev/nvme1n1p1"
+export FOLDER_PATH="/data"
+export DISK_SIZE_GB=50
+export DISK_FORMAT="xfs"
+
+# Configure Partition
+echo "$PARTITION_PATH : start= 2048, size= $(($DISK_SIZE_GB*1073741824/512-2048)), type=83" | sudo sfdisk $PARTITION_DISK
+
+# Format disk
+sudo mkfs -t $DISK_FORMAT $PARTITION_PATH
+
+# Mount disk
+sudo mkdir $FOLDER_PATH
+sudo mount -t $DISK_FORMAT $PARTITION_PATH $FOLDER_PATH
+
+# Configure auto mount on boot
+grep -q $PARTITION_PATH /etc/fstab
+
+if [[ $? -eq 0 ]]; then
+	echo "Automount already configured"
+else
+	echo "Configuring automount"
+  echo "$PARTITION_PATH    $FOLDER_PATH    $DISK_FORMAT    defaults,noatime 1 1" | sudo tee --append /etc/fstab
+	echo "Automount configured"
+fi
+
+# Verify disk mounted
+mount | grep $PARTITION_PATH | grep -q $DISK_FORMAT \
+  && echo "Disk mounted with $DISK_FORMAT" \
+  || echo "Disk NOT mounted with $DISK_FORMAT"
+
+# Verify auto mount on boot
+grep -q $PARTITION_PATH /etc/fstab \
+  && echo "Device $PARTITION_PATH does mount on boot" \
+  || echo "Device $PARTITION_PATH does NOT mount on boot"
+
+# Verify auto mount configuration
+sudo findmnt --verify
+
 # NUMA Configure
 grep -q 'vm.zone_reclaim_mode' /etc/sysctl.conf
 
@@ -13,11 +59,13 @@ fi
 
 sudo systemctl daemon-reload
 
+
+
+## PRODUCTION NOTES ##
 # NUMA Verify
 sudo sysctl vm.zone_reclaim_mode | grep -q "= 0$" \
   && echo "Zone reclaim setting correct" \
   || echo "Zone reclaim setting incorrect"
-
 
 # Max Map Count Configure
 grep -q 'vm.max_map_count' /etc/sysctl.conf
@@ -36,7 +84,6 @@ sudo systemctl daemon-reload
 sudo sysctl vm.max_map_count | grep -q "= 128000$" \
   && echo "Max Map Count setting correct" \
   || echo "Max Map Count setting incorrect"
-
 
 # Swap Configure
 cat /proc/swaps | grep -qv Filename
@@ -69,12 +116,10 @@ sudo sysctl vm.swappiness | grep -q "= 1$" \
   && echo "Swappiness setting correct" \
   || echo "Swappiness setting incorrect"
 
-
 # Disk Access Time Verify
 grep /data /etc/fstab | grep -q noatime \
   && echo "Access time on data drive is disabled" \
   || echo "Access time on data drive isn't disabled"
-
 
 # User Resources Limits Configure
 for limit in fsize cpu as memlock
@@ -86,7 +131,6 @@ for limit in nofile noproc
 do
   grep "mongod" /etc/security/limits.conf | grep -q $limit || echo -e "mongod  hard  $limit  64000\nmongod  soft  $limit  64000" | sudo tee --append /etc/security/limits.conf
 done
-
 
 # Disable Transparent Huge Pages Configure
 SCRIPT=$(cat << 'ENDSCRIPT'
@@ -109,7 +153,6 @@ sudo chmod 755 /etc/systemd/system/disable-transparent-huge-pages.service
 sudo systemctl daemon-reload
 sudo systemctl start disable-transparent-huge-pages
 sudo systemctl enable disable-transparent-huge-pages
-
 
 # Set Readahead Configure
 SCRIPT=$(cat << 'ENDSCRIPT'
@@ -137,3 +180,12 @@ sudo systemctl enable set-readahead
 sudo blockdev --getra /dev/nvme1n1 | grep -Eq '^8|32$' \
   && echo "Readahead on data disk is correct" \
   || echo "Readahead on data disk is wrong"
+
+
+
+## EC2 CONGIFURATION ##
+# Change machine hostname
+sudo hostnamectl set-hostname agc.node.internal.mdbtraining.net
+
+# Reboot
+sudo reboot now

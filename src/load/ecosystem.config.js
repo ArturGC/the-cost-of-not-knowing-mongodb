@@ -9,7 +9,7 @@ const apps = Array.from({ length: 5 }).map((_, clusterId) => {
     watch: false,
 
     env: {
-      APP_VERSION: 'appV0',
+      APP_VERSION: process.env.APP_VERSION,
       CLUSTER_ID: clusterId,
       EXEC_ENV: 'prod',
       TYPE: 'bulkUpsert',

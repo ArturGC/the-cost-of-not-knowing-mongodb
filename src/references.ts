@@ -33,6 +33,11 @@ const getSleepFactor = (): number => {
   else if (msPassed < 20 * oneMinuteInMs) return 4;
   else return 5;
 };
+const shouldBreak = (): boolean => {
+  const msPassed = new Date().getTime() - dateStart.getTime();
+
+  return msPassed > 30 * oneMinuteInMs;
+};
 
 export default {
   base: {
@@ -47,12 +52,15 @@ export default {
   },
   production: {
     ...production,
+    shouldBreak,
     sleep: {
       bulkUpsert: async (ms: number) => sleep(10000 / getSleepFactor() - ms),
       getReports: async (ms: number) => sleep(200 / getSleepFactor() - ms),
     },
   },
   clustersBatch,
+  dateStart,
+  sleep,
   workersPerCluster,
   workersTotal: clustersBatch * workersPerCluster,
 };

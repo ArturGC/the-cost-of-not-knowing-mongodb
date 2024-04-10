@@ -1,4 +1,5 @@
 import type * as T from '../types';
+import mdb from '../mdb';
 
 export * as itemsArray from './items-array';
 export * as ItemsObj from './items-obj';
@@ -82,4 +83,21 @@ export const getSS = (date: Date): string => {
   const month = Number(getMM(date));
 
   return month <= 6 ? '01' : '02';
+};
+
+export const storeCollectionStats = async (
+  appVersion: T.AppVersion,
+  execution: 'load' | 'production'
+): Promise<void> => {
+  const { avgObjSize, count, size, storageSize, totalIndexSize, totalSize } =
+    await mdb.dbApp.command({
+      collStats: 'appV5R3',
+      scale: 1024 * 1024,
+    });
+
+  await mdb.dbBase.collection('stats').insertOne({
+    appVersion,
+    execution,
+    stats: { avgObjSize, count, size, storageSize, totalIndexSize, totalSize },
+  });
 };

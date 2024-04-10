@@ -4,7 +4,7 @@ import generator from '../generator';
 import mdb from '../mdb';
 import refs from '../references';
 
-const worker = async (id: number): Promise<void> => {
+const worker = async (_: unknown, id: number): Promise<void> => {
   let count = 0;
   const basesBatch = 10;
 
@@ -35,11 +35,7 @@ const worker = async (id: number): Promise<void> => {
 
 const main = async (): Promise<void> => {
   await mdb.checkCollections();
-
-  await Promise.all(
-    Array.from({ length: refs.workersTotal }).map(async (_, i) => worker(i))
-  );
-
+  await Promise.all(Array.from({ length: refs.workersPerCluster }).map(worker));
   await mdb.close();
 };
 

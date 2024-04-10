@@ -8,7 +8,7 @@ const buildPrint = (id: number) => {
     console.log(`[${new Date().toISOString().slice(11, 19)}][${id}]: ${m}`);
 };
 
-const worker = async (id: number): Promise<void> => {
+const worker = async (_: unknown, id: number): Promise<void> => {
   let count = 0;
   const workerId = (refs.clustersBatch - 1) * config.CLUSTER_ID + id;
   const print = buildPrint(workerId);
@@ -43,13 +43,7 @@ const worker = async (id: number): Promise<void> => {
 
 const main = async (): Promise<void> => {
   await mdb.checkCollections();
-
-  await Promise.all(
-    Array.from({ length: refs.workersPerCluster }).map(async (_, id) => {
-      return worker(id);
-    })
-  );
-
+  await Promise.all(Array.from({ length: refs.workersPerCluster }).map(worker));
   await mdb.close();
 };
 

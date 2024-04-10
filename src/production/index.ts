@@ -13,7 +13,7 @@ const buildPrint = (id: number) => {
     console.log(`[${new Date().toISOString().slice(11, 19)}][${id}]: ${m}`);
 };
 
-const workerBulkUpsert = async (id: number): Promise<void> => {
+const workerBulkUpsert = async (_: unknown, id: number): Promise<void> => {
   const workerId = (refs.clustersBatch - 1) * config.CLUSTER_ID + id;
   const print = buildPrint(workerId);
 
@@ -45,7 +45,7 @@ const workerBulkUpsert = async (id: number): Promise<void> => {
   print('Finished');
 };
 
-const workerGetReports = async (id: number): Promise<void> => {
+const workerGetReports = async (_: unknown, id: number): Promise<void> => {
   const workerId = (refs.clustersBatch - 1) * config.CLUSTER_ID + id;
   const print = buildPrint(workerId);
 
@@ -69,16 +69,11 @@ const workerGetReports = async (id: number): Promise<void> => {
 };
 
 const main = async (): Promise<void> => {
+  const worker =
+    config.TYPE === 'bulkUpsert' ? workerBulkUpsert : workerGetReports;
+
   await mdb.checkCollections();
-
-  await Promise.all(
-    Array.from({ length: refs.workersPerCluster }).map(async (_, id) => {
-      return config.TYPE === 'bulkUpsert'
-        ? workerBulkUpsert(id)
-        : workerGetReports(id);
-    })
-  );
-
+  await Promise.all(Array.from({ length: refs.workersPerCluster }).map(worker));
   await mdb.close();
 };
 

@@ -9,7 +9,7 @@ const appBase = {
 };
 const envBase = {
   APP_VERSION: 'appV0',
-  EXEC_ENV: 'test',
+  EXEC_ENV: 'prod',
 };
 
 const appsBulkUpsert = Array.from({ length: 5 }).map((_, clusterId) => {

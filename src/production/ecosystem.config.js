@@ -1,3 +1,5 @@
+const APP_VERSION = process.env.APP_VERSION;
+
 const appBase = {
   autorestart: false,
   exec_mode: 'cluster',
@@ -6,15 +8,16 @@ const appBase = {
   script: './src/production/index.ts',
   watch: false,
 };
+
 const envBase = {
-  APP_VERSION: process.env.APP_VERSION,
+  APP_VERSION,
   EXEC_ENV: 'prod',
 };
 
 const appsBulkUpsert = Array.from({ length: 5 }).map((_, clusterId) => {
   return {
     ...appBase,
-    name: `prod-bulkUpsert-${clusterId}`,
+    name: `prod-bulkUpsert-${clusterId}-${APP_VERSION}`,
     env: {
       ...envBase,
       CLUSTER_ID: clusterId,
@@ -26,7 +29,7 @@ const appsBulkUpsert = Array.from({ length: 5 }).map((_, clusterId) => {
 const appsGetReports = Array.from({ length: 5 }).map((_, clusterId) => {
   return {
     ...appBase,
-    name: `prod-getReports-${clusterId}`,
+    name: `prod-getReports-${clusterId}-${APP_VERSION}`,
     env: {
       ...envBase,
       CLUSTER_ID: clusterId,

@@ -6,8 +6,8 @@
   "scripts": {
     "base": "pm2 start src/base/ecosystem.config.js",
     "load": "pm2 start src/load/ecosystem.config.js",
-    "production": "cd ./client/production && pm2 start ./ecosystem.config.js",
-    "server": "npx tsc && cd server && pm2 start ./ecosystem.config.js",
+    "production": "pm2 start src/production/ecosystem.config.js",
+    "start": "pm2 start src/ecosystem.config.js --merge-logs",
     "test": "jest --detectOpenHandles"
   },
   "keywords": [

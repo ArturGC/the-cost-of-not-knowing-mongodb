@@ -95,6 +95,15 @@ export const storeCollectionStats = async (
       scale: 1024 * 1024,
     });
 
+  console.log({
+    avgObjSize,
+    count,
+    size,
+    storageSize,
+    totalIndexSize,
+    totalSize,
+  });
+
   await mdb.dbBase.collection('stats').insertOne({
     appVersion,
     execution,

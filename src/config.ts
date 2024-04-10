@@ -36,10 +36,12 @@ const PROD = {
       readPreference: 'primary',
       writeConcern: { journal: true, w: 'majority' },
     },
-    URI_APP:
-      'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
-    URI_BASE:
-      'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
+    // URI_APP:
+    //   'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
+    // URI_BASE:
+    //   'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
+    URI_APP: 'mongodb://localhost:27017/',
+    URI_BASE: 'mongodb://localhost:27017/',
   },
   TYPE:
     (process.env.TYPE as Measurement['metadata']['type']) ??

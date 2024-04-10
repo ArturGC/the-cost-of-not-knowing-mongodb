@@ -1,6 +1,6 @@
 #!/bin/bash
-
-for APP_VERSION in appV0 appV1 appV2 appV3 appV4 appV5R0 appV5R1 appV5R2 appV5R3 appV6R0 appV6R1 appV6R2
+# appV0 appV1 appV2 appV3 appV4 appV5R0 appV5R1 appV5R2 appV5R3 appV6R0 appV6R1 appV6R2
+for APP_VERSION in appV5R2 appV5R1 
 do
   export APP_VERSION=$APP_VERSION
 

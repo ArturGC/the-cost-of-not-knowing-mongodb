@@ -14,10 +14,10 @@ const envBase = {
   EXEC_ENV: 'prod',
 };
 
-const appsBulkUpsert = Array.from({ length: 5 }).map((_, clusterId) => {
+const appsBulkUpsert = Array.from({ length: 1 }).map((_, clusterId) => {
   return {
     ...appBase,
-    name: `prod-bulkUpsert-${clusterId}-${APP_VERSION}`,
+    name: `${APP_VERSION}-prod-bulkUpsert-${clusterId}`,
     env: {
       ...envBase,
       CLUSTER_ID: clusterId,
@@ -26,10 +26,10 @@ const appsBulkUpsert = Array.from({ length: 5 }).map((_, clusterId) => {
   };
 });
 
-const appsGetReports = Array.from({ length: 5 }).map((_, clusterId) => {
+const appsGetReports = Array.from({ length: 1 }).map((_, clusterId) => {
   return {
     ...appBase,
-    name: `prod-getReports-${clusterId}-${APP_VERSION}`,
+    name: `${APP_VERSION}-prod-getReports-${clusterId}`,
     env: {
       ...envBase,
       CLUSTER_ID: clusterId,

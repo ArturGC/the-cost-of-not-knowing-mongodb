@@ -12,6 +12,7 @@ const buildPrint = (id: number): ((m: string) => void) => {
     console.log(`[${time}][${_id}]: ${m}`);
   };
 };
+
 const worker = async (_: unknown, id: number): Promise<void> => {
   let count = 0;
   const workerId = (refs.clustersBatch - 1) * config.CLUSTER_ID + id;

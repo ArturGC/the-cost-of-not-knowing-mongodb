@@ -6,12 +6,10 @@ import refs from './references';
 class Generator {
   dateCurrent: Date;
   dateEnd: Date;
-  docsRemaining: number;
 
   constructor() {
-    this.docsRemaining = refs.base.transactionsPerYear;
     this.dateCurrent = refs.load.dateStart;
-    this.dateEnd = refs.production.dateEnd;
+    this.dateEnd = refs.prod.dateEnd;
   }
 
   getBase(worker: number): Base | undefined {

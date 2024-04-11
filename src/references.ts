@@ -1,6 +1,6 @@
+const oneMinuteInMs = 60 * 1000;
 const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
-const workersPerCluster = 4;
-const clustersBatch = 5;
+const workersTotal = 20;
 
 const base = {
   batchSize: 500,
@@ -10,19 +10,18 @@ const base = {
 
 const load = {
   dateStart: new Date('2010-01-01'),
-  dateEnd: new Date('2011-01-01'),
+  dateEnd: new Date('2020-01-01'),
 } as const;
 
 const production = {
-  dateStart: new Date('2011-01-01'),
-  dateEnd: new Date('2012-01-01'),
+  dateStart: new Date('2020-01-01'),
+  dateEnd: new Date('2021-01-01'),
 } as const;
 
 const sleep = async (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-const oneMinuteInMs = 60 * 1000;
 const dateStart = new Date();
 const getSleepFactor = (): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
@@ -50,7 +49,7 @@ export default {
   load: {
     ...load,
   },
-  production: {
+  prod: {
     ...production,
     shouldBreak,
     sleep: {
@@ -58,9 +57,7 @@ export default {
       getReports: async (ms: number) => sleep(200 / getSleepFactor() - ms),
     },
   },
-  clustersBatch,
   dateStart,
   sleep,
-  workersPerCluster,
-  workersTotal: clustersBatch * workersPerCluster,
+  workersTotal,
 };

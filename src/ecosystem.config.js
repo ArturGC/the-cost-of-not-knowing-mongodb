@@ -2,13 +2,12 @@ module.exports = {
   apps: [
     {
       autorestart: false,
-      exec_mode: 'fork',
+      exec_mode: 'cluster',
       instances: 1,
-      name: 'run',
-      script: './src/run.sh',
+      max_memory_restart: '2048M',
+      name: 'app',
+      script: 'npx tsc && node ./build/index.js',
       watch: false,
-      out_file: '/dev/null',
-      error_file: '/dev/null',
     },
   ],
 };

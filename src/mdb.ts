@@ -1,8 +1,8 @@
 import { type Collection, type Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 
-import type * as T from '../types';
-import config from '../config';
+import type * as T from './types';
+import config from './config';
 
 type Collections = {
   appV0: Collection<T.SchemaV0>;
@@ -36,11 +36,11 @@ class Mongo {
     this.dbBase = this.clientBase.db(config.MDB.DB_NAME);
 
     this.collections = {
-      appV0: this.dbApp.collection('appV00'),
-      appV1: this.dbApp.collection('appV01'),
-      appV2: this.dbApp.collection('appV02'),
-      appV3: this.dbApp.collection('appV03'),
-      appV4: this.dbApp.collection('appV04'),
+      appV0: this.dbApp.collection('appV0'),
+      appV1: this.dbApp.collection('appV1'),
+      appV2: this.dbApp.collection('appV2'),
+      appV3: this.dbApp.collection('appV3'),
+      appV4: this.dbApp.collection('appV4'),
       appV5R0: this.dbApp.collection('appV5R0'),
       appV5R1: this.dbApp.collection('appV5R1'),
       appV5R2: this.dbApp.collection('appV5R2'),

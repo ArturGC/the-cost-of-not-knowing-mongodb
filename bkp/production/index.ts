@@ -1,11 +1,11 @@
-import * as H from '../helpers';
-import * as P from '../persistence';
-import config from '../config';
-import generator from '../generator';
-import mdb from '../mdb';
-import refs from '../references';
+import * as H from '../../src/helpers';
+import * as P from '../../src/persistence';
+import config from '../../src/config';
+import generator from '../../src/generator';
+import mdb from '../../src/mdb';
+import refs from '../../src/references';
 
-let date = refs.production.dateStart;
+let date = refs.prod.dateStart;
 
 const buildPrint = (id: number): ((m: string) => void) => {
   const _id = `${id}`.padStart(2, '0');
@@ -23,10 +23,8 @@ const workerBulkUpsert = async (_: unknown, id: number): Promise<void> => {
   print('Starting');
 
   while (true) {
-    const base = await P.base.getNotUsed({
-      dateEnd: refs.production.dateEnd,
-      worker: workerId,
-    });
+    const filter = { dateEnd: refs.load.dateEnd, worker: id };
+    const base = await P.base.getNotUsed(filter);
 
     if (base == null) break;
 
@@ -38,11 +36,11 @@ const workerBulkUpsert = async (_: unknown, id: number): Promise<void> => {
       .insertOne({ timestamp, type: 'bulkUpsert', value })
       .catch((e) => print(JSON.stringify(e)));
 
-    await refs.production.sleep.bulkUpsert(value);
+    await refs.prod.sleep.bulkUpsert(value);
 
     date = base.transactions[0].date;
 
-    if (refs.production.shouldBreak()) break;
+    if (refs.prod.shouldBreak()) break;
   }
 
   print('Finished');
@@ -65,9 +63,9 @@ const workerGetReports = async (_: unknown, id: number): Promise<void> => {
       .insertOne({ timestamp, type: 'getReports', value })
       .catch((e) => print(JSON.stringify(e)));
 
-    await refs.production.sleep.getReports(value);
+    await refs.prod.sleep.getReports(value);
 
-    if (refs.production.shouldBreak()) break;
+    if (refs.prod.shouldBreak()) break;
   }
 
   print('Finished');

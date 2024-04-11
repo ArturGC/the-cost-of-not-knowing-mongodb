@@ -5,9 +5,7 @@
   "main": "./server/index.ts",
   "scripts": {
     "base": "pm2 start src/base/ecosystem.config.js",
-    "load": "pm2 start src/load/ecosystem.config.js",
-    "production": "pm2 start src/production/ecosystem.config.js",
-    "start": "pm2 start src/ecosystem.config.js --merge-logs",
+    "start": "pm2 start src/ecosystem.config.js",
     "test": "jest --detectOpenHandles"
   },
   "keywords": [

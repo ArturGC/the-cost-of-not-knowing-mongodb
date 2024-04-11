@@ -5,10 +5,9 @@ import mdb from '../mdb';
 import refs from '../references';
 
 const worker = async (_: unknown, id: number): Promise<void> => {
-  let count = 0;
   const basesBatch = 10;
 
-  while (true) {
+  for (let count = 0; count < 100_000; count += 1) {
     const bases = Array.from({ length: basesBatch }).reduce<T.Base[]>((acc) => {
       const base = generator.getBase(id);
 
@@ -19,14 +18,12 @@ const worker = async (_: unknown, id: number): Promise<void> => {
 
     await P.base.insertMany(bases);
 
-    count += 1;
-
     if (id === 0 && count % 10 === 0) {
       const total =
         basesBatch * refs.workersTotal * count * refs.base.batchSize;
-      const time = new Date().toLocaleTimeString();
+      const time = new Date().toISOString().slice(11, 19);
 
-      console.log(`[${time}] ${total} transactions created`);
+      console.log(`[${time}] ${total.toExponential(2)} transactions created`);
     }
   }
 
@@ -35,7 +32,7 @@ const worker = async (_: unknown, id: number): Promise<void> => {
 
 const main = async (): Promise<void> => {
   await mdb.checkCollections();
-  await Promise.all(Array.from({ length: refs.workersPerCluster }).map(worker));
+  await Promise.all(Array.from({ length: refs.workersTotal }).map(worker));
   await mdb.close();
 };
 

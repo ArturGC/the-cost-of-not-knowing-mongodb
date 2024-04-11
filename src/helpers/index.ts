@@ -1,4 +1,5 @@
 import type * as T from '../types';
+import config from '../config';
 import mdb from '../mdb';
 
 export * as itemsArray from './items-array';
@@ -91,18 +92,9 @@ export const storeCollectionStats = async (
 ): Promise<void> => {
   const { avgObjSize, count, size, storageSize, totalIndexSize, totalSize } =
     await mdb.dbApp.command({
-      collStats: 'appV5R3',
+      collStats: config.APP.VERSION,
       scale: 1024 * 1024,
     });
-
-  console.log({
-    avgObjSize,
-    count,
-    size,
-    storageSize,
-    totalIndexSize,
-    totalSize,
-  });
 
   await mdb.dbBase.collection('stats').insertOne({
     appVersion,

@@ -34,7 +34,7 @@ const main = async (): Promise<void> => {
       .insertOne({ timestamp, type: 'bulkUpsert', value })
       .catch(console.error);
 
-    if (count % 1000 === 0 && count !== 0) {
+    if (count % 100 === 0 && count !== 0) {
       const total = count * refs.base.batchSize;
       const rate = refs.base.batchSize / (value / 1000);
 

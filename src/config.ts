@@ -8,7 +8,7 @@ const TEST = {
   },
   CLUSTER_ID: Number(process.env.CLUSTER_ID) ?? 0,
   MDB: {
-    DB_NAME: 'prod',
+    DB_NAME: 'test',
     OPTIONS: {
       appName: 'API Server TEST',
       ignoreUndefined: true,

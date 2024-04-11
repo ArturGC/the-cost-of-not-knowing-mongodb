@@ -186,13 +186,5 @@ sudo blockdev --getra /dev/nvme1n1 | grep -Eq '^8|32$' \
 # DNS
 sudo hostnamectl set-hostname agc.client.internal.mdbtraining.net
 
-# Node and TypeScript
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
-nvm list-remote
-nvm install v20
-npm install -g pm2 bun typescript ts-node
-pm2 install typescript
-
 # Reboot
 sudo reboot now

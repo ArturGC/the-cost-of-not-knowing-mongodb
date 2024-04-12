@@ -18,6 +18,7 @@ type Collections = {
   appV6R0: Collection<T.SchemaV5R0>;
   appV6R1: Collection<T.SchemaV5R0>;
   appV6R2: Collection<T.SchemaV5R1>;
+  appV6R3: Collection<T.SchemaV5R1>;
   base: Collection<T.Base>;
   measurements: Collection<T.Measurement>;
 };
@@ -50,6 +51,7 @@ class Mongo {
       appV6R0: this.dbApp.collection('appV6R0'),
       appV6R1: this.dbApp.collection('appV6R1'),
       appV6R2: this.dbApp.collection('appV6R2'),
+      appV6R3: this.dbApp.collection('appV6R3'),
       base: this.dbBase.collection('base'),
       measurements: this.dbBase.collection('measurements'),
     };

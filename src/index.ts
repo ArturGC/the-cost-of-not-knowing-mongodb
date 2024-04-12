@@ -24,10 +24,10 @@ const buildWorker = async (id: number, file: string): Promise<unknown> => {
   });
 };
 
-const v1: T.AppVersion[] = ['appV0', 'appV1', 'appV2', 'appV3', 'appV4'];
-const v2: T.AppVersion[] = ['appV5R0', 'appV5R1', 'appV5R2', 'appV5R3'];
-const v3: T.AppVersion[] = ['appV6R0', 'appV6R1', 'appV6R2'];
-const appVersions = [...v1, ...v2, ...v3];
+const v1 = ['appV0', 'appV1', 'appV2', 'appV3', 'appV4'] as const;
+const v2 = ['appV5R0', 'appV5R1', 'appV5R2', 'appV5R3', 'appV5R4'] as const;
+const v3 = ['appV6R0', 'appV6R1', 'appV6R2', 'appV6R3'] as const;
+const appVersions: T.AppVersion[] = [...v1, ...v2, ...v3];
 
 const main = async (): Promise<void | never> => {
   await mdb.checkCollections();

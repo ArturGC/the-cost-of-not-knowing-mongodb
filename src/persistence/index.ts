@@ -11,5 +11,6 @@ export * as appV5R4 from './app-v5-r4';
 export * as appV6R0 from './app-v6-r0';
 export * as appV6R1 from './app-v6-r1';
 export * as appV6R2 from './app-v6-r2';
+export * as appV6R3 from './app-v6-r3';
 export * as base from './base';
 export * as measurements from './measurements';

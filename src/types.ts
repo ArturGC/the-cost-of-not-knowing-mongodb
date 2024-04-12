@@ -46,7 +46,8 @@ export type AppVersion =
   | 'appV5R4'
   | 'appV6R0'
   | 'appV6R1'
-  | 'appV6R2';
+  | 'appV6R2'
+  | 'appV6R3';
 
 export type ReportYear =
   | 'oneYear'

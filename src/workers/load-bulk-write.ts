@@ -14,8 +14,10 @@ const buildPrint = (id: number): ((m: string) => void) => {
   };
 };
 
+const ids = Array.from({ length: refs.workersTotal }).map((_, i) => i);
+
 const main = async (): Promise<void> => {
-  const { id } = workerData as { id: number };
+  let { id } = workerData as { id: number };
   const print = buildPrint(id);
 
   print('Starting');
@@ -24,7 +26,13 @@ const main = async (): Promise<void> => {
     const filter = { dateEnd: refs.load.dateEnd, worker: id };
     const base = await P.base.getNotUsed(filter);
 
-    if (base == null) break;
+    if (base == null) {
+      if (ids.length === 0) break;
+
+      id = ids.pop()!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+
+      continue;
+    }
 
     const timestamp = new Date();
     await P[config.APP.VERSION].bulkUpsert(base.transactions);

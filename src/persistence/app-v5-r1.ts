@@ -1,13 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import {
-  buildKey,
-  getQQ,
-  getReportsDates,
-  getYYYY,
-  itemsArray,
-} from '../helpers';
+import { buildKey, getQQ, getReportsDates, getYYYY } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: number, date: Date): Buffer => {
@@ -19,17 +13,12 @@ export const buildId = (key: number, date: Date): Buffer => {
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R0>>(
     (doc) => {
-      const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
-      const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
+      const { key, ...transaction } = doc;
 
       return {
         updateOne: {
           filter: { _id: buildId(doc.key, doc.date) },
-          update: [
-            { $set: { result: sumIfItemExists } },
-            { $set: { items: returnItemsOrCreateNew } },
-            { $unset: ['result'] },
-          ],
+          update: { $push: { items: transaction } },
           upsert: true,
         },
       };

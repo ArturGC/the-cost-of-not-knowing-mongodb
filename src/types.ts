@@ -43,6 +43,7 @@ export type AppVersion =
   | 'appV5R1'
   | 'appV5R2'
   | 'appV5R3'
+  | 'appV5R4'
   | 'appV6R0'
   | 'appV6R1'
   | 'appV6R2';

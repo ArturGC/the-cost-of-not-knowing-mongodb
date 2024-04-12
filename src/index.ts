@@ -27,18 +27,17 @@ const buildWorker = async (id: number, file: string): Promise<unknown> => {
 const v1: T.AppVersion[] = ['appV0', 'appV1', 'appV2', 'appV3', 'appV4'];
 const v2: T.AppVersion[] = ['appV5R0', 'appV5R1', 'appV5R2', 'appV5R3'];
 const v3: T.AppVersion[] = ['appV6R0', 'appV6R1', 'appV6R2'];
+const appVersions = [...v1, ...v2, ...v3];
 
 const main = async (): Promise<void | never> => {
   await mdb.checkCollections();
 
-  const appVersions = [...v1, ...v2, ...v3];
-
   for (const appVersion of appVersions) {
-    process.env.APP_VERSION = appVersion;
     config.APP.VERSION = appVersion;
+    process.env.APP_VERSION = appVersion;
 
     await Promise.all([
-      ...Array.from({ length: 20 }).map(async (_, id) =>
+      ...Array.from({ length: refs.workersTotal }).map(async (_, id) =>
         buildWorker(id, 'load-bulk-write.js')
       ),
     ]);
@@ -47,10 +46,10 @@ const main = async (): Promise<void | never> => {
     await H.storeCollectionStats(config.APP.VERSION, 'load');
 
     await Promise.all([
-      ...Array.from({ length: 20 }).map(async (_, id) =>
+      ...Array.from({ length: refs.workersTotal }).map(async (_, id) =>
         buildWorker(id, 'prod-bulk-write.js')
       ),
-      ...Array.from({ length: 20 }).map(async (_, id) =>
+      ...Array.from({ length: refs.workersTotal }).map(async (_, id) =>
         buildWorker(id, 'prod-get-reports.js')
       ),
     ]);

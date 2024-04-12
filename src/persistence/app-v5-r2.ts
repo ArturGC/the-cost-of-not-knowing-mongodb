@@ -46,21 +46,27 @@ const getReport: T.GetReport = async ({ date, key }) => {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const itemsReduceAccumulator = itemsArray.buildItemsReduceAccumulator({
-    date,
-  });
+  const openItemsArray = {
+    path: '$items',
+    preserveNullAndEmptyArrays: false,
+  };
+
+  const itemsBetweenDates = {
+    'items.date': { $gte: date.start, $lt: date.end },
+  };
 
   const groupSumReports = {
     _id: null,
-    approved: { $sum: '$report.a' },
-    noFunds: { $sum: '$report.n' },
-    pending: { $sum: '$report.p' },
-    rejected: { $sum: '$report.r' },
+    approved: { $sum: '$items.a' },
+    noFunds: { $sum: '$items.n' },
+    pending: { $sum: '$items.p' },
+    rejected: { $sum: '$items.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: itemsReduceAccumulator } },
+    { $unwind: openItemsArray },
+    { $match: itemsBetweenDates },
     { $group: groupSumReports },
     { $project: { _id: 0 } },
   ];

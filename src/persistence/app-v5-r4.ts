@@ -21,12 +21,13 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     (doc) => {
       const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
       const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
+      const newReportFields = itemsArray.buildNewReport(doc);
 
       return {
         updateOne: {
           filter: { _id: buildId(doc.key, doc.date) },
           update: [
-            { $set: { result: sumIfItemExists } },
+            { $set: { ...newReportFields, result: sumIfItemExists } },
             { $set: { items: returnItemsOrCreateNew } },
             { $unset: ['result'] },
           ],
@@ -36,19 +37,57 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     }
   );
 
-  return mdb.collections.appV5R3.bulkWrite(upsertOperations, {
+  return mdb.collections.appV5R4.bulkWrite(upsertOperations, {
     ordered: false,
   });
 };
 
+const buildReduceLoopLogic = (date: {
+  end: Date;
+  start: Date;
+}): Record<string, unknown> => {
+  return {
+    $cond: {
+      if: {
+        $and: [
+          { $gte: ['$$this.date', date.start] },
+          { $lt: ['$$this.date', date.end] },
+        ],
+      },
+      then: {
+        a: itemsArray.buildFieldAccumulator('a'),
+        n: itemsArray.buildFieldAccumulator('n'),
+        p: itemsArray.buildFieldAccumulator('p'),
+        r: itemsArray.buildFieldAccumulator('r'),
+      },
+      else: '$$value',
+    },
+  };
+};
+
 const getReport: T.GetReport = async ({ date, key }) => {
+  const [lowerId, upperId] = [buildId(key, date.start), buildId(key, date.end)];
+
   const docsFromKeyBetweenDate = {
-    _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
+    _id: { $gte: lowerId, $lte: upperId },
   };
 
-  const itemsReduceAccumulator = itemsArray.buildItemsReduceAccumulator({
-    date,
-  });
+  const BetweenLowerAndUpperYearQuarter = {
+    $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
+  };
+  const buildReportField = {
+    $cond: {
+      if: BetweenLowerAndUpperYearQuarter,
+      then: '$report',
+      else: {
+        $reduce: {
+          input: '$items',
+          initialValue: { a: 0, n: 0, p: 0, r: 0 },
+          in: buildReduceLoopLogic(date),
+        },
+      },
+    },
+  };
 
   const groupSumReports = {
     _id: null,
@@ -60,12 +99,12 @@ const getReport: T.GetReport = async ({ date, key }) => {
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: itemsReduceAccumulator } },
+    { $addFields: { report: buildReportField } },
     { $group: groupSumReports },
     { $project: { _id: 0 } },
   ];
 
-  return mdb.collections.appV5R3
+  return mdb.collections.appV5R4
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

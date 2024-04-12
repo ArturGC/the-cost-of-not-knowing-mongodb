@@ -1,4 +1,4 @@
-import { type AppVersion, type Measurement } from './types';
+import { type AppVersion } from './types';
 import { type MongoClientOptions } from 'mongodb';
 
 const TEST = {
@@ -10,7 +10,7 @@ const TEST = {
   MDB: {
     DB_NAME: 'test',
     OPTIONS: {
-      appName: 'API Server TEST',
+      appName: 'Application Test',
       ignoreUndefined: true,
       readPreference: 'primary',
       writeConcern: { journal: true, w: 'majority' },
@@ -18,9 +18,9 @@ const TEST = {
     URI_APP: 'mongodb://localhost:27017/',
     URI_BASE: 'mongodb://localhost:27017/',
   },
-  TYPE:
-    (process.env.TYPE as Measurement['metadata']['type']) ??
-    ('getReports' satisfies Measurement['metadata']['type']),
+  // TYPE:
+  //   (process.env.TYPE as Measurement['metadata']['type']) ??
+  //   ('getReports' satisfies Measurement['metadata']['type']),
 };
 
 const PROD = {
@@ -32,7 +32,7 @@ const PROD = {
   MDB: {
     DB_NAME: 'prod',
     OPTIONS: {
-      appName: 'API Server PROD',
+      appName: 'Application Prod',
       ignoreUndefined: true,
       readPreference: 'primary',
       writeConcern: { journal: true, w: 'majority' },
@@ -42,9 +42,9 @@ const PROD = {
     URI_BASE:
       'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
   },
-  TYPE:
-    (process.env.TYPE as Measurement['metadata']['type']) ??
-    ('getReports' satisfies Measurement['metadata']['type']),
+  // TYPE:
+  //   (process.env.TYPE as Measurement['metadata']['type']) ??
+  //   ('getReports' satisfies Measurement['metadata']['type']),
 };
 
 export default process.env.EXEC_ENV === 'prod' ? PROD : TEST;

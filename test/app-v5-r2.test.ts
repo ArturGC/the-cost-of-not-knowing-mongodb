@@ -13,9 +13,9 @@ withDb(() => {
 
       await P.appV5R2.bulkUpsert(docs0);
 
-      const doc0V5R2 = await mdb.collections.appV5R2.findOne({ _id: idDocs0 });
+      const doc0V5R1 = await mdb.collections.appV5R2.findOne({ _id: idDocs0 });
 
-      expect(doc0V5R2?.items).toEqual([
+      expect(doc0V5R1?.items).toEqual([
         { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
       ]);
 
@@ -24,9 +24,9 @@ withDb(() => {
 
       await P.appV5R2.bulkUpsert(docs1);
 
-      const doc1V5R2 = await mdb.collections.appV5R2.findOne({ _id: idDocs1 });
+      const doc1V5R1 = await mdb.collections.appV5R2.findOne({ _id: idDocs1 });
 
-      expect(doc1V5R2?.items).toEqual([
+      expect(doc1V5R1?.items).toEqual([
         { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
         { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
       ]);
@@ -36,9 +36,9 @@ withDb(() => {
 
       await P.appV5R2.bulkUpsert(docs2);
 
-      const doc2V5R2 = await mdb.collections.appV5R2.findOne({ _id: idDocs2 });
+      const doc2V5R1 = await mdb.collections.appV5R2.findOne({ _id: idDocs2 });
 
-      expect(doc2V5R2?.items).toEqual([
+      expect(doc2V5R1?.items).toEqual([
         { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
         { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
         { date: new Date('2022-05-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },

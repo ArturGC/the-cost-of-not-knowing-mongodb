@@ -2,8 +2,6 @@ import type * as T from '../types';
 import config from '../config';
 import mdb from '../mdb';
 
-const appVersion = config.APP.VERSION;
-
 export const insertOne = async ({
   timestamp,
   type,
@@ -14,7 +12,7 @@ export const insertOne = async ({
   value: number;
 }): Promise<void> => {
   await mdb.collections.measurements.insertOne({
-    metadata: { app: appVersion, type },
+    metadata: { app: config.APP.VERSION, type },
     timestamp,
     value,
   });

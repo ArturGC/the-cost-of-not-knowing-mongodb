@@ -38,7 +38,6 @@ const main = async (): Promise<void> => {
       const total = count * refs.base.batchSize;
       const rate = refs.base.batchSize / (value / 1000);
 
-      total.toExponential();
       print(`Total: ${total.toExponential(2)}, Rate: ${rate.toFixed(2)}/s`);
     }
   }

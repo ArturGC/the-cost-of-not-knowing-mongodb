@@ -14,6 +14,7 @@ type Collections = {
   appV5R1: Collection<T.SchemaV4R0>;
   appV5R2: Collection<T.SchemaV4R0>;
   appV5R3: Collection<T.SchemaV4R1>;
+  appV5R4: Collection<T.SchemaV4R1>;
   appV6R0: Collection<T.SchemaV5R0>;
   appV6R1: Collection<T.SchemaV5R0>;
   appV6R2: Collection<T.SchemaV5R1>;
@@ -45,6 +46,7 @@ class Mongo {
       appV5R1: this.dbApp.collection('appV5R1'),
       appV5R2: this.dbApp.collection('appV5R2'),
       appV5R3: this.dbApp.collection('appV5R3'),
+      appV5R4: this.dbApp.collection('appV5R4'),
       appV6R0: this.dbApp.collection('appV6R0'),
       appV6R1: this.dbApp.collection('appV6R1'),
       appV6R2: this.dbApp.collection('appV6R2'),
@@ -60,30 +62,45 @@ class Mongo {
 
   dropDb = async (): Promise<void> => {
     await this.dbApp.dropDatabase();
+    await this.dbBase.dropDatabase();
   };
 
   dropCollections = async (): Promise<void> => {
-    const collections = await this.dbApp.collections();
+    await this.dbApp
+      .collections()
+      .then(async (collections) =>
+        Promise.all(collections.map(async (c) => c.drop().catch((e) => e)))
+      );
 
-    await Promise.all(collections.map(async (c) => c.drop().catch((e) => e)));
+    await this.dbBase
+      .collections()
+      .then(async (collections) =>
+        Promise.all(collections.map(async (c) => c.drop().catch((e) => e)))
+      );
   };
 
   checkCollections = async (): Promise<void> => {
-    await this.collections.appV1.createIndex(
-      { '_id.key': 1, '_id.date': 1 },
-      { unique: true }
-    );
+    await this.collections.appV1
+      .createIndex({ '_id.key': 1, '_id.date': 1 }, { unique: true })
+      .catch(() => {});
 
-    await this.collections.appV2.createIndex(
-      { key: 1, date: 1 },
-      { unique: true }
-    );
+    await this.collections.appV2
+      .createIndex({ key: 1, date: 1 }, { unique: true })
+      .catch(() => {});
 
-    await this.collections.base.createIndex({
-      worker: 1,
-      date: 1,
-      appSynced: 1,
-    });
+    await this.collections.base
+      .createIndex({ worker: 1, date: 1, appSynced: 1 })
+      .catch(() => {});
+
+    await this.dbBase
+      .createCollection('measurements', {
+        timeseries: {
+          granularity: 'seconds',
+          metaField: 'metadata',
+          timeField: 'timestamp',
+        },
+      })
+      .catch(() => {});
 
     // await this.dbApp
     //   .createCollection('appV8', {
@@ -92,24 +109,6 @@ class Mongo {
     //     },
     //   })
     //   .catch(() => {});
-
-    // await this.dbApp
-    //   .createCollection('appV11', {
-    //     storageEngine: {
-    //       wiredTiger: { configString: 'block_compressor=zstd' },
-    //     },
-    //   })
-    //   .catch(() => {});
-
-    await this.dbBase
-      .createCollection('measurements', {
-        timeseries: {
-          granularity: 'seconds',
-          timeField: 'timestamp',
-          metaField: 'metadata',
-        },
-      })
-      .catch(() => {});
   };
 }
 

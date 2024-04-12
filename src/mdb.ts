@@ -18,7 +18,8 @@ type Collections = {
   appV6R0: Collection<T.SchemaV5R0>;
   appV6R1: Collection<T.SchemaV5R0>;
   appV6R2: Collection<T.SchemaV5R1>;
-  appV6R3: Collection<T.SchemaV5R1>;
+  appV6R3: Collection<T.SchemaV5R0>;
+  appV6R4: Collection<T.SchemaV5R0>;
   base: Collection<T.Base>;
   measurements: Collection<T.Measurement>;
 };
@@ -52,6 +53,7 @@ class Mongo {
       appV6R1: this.dbApp.collection('appV6R1'),
       appV6R2: this.dbApp.collection('appV6R2'),
       appV6R3: this.dbApp.collection('appV6R3'),
+      appV6R4: this.dbApp.collection('appV6R4'),
       base: this.dbBase.collection('base'),
       measurements: this.dbBase.collection('measurements'),
     };
@@ -104,13 +106,13 @@ class Mongo {
       })
       .catch(() => {});
 
-    // await this.dbApp
-    //   .createCollection('appV8', {
-    //     storageEngine: {
-    //       wiredTiger: { configString: 'block_compressor=zstd' },
-    //     },
-    //   })
-    //   .catch(() => {});
+    await this.dbApp
+      .createCollection('appV6R4', {
+        storageEngine: {
+          wiredTiger: { configString: 'block_compressor=zstd' },
+        },
+      })
+      .catch(() => {});
   };
 }
 

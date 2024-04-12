@@ -10,7 +10,7 @@ module.exports = {
       watch: false,
 
       env: {
-        EXEC_ENV: 'test',
+        EXEC_ENV: 'prod',
       },
     },
   ],

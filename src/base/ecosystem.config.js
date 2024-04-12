@@ -8,6 +8,10 @@ module.exports = {
       name: 'base',
       script: './src/base/index.ts',
       watch: false,
+
+      env: {
+        EXEC_ENV: 'test',
+      },
     },
   ],
 };

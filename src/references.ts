@@ -22,8 +22,7 @@ const sleep = async (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-const dateStart = new Date();
-const getSleepFactor = (): number => {
+const getSleepFactor = (dateStart: Date): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
 
   if (msPassed < 5 * oneMinuteInMs) return 1;
@@ -32,7 +31,7 @@ const getSleepFactor = (): number => {
   else if (msPassed < 20 * oneMinuteInMs) return 4;
   else return 5;
 };
-const shouldBreak = (): boolean => {
+const shouldBreak = (dateStart: Date): boolean => {
   const msPassed = new Date().getTime() - dateStart.getTime();
 
   return msPassed > 30 * oneMinuteInMs;
@@ -53,11 +52,12 @@ export default {
     ...production,
     shouldBreak,
     sleep: {
-      bulkUpsert: async (ms: number) => sleep(10000 / getSleepFactor() - ms),
-      getReports: async (ms: number) => sleep(200 / getSleepFactor() - ms),
+      bulkUpsert: async (ms: number, dateStart: Date) =>
+        sleep(10000 / getSleepFactor(dateStart) - ms),
+      getReports: async (ms: number, dateStart: Date) =>
+        sleep(200 / getSleepFactor(dateStart) - ms),
     },
   },
-  dateStart,
   sleep,
   workersTotal,
 };

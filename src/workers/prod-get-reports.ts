@@ -16,9 +16,10 @@ const buildPrint = (id: number): ((m: string) => void) => {
 };
 
 const main = async (): Promise<void> => {
+  const dateStart = new Date();
   const { id } = workerData as { id: number };
   const print = buildPrint(id);
-  let date = refs.prod.dateStart;
+  let dateRecent = refs.prod.dateStart;
 
   print('Starting');
 
@@ -26,7 +27,7 @@ const main = async (): Promise<void> => {
     const key = generator.getReportKey();
 
     const timestamp = new Date();
-    await P[config.APP.VERSION].getReports({ date, key });
+    await P[config.APP.VERSION].getReports({ date: dateRecent, key });
     const value = new Date().getTime() - timestamp.getTime();
 
     P.measurements
@@ -39,11 +40,13 @@ const main = async (): Promise<void> => {
     }
 
     await Promise.all([
-      refs.prod.sleep.getReports(value),
-      P.base.getCurrentDate(id).then((currentDate) => (date = currentDate)),
+      refs.prod.sleep.getReports(value, dateStart),
+      P.base
+        .getCurrentDate(id)
+        .then((currentDate) => (dateRecent = currentDate)),
     ]);
 
-    if (refs.prod.shouldBreak()) break;
+    if (refs.prod.shouldBreak(dateStart)) break;
   }
 
   print('Finished');

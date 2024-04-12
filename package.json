@@ -5,7 +5,7 @@
   "main": "./server/index.ts",
   "scripts": {
     "base": "pm2 start src/base/ecosystem.config.js",
-    "start": "pm2 start src/ecosystem.config.js",
+    "start": "npx tsc && pm2 start src/ecosystem.config.js",
     "test": "jest --detectOpenHandles"
   },
   "keywords": [

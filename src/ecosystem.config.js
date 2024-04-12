@@ -4,10 +4,14 @@ module.exports = {
       autorestart: false,
       exec_mode: 'cluster',
       instances: 1,
-      max_memory_restart: '2048M',
+      max_memory_restart: '3072M',
       name: 'app',
-      script: 'npx tsc && node ./build/index.js',
+      script: './build/index.js',
       watch: false,
+
+      env: {
+        EXEC_ENV: 'test',
+      },
     },
   ],
 };

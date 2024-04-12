@@ -15,6 +15,7 @@ const buildPrint = (id: number): ((m: string) => void) => {
 };
 
 const main = async (): Promise<void> => {
+  const dateStart = new Date();
   const { id } = workerData as { id: number };
   const print = buildPrint(id);
 
@@ -41,9 +42,9 @@ const main = async (): Promise<void> => {
       print(`Total: ${total.toExponential(2)}, Rate: ${rate.toFixed(2)}/s`);
     }
 
-    await refs.prod.sleep.bulkUpsert(value);
+    await refs.prod.sleep.bulkUpsert(value, dateStart);
 
-    if (refs.prod.shouldBreak()) break;
+    if (refs.prod.shouldBreak(dateStart)) break;
   }
 
   print('Finished');

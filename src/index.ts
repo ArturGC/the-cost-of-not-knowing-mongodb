@@ -34,6 +34,7 @@ const main = async (): Promise<void | never> => {
   const appVersions = [...v1, ...v2, ...v3];
 
   for (const appVersion of appVersions) {
+    process.env.APP_VERSION = appVersion;
     config.APP.VERSION = appVersion;
 
     await Promise.all([
@@ -42,7 +43,7 @@ const main = async (): Promise<void | never> => {
       ),
     ]);
 
-    await refs.sleep(5000);
+    await refs.sleep(5 * 60 * 1000);
     await H.storeCollectionStats(config.APP.VERSION, 'load');
 
     await Promise.all([
@@ -54,7 +55,7 @@ const main = async (): Promise<void | never> => {
       ),
     ]);
 
-    await refs.sleep(5000);
+    await refs.sleep(5 * 60 * 1000);
     await H.storeCollectionStats(config.APP.VERSION, 'production');
   }
 

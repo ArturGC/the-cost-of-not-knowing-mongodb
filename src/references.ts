@@ -16,6 +16,7 @@ const load = {
 const production = {
   dateStart: new Date('2020-01-01'),
   dateEnd: new Date('2021-01-01'),
+  maxDuration: 30 * oneMinuteInMs,
 } as const;
 
 const sleep = async (ms: number): Promise<void> => {
@@ -24,17 +25,18 @@ const sleep = async (ms: number): Promise<void> => {
 
 const getSleepFactor = (dateStart: Date): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
+  const percentagePassed = msPassed / production.maxDuration;
 
-  if (msPassed < 5 * oneMinuteInMs) return 1;
-  else if (msPassed < 10 * oneMinuteInMs) return 2;
-  else if (msPassed < 15 * oneMinuteInMs) return 3;
-  else if (msPassed < 20 * oneMinuteInMs) return 4;
+  if (percentagePassed < 0.2) return 1;
+  else if (percentagePassed < 0.4) return 2;
+  else if (percentagePassed < 0.6) return 3;
+  else if (percentagePassed < 0.8) return 4;
   else return 5;
 };
 const shouldBreak = (dateStart: Date): boolean => {
   const msPassed = new Date().getTime() - dateStart.getTime();
 
-  return msPassed > 30 * oneMinuteInMs;
+  return msPassed > production.maxDuration;
 };
 
 export default {

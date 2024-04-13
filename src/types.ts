@@ -1,26 +1,27 @@
 import { type BulkWriteResult, type Document, type ObjectId } from 'mongodb';
 
+// Data Source
+export type Transaction = { key: number; date: Date } & Events;
 export type Events = {
-  a?: number;
-  n?: number;
-  p?: number;
-  r?: number;
-};
-
-type EventsLong = {
   approved?: number;
   noFunds?: number;
   pending?: number;
   rejected?: number;
 };
 
-export type Transaction = { key: number; date: Date } & Events;
+export type TransactionShort = { key: number; date: Date } & EventsShort;
+export type EventsShort = {
+  a?: number;
+  n?: number;
+  p?: number;
+  r?: number;
+};
 
 export type Base = {
   _id: ObjectId;
   appSynced?: AppVersion;
   date: Date;
-  transactions: Transaction[];
+  transactions: TransactionShort[];
   worker: number;
 };
 
@@ -31,6 +32,50 @@ export type Measurement = {
   };
   timestamp: Date;
   value: number;
+};
+
+// Application
+export type SchemaV0 = {
+  _id: {
+    key: string;
+    date: Date;
+  };
+} & Events;
+
+export type SchemaV1 = {
+  _id: ObjectId;
+  key: string;
+  date: Date;
+} & Events;
+
+export type SchemaV2 = {
+  _id: Buffer;
+} & Events;
+
+export type SchemaV3 = {
+  _id: Buffer;
+} & EventsShort;
+
+export type SchemaV4R0 = {
+  _id: Buffer;
+  items: Array<{ date: Date } & EventsShort>;
+};
+
+export type SchemaV4R1 = {
+  _id: Buffer;
+  report: EventsShort;
+  items: Array<{ date: Date } & EventsShort>;
+};
+
+export type SchemaV5R0 = {
+  _id: Buffer;
+  items: Record<string, EventsShort>;
+};
+
+export type SchemaV5R1 = {
+  _id: Buffer;
+  report: EventsShort;
+  items: Record<string, EventsShort>;
 };
 
 export type AppVersion =
@@ -57,57 +102,15 @@ export type ReportYear =
   | 'sevenYears'
   | 'tenYears';
 
-export type SchemaV0 = {
-  _id: {
-    key: string;
-    date: Date;
-  };
-} & EventsLong;
-
-export type SchemaV1 = {
-  _id: ObjectId;
-  key: string;
-  date: Date;
-} & EventsLong;
-
-export type SchemaV2 = {
-  _id: Buffer;
-} & EventsLong;
-
-export type SchemaV3 = {
-  _id: Buffer;
-} & Events;
-
-export type SchemaV4R0 = {
-  _id: Buffer;
-  items: Array<{ date: Date } & Events>;
-};
-
-export type SchemaV4R1 = {
-  _id: Buffer;
-  report: Events;
-  items: Array<{ date: Date } & Events>;
-};
-
-export type SchemaV5R0 = {
-  _id: Buffer;
-  items: Record<string, Events>;
-};
-
-export type SchemaV5R1 = {
-  _id: Buffer;
-  report: Events;
-  items: Record<string, Events>;
-};
-
-export type BulkUpsert = (docs: Transaction[]) => Promise<BulkWriteResult>;
+// Operations
+export type BulkUpsert = (docs: TransactionShort[]) => Promise<BulkWriteResult>;
 
 export type GetReport = (filter: {
   date: { end: Date; start: Date };
-  key: Transaction['key'];
+  key: TransactionShort['key'];
 }) => Promise<Document>;
 
 export type GetReports = (filter: {
   date: Date;
-  key: Transaction['key'];
+  key: TransactionShort['key'];
 }) => Promise<Document[]>;

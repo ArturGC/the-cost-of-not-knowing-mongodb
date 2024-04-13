@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 
-import { type Base, type Transaction } from './types';
+import { type Base, type TransactionShort } from './types';
 import refs from './references';
 
 class Generator {
@@ -27,7 +27,7 @@ class Generator {
     };
   }
 
-  getTransaction(): Transaction {
+  getTransaction(): TransactionShort {
     return {
       date: this.getDate(),
       key: this.getKey(),
@@ -52,7 +52,7 @@ class Generator {
     return Math.ceil(keyNumber);
   }
 
-  private getEvent(): Pick<Transaction, 'a' | 'n' | 'p' | 'r'> {
+  private getEvent(): Pick<TransactionShort, 'a' | 'n' | 'p' | 'r'> {
     const value = Math.random();
 
     if (value < 0.8) return { a: 1 };

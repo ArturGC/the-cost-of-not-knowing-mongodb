@@ -33,6 +33,7 @@ const getSleepFactor = (dateStart: Date): number => {
   else if (percentagePassed < 0.8) return 4;
   else return 5;
 };
+
 const shouldBreak = (dateStart: Date): boolean => {
   const msPassed = new Date().getTime() - dateStart.getTime();
 

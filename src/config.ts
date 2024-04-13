@@ -6,7 +6,6 @@ const TEST = {
     VERSION:
       (process.env.APP_VERSION as AppVersion) ?? ('appV4' satisfies AppVersion),
   },
-  CLUSTER_ID: Number(process.env.CLUSTER_ID) ?? 0,
   MDB: {
     DB_NAME: 'test',
     OPTIONS: {
@@ -18,9 +17,6 @@ const TEST = {
     URI_APP: 'mongodb://localhost:27017/',
     URI_BASE: 'mongodb://localhost:27017/',
   },
-  // TYPE:
-  //   (process.env.TYPE as Measurement['metadata']['type']) ??
-  //   ('getReports' satisfies Measurement['metadata']['type']),
 };
 
 const PROD = {
@@ -28,7 +24,6 @@ const PROD = {
     VERSION:
       (process.env.APP_VERSION as AppVersion) ?? ('appV0' satisfies AppVersion),
   },
-  CLUSTER_ID: Number(process.env.CLUSTER_ID) ?? 0,
   MDB: {
     DB_NAME: 'prod',
     OPTIONS: {
@@ -42,9 +37,6 @@ const PROD = {
     URI_BASE:
       'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
   },
-  // TYPE:
-  //   (process.env.TYPE as Measurement['metadata']['type']) ??
-  //   ('getReports' satisfies Measurement['metadata']['type']),
 };
 
 export default process.env.EXEC_ENV === 'prod' ? PROD : TEST;

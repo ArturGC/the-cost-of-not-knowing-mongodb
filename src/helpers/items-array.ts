@@ -1,6 +1,6 @@
 import type * as T from '../types';
 
-const buildItemSum = (doc: T.Transaction): Record<string, unknown> => {
+const buildItemSum = (doc: T.TransactionShort): Record<string, unknown> => {
   const newDoc: Record<string, unknown> = {
     date: '$$this.date',
     a: '$$this.a',
@@ -22,7 +22,7 @@ const buildItemSum = (doc: T.Transaction): Record<string, unknown> => {
 };
 
 export const buildResultIfItemExists = (
-  doc: T.Transaction
+  doc: T.TransactionShort
 ): Record<string, unknown> => {
   const itemsOrEmptyArray = {
     $cond: ['$items', '$items', []],
@@ -59,7 +59,9 @@ export const buildResultIfItemExists = (
   };
 };
 
-export const buildNewReport = (doc: T.Transaction): Record<string, unknown> => {
+export const buildNewReport = (
+  doc: T.TransactionShort
+): Record<string, unknown> => {
   const newReport: Record<string, unknown> = {};
 
   if (doc.a != null) {
@@ -90,7 +92,7 @@ export const buildNewReport = (doc: T.Transaction): Record<string, unknown> => {
 };
 
 export const buildItemsOrCreateNew = (
-  doc: T.Transaction
+  doc: T.TransactionShort
 ): Record<string, unknown> => {
   const { key, ...newDoc } = doc;
 

@@ -1,268 +1,301 @@
 # The cost of not knowing MongoDB
 
-### App V0
+## Transaction and Reports
 
-- Schema:
-  ```ts
-  type DocV0 = {
-    _id: {
-      date: Date;
-      key: string;
-    };
-    approved?: number;
-    noFunds?: number;
-    pending?: number;
-    rejected?: number;
+```ts
+type Transaction = {
+  key: string;
+  date: Date;
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+
+type Report = {
+  id: 'oneYear' | 'threeYears' | 'fiveYears' | 'sevenYears' | 'tenYears';
+  start: Date;
+  end: Date;
+  a: number;
+  n: number;
+  p: number;
+  r: number;
+};
+
+const transactions: Transaction = [
+  { date: new Date('2022-06-25'), key: 1, a: 1 },
+  { date: new Date('2022-06-15'), key: 1, a: 1, n: 1 },
+  { date: new Date('2022-06-10'), key: 1, a: 1, p: 1 },
+  { date: new Date('2022-06-05'), key: 1, a: 1, r: 1 },
+
+  { date: new Date('2021-06-25'), key: 1, a: 1 },
+  { date: new Date('2021-06-15'), key: 1, a: 1, n: 1 },
+  { date: new Date('2021-06-10'), key: 1, a: 1, p: 1 },
+  { date: new Date('2021-06-05'), key: 1, a: 1, r: 1 },
+
+  { date: new Date('2019-06-25'), key: 1, a: 1 },
+  { date: new Date('2019-06-15'), key: 1, a: 1, n: 1 },
+  { date: new Date('2019-06-10'), key: 1, a: 1, p: 1 },
+  { date: new Date('2019-06-05'), key: 1, a: 1, r: 1 },
+
+  { date: new Date('2017-06-25'), key: 1, a: 1 },
+  { date: new Date('2017-06-15'), key: 1, a: 1, n: 1 },
+  { date: new Date('2017-06-10'), key: 1, a: 1, p: 1 },
+  { date: new Date('2017-06-05'), key: 1, a: 1, r: 1 },
+
+  { date: new Date('2015-06-25'), key: 1, a: 1 },
+  { date: new Date('2015-06-15'), key: 1, a: 1, n: 1 },
+  { date: new Date('2015-06-10'), key: 1, a: 1, p: 1 },
+  { date: new Date('2015-06-05'), key: 1, a: 1, r: 1 },
+
+  { date: new Date('2012-06-25'), key: 1, a: 1 },
+  { date: new Date('2012-06-15'), key: 1, a: 1, n: 1 },
+  { date: new Date('2012-06-10'), key: 1, a: 1, p: 1 },
+  { date: new Date('2012-06-05'), key: 1, a: 1, r: 1 },
+];
+
+const reports = [
+  {
+    id: 'oneYear',
+    end: new Date('2022-06-15T00:00:00.000Z'),
+    start: new Date('2021-06-15T00:00:00.000Z'),
+    report: { approved: 4, noFunds: 1, pending: 1, rejected: 1 },
+  },
+  {
+    id: 'threeYears',
+    end: new Date('2022-06-15T00:00:00.000Z'),
+    start: new Date('2019-06-15T00:00:00.000Z'),
+    report: { approved: 8, noFunds: 2, pending: 2, rejected: 2 },
+  },
+  {
+    id: 'fiveYears',
+    end: new Date('2022-06-15T00:00:00.000Z'),
+    start: new Date('2017-06-15T00:00:00.000Z'),
+    report: { approved: 12, noFunds: 3, pending: 3, rejected: 3 },
+  },
+  {
+    id: 'sevenYears',
+    end: new Date('2022-06-15T00:00:00.000Z'),
+    start: new Date('2015-06-15T00:00:00.000Z'),
+    report: { approved: 16, noFunds: 4, pending: 4, rejected: 4 },
+  },
+  {
+    id: 'tenYears',
+    end: new Date('2022-06-15T00:00:00.000Z'),
+    start: new Date('2012-06-15T00:00:00.000Z'),
+    report: { approved: 20, noFunds: 5, pending: 5, rejected: 5 },
+  },
+];
+```
+
+## Schemas and Apps
+
+### Schema Version 0
+
+```ts
+type SchemaV0 = {
+  _id: {
+    key: string;
+    date: Date;
   };
-  ```
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+```
+
+#### Application Version 0
+
 - Indexes:
   ```ts
   const indexes = [{ _id: 1 }];
   ```
-- Issue/Improvement: The `_id` indexes its value as a blob, so it's not used by the report aggregation.
+- Document:
   ```ts
-  const matchStage = {
-    '_id.key': key,
-    '_id.date': { $gte: dateStart, $lte: dateEnd },
-  };
-  ```
-
-### App V1
-
-- Schema:
-  ```ts
-  type DocV1 = {
+  const doc = {
     _id: {
-      date: Date;
-      key: string;
-    };
-    approved?: number;
-    noFunds?: number;
-    pending?: number;
-    rejected?: number;
+      key: '0000000000000000000000000000000000000000000000000000000000000001',
+      date: new Date('2022-06-15T00:00:00.000Z'),
+    },
+    approved: 1,
+    noFunds: 1,
   };
   ```
+- Issue: The index in the `_id` field doesn't work for queries that filters by fields inside the document of `_id`.
+  ```ts
+  const filter = {
+    '_id.date': { $gte: new Date('2018-06-25'), $lt: new Date('2022-06-25') },
+  };
+  ```
+- Solution: Create a compound index on `_id.key` and `_id.date`.
+  ```ts
+  const index = { '_id.key': 1, '_id.date': 1 };
+  ```
+
+#### Application Version 1
+
 - Indexes:
   ```ts
   const indexes = [{ _id: 1 }, { '_id.key': 1, '_id.date': 1 }];
   ```
-- Issue/Improvement: The two indexes are indexing the "same" data but just one can make the correct use of it, the fields in the two indexes have big values, so `_id` is wasting indexes size by not being used by the application and being big.
-
-### App V2
-
-- Schema:
+- Document:
   ```ts
-  type DocV2 = {
-    _id: ObjectId;
-    date: Date;
-    key: string;
-    approved?: number;
-    noFunds?: number;
-    pending?: number;
-    rejected?: number;
+  const doc = {
+    _id: {
+      key: '0000000000000000000000000000000000000000000000000000000000000001',
+      date: new Date('2022-06-15T00:00:00.000Z'),
+    },
+    approved: 1,
+    noFunds: 1,
   };
   ```
+- Issue: The index and field `_id` is bigger than it needs to be and with no use by the application.
+- Solution: Change the `_id` field to be the native ObjectId and move the fields `key` and `date` to the document.
+
+#### Application Version 2
+
 - Indexes:
   ```ts
   const indexes = [{ _id: 1 }, { key: 1, date: 1 }];
   ```
-- Issue/Improvement: We have two indexes on the collection but just one is being used. It's possible to make use of `_id` to support the application by making it a buffer value composed by the concatenation of `key` and `date`.
-
-### App V3
-
-- Schema:
+- Document:
   ```ts
-  type DocV3 = {
-    _id: Buffer;
-    approved?: number;
-    noFunds?: number;
-    pending?: number;
-    rejected?: number;
+  const doc = {
+    _id: new ObjectId('661a9aab285b8bda08ec957a'),
+    key: '0000000000000000000000000000000000000000000000000000000000000001',
+    date: new Date('2022-06-15T00:00:00.000Z'),
+    approved: 1,
+    noFunds: 1,
   };
   ```
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
-- Issue/Improvement: The fields name size are relatively big compared to their values and the document size. It's possible to make the document 30% smaller by using abbreviation.
-
-### App V4
-
-- Schema:
-  ```ts
-  type DocV4 = {
-    _id: Buffer;
-    a?: number;
-    n?: number;
-    p?: number;
-    r?: number;
-  };
-  ```
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
-- Issue/Improvement: It's possible to improve the information density by document and index entry using the bucket pattern. Bucket the data by month.
-
-### App V5
-
-- Schema:
-  ```ts
-  type DocV5 = {
-    _id: Buffer;
-    items: Record<
-      string,
-      {
-        a?: number;
-        n?: number;
-        p?: number;
-        r?: number;
-      }
-    >;
-  };
-  ```
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
-- Issue/Improvement: It's possible to pre-calculate the values in a monthly report in the document by using the computed pattern.
-
-### App V6
-
-- Schema:
-  ```ts
-  type DocV6 = {
-    _id: Buffer;
-    report: {
-      a?: number;
-      n?: number;
-      p?: number;
-      r?: number;
-    };
-    items: Record<
-      string,
-      {
-        a?: number;
-        n?: number;
-        p?: number;
-        r?: number;
-      }
-    >;
-  };
-  ```
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
-- Issue/Improvement: It's possible to generate the full report with just one aggregation pipeline
+- Issue:
+  1. The field `key` has hexadecimal data but it's being stored as string, using more storage than it really needs;
+  1. There are two indexes but just one is being used by the application;
+- Solution: Change the `_id` field to be the concatenation of the fields `key` and `date`, and as its content is hexadecimal characters, store it as binary.
 
   ```ts
-  const report = {
-    oneYear: 0,
-    twoHalfYears: 0,
-    fiveYears: 0,
-    sevenHalfYears: 0,
-    tenYears: 0,
-  };
+  const keyString =
+    '0000000000000000000000000000000000000000000000000000000000000001';
 
-  for (const doc in docs) {
-    switch (doc.date) {
-      case underOneYear(doc.date):
-        report.oneYear += buildReport(doc.report);
-      case underTwoHalfYears(doc.date):
-        report.twoHalfYears += buildReport(doc.report);
-      case underFiveYears(doc.date):
-        report.fiveYears += buildReport(doc.report);
-      case underSevenHalfYears(doc.date):
-        report.sevenHalfYears += buildReport(doc.report);
-      case underTenYears(doc.date):
-        report.tenYears += buildReport(doc.report);
-      default:
-        break;
-    }
-  }
+  const day = new Date('2023-06-15');
+  const dayDataString = day.toISOString().split('T')[0]; // "2023-06-15";
+  const dayDataSemTracoString = dayDataString.replace(/-/g, ''); // "20230615"
+
+  const _idString = keyString + dayDataSemTracoString;
+  // _idString = "000000000000000000000000000000000000000000000000000000000000000120230615"
+  const _id = Buffer.from(_idString, 'hex');
+  // _id = <Buffer 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 20 23 06 15>
   ```
 
-### App V7
+### Version 1
 
-- Schema:
-  ```ts
-  type DocV7 = {
-    _id: Buffer;
-    report: {
-      a?: number;
-      n?: number;
-      p?: number;
-      r?: number;
-    };
-    items: Record<
-      string,
-      {
-        a?: number;
-        n?: number;
-        p?: number;
-        r?: number;
-      }
-    >;
-  };
-  ```
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
-- Issue/Improvement: It's possible to improve the storage by using `ztsd` compression instead of `snappy`.
+```ts
+type SchemaV1 = {
+  _id: ObjectId;
+  key: string;
+  date: Date;
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+```
 
-### App V8
+### Version 2
 
-- Schema:
-  ```ts
-  type DocV8 = {
-    _id: Buffer;
-    report: {
-      a?: number;
-      n?: number;
-      p?: number;
-      r?: number;
-    };
-    items: Record<
-      string,
-      {
-        a?: number;
-        n?: number;
-        p?: number;
-        r?: number;
-      }
-    >;
-  };
-  ```
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
-- Issue/Improvement: Let's try time series collection to see how the performance gols.
+```ts
+type SchemaV2 = {
+  _id: Buffer;
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+```
 
-### App V9
+### Version 3
 
-- Schema:
-  ```ts
-  type DocV9 = {
-    _id: ObjectId;
+```ts
+type SchemaV3 = {
+  _id: Buffer;
+  a?: number;
+  n?: number;
+  p?: number;
+  r?: number;
+};
+```
+
+### Version 4 Revision 0
+
+```ts
+type SchemaV4R0 = {
+  _id: Buffer;
+  items: {
     date: Date;
-    key: string;
+    a?: number;
+    n?: number;
+    p?: number;
+    r?: number;
+  }[];
+};
+```
+
+### Version 4 Revision 1
+
+```ts
+type SchemaV4R1 = {
+  _id: Buffer;
+  report: {
     a?: number;
     n?: number;
     p?: number;
     r?: number;
   };
-  ```
-- Collection Configuration:
-  ```ts
-  await this.db.createCollection('appV9', {
-    timeseries: {
-      timeField: 'date',
-      metaField: 'key',
-      granularity: 'hours',
-    },
-  });
-  ```
-- Issue/Improvement: That's all folks.
+  items: {
+    date: Date;
+    a?: number;
+    n?: number;
+    p?: number;
+    r?: number;
+  }[];
+};
+```
+
+### Version 5 Revision 0
+
+```ts
+type SchemaV5R0 = {
+  _id: Buffer;
+  items: {
+    [date as string]: {
+      a?: number;
+      n?: number;
+      p?: number;
+      r?: number;
+    };
+  };
+};
+```
+
+### Version 5 Revision 1
+
+```ts
+type SchemaV5R1 = {
+  _id: Buffer;
+  report: {
+    a?: number;
+    n?: number;
+    p?: number;
+    r?: number;
+  };
+  items: {
+    [date as string]: {
+      a?: number;
+      n?: number;
+      p?: number;
+      r?: number;
+    };
+  };
+};
+```

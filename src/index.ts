@@ -37,21 +37,15 @@ const main = async (): Promise<void | never> => {
     process.env.APP_VERSION = appVersion;
 
     await Promise.all([
-      ...Array.from({ length: refs.workersTotal }).map(async (_, id) =>
-        buildWorker(id, 'load-bulk-write.js')
-      ),
+      ...Array.from({ length: refs.workersTotal }).map(async (_, id) => buildWorker(id, 'load-bulk-write.js')),
     ]);
 
     await refs.sleep(5 * 60 * 1000);
     await H.storeCollectionStats(config.APP.VERSION, 'load');
 
     await Promise.all([
-      ...Array.from({ length: refs.workersTotal }).map(async (_, id) =>
-        buildWorker(id, 'prod-bulk-write.js')
-      ),
-      ...Array.from({ length: refs.workersTotal }).map(async (_, id) =>
-        buildWorker(id, 'prod-get-reports.js')
-      ),
+      ...Array.from({ length: refs.workersTotal }).map(async (_, id) => buildWorker(id, 'prod-bulk-write.js')),
+      ...Array.from({ length: refs.workersTotal }).map(async (_, id) => buildWorker(id, 'prod-get-reports.js')),
     ]);
 
     await refs.sleep(5 * 60 * 1000);

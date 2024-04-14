@@ -9,21 +9,15 @@ const buildItemSum = (doc: T.TransactionShort): Record<string, unknown> => {
     r: '$$this.r',
   };
 
-  if (doc.a != null)
-    newDoc.a = { $add: [doc.a, { $cond: ['$$this.a', '$$this.a', 0] }] };
-  if (doc.n != null)
-    newDoc.n = { $add: [doc.n, { $cond: ['$$this.n', '$$this.n', 0] }] };
-  if (doc.p != null)
-    newDoc.p = { $add: [doc.p, { $cond: ['$$this.p', '$$this.p', 0] }] };
-  if (doc.r != null)
-    newDoc.r = { $add: [doc.r, { $cond: ['$$this.r', '$$this.r', 0] }] };
+  if (doc.a != null) newDoc.a = { $add: [doc.a, { $cond: ['$$this.a', '$$this.a', 0] }] };
+  if (doc.n != null) newDoc.n = { $add: [doc.n, { $cond: ['$$this.n', '$$this.n', 0] }] };
+  if (doc.p != null) newDoc.p = { $add: [doc.p, { $cond: ['$$this.p', '$$this.p', 0] }] };
+  if (doc.r != null) newDoc.r = { $add: [doc.r, { $cond: ['$$this.r', '$$this.r', 0] }] };
 
   return newDoc;
 };
 
-export const buildResultIfItemExists = (
-  doc: T.TransactionShort
-): Record<string, unknown> => {
+export const buildResultIfItemExists = (doc: T.TransactionShort): Record<string, unknown> => {
   const itemsOrEmptyArray = {
     $cond: ['$items', '$items', []],
   };
@@ -59,41 +53,18 @@ export const buildResultIfItemExists = (
   };
 };
 
-export const buildNewReport = (
-  doc: T.TransactionShort
-): Record<string, unknown> => {
+export const buildNewReport = (doc: T.TransactionShort): Record<string, unknown> => {
   const newReport: Record<string, unknown> = {};
 
-  if (doc.a != null) {
-    newReport['report.a'] = {
-      $add: [doc.a, { $cond: ['$report.a', '$report.a', 0] }],
-    };
-  }
-
-  if (doc.n != null) {
-    newReport['report.n'] = {
-      $add: [doc.n, { $cond: ['$report.n', '$report.n', 0] }],
-    };
-  }
-
-  if (doc.p != null) {
-    newReport['report.p'] = {
-      $add: [doc.p, { $cond: ['$report.p', '$report.p', 0] }],
-    };
-  }
-
-  if (doc.r != null) {
-    newReport['report.r'] = {
-      $add: [doc.r, { $cond: ['$report.r', '$report.r', 0] }],
-    };
-  }
+  if (doc.a != null) newReport['report.a'] = { $add: [doc.a, { $cond: ['$report.a', '$report.a', 0] }] };
+  if (doc.n != null) newReport['report.n'] = { $add: [doc.n, { $cond: ['$report.n', '$report.n', 0] }] };
+  if (doc.p != null) newReport['report.p'] = { $add: [doc.p, { $cond: ['$report.p', '$report.p', 0] }] };
+  if (doc.r != null) newReport['report.r'] = { $add: [doc.r, { $cond: ['$report.r', '$report.r', 0] }] };
 
   return newReport;
 };
 
-export const buildItemsOrCreateNew = (
-  doc: T.TransactionShort
-): Record<string, unknown> => {
+export const buildItemsOrCreateNew = (doc: T.TransactionShort): Record<string, unknown> => {
   const { key, ...newDoc } = doc;
 
   return {
@@ -105,15 +76,8 @@ export const buildItemsOrCreateNew = (
   };
 };
 
-export const buildFieldAccumulator = (
-  field: string
-): Record<string, unknown> => {
-  return {
-    $add: [
-      `$$value.${field}`,
-      { $cond: [`$$this.${field}`, `$$this.${field}`, 0] },
-    ],
-  };
+export const buildFieldAccumulator = (field: string): Record<string, unknown> => {
+  return { $add: [`$$value.${field}`, { $cond: [`$$this.${field}`, `$$this.${field}`, 0] }] };
 };
 
 export const buildItemsReduceAccumulator = ({
@@ -128,10 +92,7 @@ export const buildItemsReduceAccumulator = ({
       in: {
         $cond: {
           if: {
-            $and: [
-              { $gte: ['$$this.date', date.start] },
-              { $lt: ['$$this.date', date.end] },
-            ],
+            $and: [{ $gte: ['$$this.date', date.start] }, { $lt: ['$$this.date', date.end] }],
           },
           then: {
             a: buildFieldAccumulator('a'),

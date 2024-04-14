@@ -1,13 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import {
-  buildKey,
-  getQQ,
-  getReportsDates,
-  getYYYY,
-  itemsArray,
-} from '../helpers';
+import { buildKey, getQQ, getReportsDates, getYYYY, itemsArray } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: number, date: Date): Buffer => {
@@ -17,24 +11,27 @@ export const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R1>>(
-    (doc) => {
-      const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
-      const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R1>>((doc) => {
+    const query = {
+      _id: buildId(doc.key, doc.date),
+    };
 
-      return {
-        updateOne: {
-          filter: { _id: buildId(doc.key, doc.date) },
-          update: [
-            { $set: { result: sumIfItemExists } },
-            { $set: { items: returnItemsOrCreateNew } },
-            { $unset: ['result'] },
-          ],
-          upsert: true,
-        },
-      };
-    }
-  );
+    const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
+    const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
+    const mutation = [
+      { $set: { result: sumIfItemExists } },
+      { $set: { items: returnItemsOrCreateNew } },
+      { $unset: ['result'] },
+    ];
+
+    return {
+      updateOne: {
+        filter: query,
+        update: mutation,
+        upsert: true,
+      },
+    };
+  });
 
   return mdb.collections.appV5R3.bulkWrite(upsertOperations, {
     ordered: false,

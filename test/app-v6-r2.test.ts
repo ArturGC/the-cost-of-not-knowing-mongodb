@@ -22,6 +22,7 @@ withDb(() => {
 
       const doc1V6R2 = await mdb.collections.appV6R2.findOne({ _id: idDocs1 });
 
+      expect(doc1V6R2?.report).toEqual({ a: 4, n: 4, p: 3, r: 1 });
       expect(doc1V6R2?.items).toEqual({
         '0615': { a: 2, n: 2, p: 3, r: 1 },
         '0625': { a: 2, n: 2 },
@@ -34,6 +35,7 @@ withDb(() => {
 
       const doc2V6R2 = await mdb.collections.appV6R2.findOne({ _id: idDocs2 });
 
+      expect(doc2V6R2?.report).toEqual({ a: 6, n: 6, p: 6, r: 2 });
       expect(doc2V6R2?.items).toEqual({
         '0625': { a: 2, n: 2 },
         '0615': { a: 2, n: 2, p: 3, r: 1 },

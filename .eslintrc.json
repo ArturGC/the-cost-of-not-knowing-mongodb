@@ -6,12 +6,7 @@
     "mongo": true,
     "node": true
   },
-  "extends": [
-    "standard-with-typescript",
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier"
-  ],
+  "extends": ["standard-with-typescript", "eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   "ignorePatterns": ["/test/**/*.ts", "/client/**/*.js"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -26,7 +21,7 @@
     "max-len": [
       "error",
       {
-        "code": 80,
+        "code": 120,
         "ignoreTrailingComments": true,
         "ignoreUrls": true,
         "ignoreStrings": true,
@@ -52,10 +47,7 @@
     "prettier/prettier": "error",
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
-    "sort-imports": [
-      "error",
-      { "allowSeparatedGroups": true, "ignoreCase": true }
-    ],
+    "sort-imports": ["error", { "allowSeparatedGroups": true, "ignoreCase": true }],
     "sort-keys": ["off", "asc", { "allowLineSeparatedGroups": true }],
     "@typescript-eslint/return-await": "off",
     "@typescript-eslint/no-confusing-void-expression": "off",

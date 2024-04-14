@@ -5,33 +5,31 @@ import { buildKey, getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV0>>(
-    (doc) => {
-      const query = {
-        _id: {
-          key: buildKey(doc.key),
-          date: doc.date,
-        },
-      };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV0>>((doc) => {
+    const query = {
+      _id: {
+        key: buildKey(doc.key),
+        date: doc.date,
+      },
+    };
 
-      const mutation = {
-        $inc: {
-          approved: doc.a,
-          noFunds: doc.n,
-          pending: doc.p,
-          rejected: doc.r,
-        },
-      };
+    const mutation = {
+      $inc: {
+        approved: doc.a,
+        noFunds: doc.n,
+        pending: doc.p,
+        rejected: doc.r,
+      },
+    };
 
-      return {
-        updateOne: {
-          filter: query,
-          update: mutation,
-          upsert: true,
-        },
-      };
-    }
-  );
+    return {
+      updateOne: {
+        filter: query,
+        update: mutation,
+        upsert: true,
+      },
+    };
+  });
 
   return mdb.collections.appV0.bulkWrite(upsertOperations, { ordered: false });
 };
@@ -50,11 +48,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     rejected: { $sum: '$rejected' },
   };
 
-  const pipeline = [
-    { $match: docsFromKeyBetweenDate },
-    { $group: groupCountItems },
-    { $project: { _id: 0 } },
-  ];
+  const pipeline = [{ $match: docsFromKeyBetweenDate }, { $group: groupCountItems }, { $project: { _id: 0 } }];
 
   return mdb.collections.appV0
     .aggregate(pipeline)

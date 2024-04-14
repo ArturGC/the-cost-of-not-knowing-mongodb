@@ -95,12 +95,7 @@ export type AppVersion =
   | 'appV6R3'
   | 'appV6R4';
 
-export type ReportYear =
-  | 'oneYear'
-  | 'threeYears'
-  | 'fiveYears'
-  | 'sevenYears'
-  | 'tenYears';
+export type ReportYear = 'oneYear' | 'threeYears' | 'fiveYears' | 'sevenYears' | 'tenYears';
 
 // Operations
 export type BulkUpsert = (docs: TransactionShort[]) => Promise<BulkWriteResult>;
@@ -110,7 +105,4 @@ export type GetReport = (filter: {
   key: TransactionShort['key'];
 }) => Promise<Document>;
 
-export type GetReports = (filter: {
-  date: Date;
-  key: TransactionShort['key'];
-}) => Promise<Document[]>;
+export type GetReports = (filter: { date: Date; key: TransactionShort['key'] }) => Promise<Document[]>;

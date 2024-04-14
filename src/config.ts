@@ -3,8 +3,7 @@ import { type MongoClientOptions } from 'mongodb';
 
 const TEST = {
   APP: {
-    VERSION:
-      (process.env.APP_VERSION as AppVersion) ?? ('appV4' satisfies AppVersion),
+    VERSION: (process.env.APP_VERSION as AppVersion) ?? ('appV4' satisfies AppVersion),
   },
   MDB: {
     DB_NAME: 'test',
@@ -21,8 +20,7 @@ const TEST = {
 
 const PROD = {
   APP: {
-    VERSION:
-      (process.env.APP_VERSION as AppVersion) ?? ('appV0' satisfies AppVersion),
+    VERSION: (process.env.APP_VERSION as AppVersion) ?? ('appV0' satisfies AppVersion),
   },
   MDB: {
     DB_NAME: 'prod',
@@ -32,10 +30,8 @@ const PROD = {
       readPreference: 'primary',
       writeConcern: { journal: true, w: 'majority' },
     } satisfies MongoClientOptions,
-    URI_APP:
-      'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
-    URI_BASE:
-      'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
+    URI_APP: 'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
+    URI_BASE: 'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
   },
 };
 

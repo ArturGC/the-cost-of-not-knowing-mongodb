@@ -1,14 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import {
-  buildKey,
-  getDD,
-  getMM,
-  getReportsDates,
-  getYYYY,
-  ItemsObj,
-} from '../helpers';
+import { buildKey, getDD, getMM, getReportsDates, getYYYY, ItemsObj } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: number, date: Date): Buffer => {
@@ -18,41 +11,36 @@ export const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5R0>>(
-    (doc) => {
-      const query = {
-        _id: buildId(doc.key, doc.date),
-      };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5R0>>((doc) => {
+    const query = {
+      _id: buildId(doc.key, doc.date),
+    };
 
-      const DD = getDD(doc.date);
-      const mutation = {
-        $inc: {
-          [`items.${DD}.a`]: doc.a,
-          [`items.${DD}.n`]: doc.n,
-          [`items.${DD}.p`]: doc.p,
-          [`items.${DD}.r`]: doc.r,
-        },
-      };
+    const DD = getDD(doc.date);
+    const mutation = {
+      $inc: {
+        [`items.${DD}.a`]: doc.a,
+        [`items.${DD}.n`]: doc.n,
+        [`items.${DD}.p`]: doc.p,
+        [`items.${DD}.r`]: doc.r,
+      },
+    };
 
-      return {
-        updateOne: {
-          filter: query,
-          update: mutation,
-          upsert: true,
-        },
-      };
-    }
-  );
+    return {
+      updateOne: {
+        filter: query,
+        update: mutation,
+        upsert: true,
+      },
+    };
+  });
 
   return mdb.collections.appV6R0.bulkWrite(upsertOperations, {
     ordered: false,
   });
 };
 
-const buildReduceLoopLogic = (
-  key: number,
-  date: { end: Date; start: Date }
-): Record<string, unknown> => {
+const buildReduceLoopLogic = (key: number, date: { end: Date; start: Date }): Record<string, unknown> => {
   const [lowerId, lowerDD] = [buildId(key, date.start), getDD(date.start)];
   const [upperId, upperDD] = [buildId(key, date.end), getDD(date.end)];
 
@@ -69,11 +57,7 @@ const buildReduceLoopLogic = (
   return {
     $cond: {
       if: {
-        $or: [
-          InLowerYYYYMMAndGteLowerDD,
-          BetweenLowerAndUpperYYYYMM,
-          InUpperYYYYMMAndLtUpperDD,
-        ],
+        $or: [InLowerYYYYMMAndGteLowerDD, BetweenLowerAndUpperYYYYMM, InUpperYYYYMMAndLtUpperDD],
       },
       then: {
         a: ItemsObj.buildFieldAccumulator('a'),

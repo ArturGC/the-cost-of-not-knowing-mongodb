@@ -44,9 +44,7 @@ export default {
   base: {
     ...base,
     deltaTime: Math.ceil(OneYearInMs / base.transactionsPerYear),
-    usersQuantity: Math.ceil(
-      base.transactionsPerYear / base.userTransactionsPerYear
-    ),
+    usersQuantity: Math.ceil(base.transactionsPerYear / base.userTransactionsPerYear),
   },
   load: {
     ...load,
@@ -55,10 +53,8 @@ export default {
     ...production,
     shouldBreak,
     sleep: {
-      bulkUpsert: async (ms: number, dateStart: Date) =>
-        sleep(10000 / getSleepFactor(dateStart) - ms),
-      getReports: async (ms: number, dateStart: Date) =>
-        sleep(200 / getSleepFactor(dateStart) - ms),
+      bulkUpsert: async (ms: number, dateStart: Date) => sleep(10000 / getSleepFactor(dateStart) - ms),
+      getReports: async (ms: number, dateStart: Date) => sleep(200 / getSleepFactor(dateStart) - ms),
     },
   },
   sleep,

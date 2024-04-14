@@ -13,9 +13,7 @@ class Generator {
   }
 
   getBase(worker: number): Base | undefined {
-    const items = Array.from({ length: refs.base.batchSize }).map(() =>
-      this.getTransaction()
-    );
+    const items = Array.from({ length: refs.base.batchSize }).map(() => this.getTransaction());
 
     if (items[0].date > this.dateEnd) return undefined;
 
@@ -36,9 +34,7 @@ class Generator {
   }
 
   private getDate(): Date {
-    this.dateCurrent = new Date(
-      this.dateCurrent.getTime() + refs.base.deltaTime
-    );
+    this.dateCurrent = new Date(this.dateCurrent.getTime() + refs.base.deltaTime);
 
     return new Date(this.dateCurrent.toISOString().split('T')[0]);
   }

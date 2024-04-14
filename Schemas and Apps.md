@@ -186,13 +186,13 @@ type SchemaV1 = {
 - Issue:
   1. The field `key` has hexadecimal data but it's being stored as string, using more storage than it really needs;
   1. There are two indexes but just one is being used by the application;
-- Solution: Change the `_id` field to be the concatenation of the fields `key` and `date`, and as its content is hexadecimal characters, store it as binary.
+- Solution: Change the `_id` field to be the concatenation of the fields `key` and `date`, and as its content is hexadecimal characters, store it as binary type.
 
   ```ts
   const day = new Date('2023-06-15');
   const dayDataString = day.toISOString().split('T')[0]; // "2023-06-15";
   const dayDataSemTracoString = dayDataString.replace(/-/g, ''); // "20230615"
-  const keyString = '...000000000000000000000000001';
+  const keyString = '0000000000000000000000000000000000000000000000000000000000000001';
 
   const _idString = keyString + dayDataSemTracoString;
   // _idString = "000000000000000000000000000000000000000000000000000000000000000120230615"
@@ -221,7 +221,7 @@ type SchemaV2 = {
 - Document:
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120230615', 'hex'),
     approved: 1,
     noFunds: 1,
   };
@@ -250,7 +250,7 @@ type SchemaV3 = {
 - Document:
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120230615', 'hex'),
     a: 1,
     n: 1,
   };
@@ -283,7 +283,7 @@ type SchemaV4R0 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202306', 'hex'),
     items: [
       { date: new Date('2022-06-25'), a: 1 },
       { date: new Date('2022-06-25'), a: 1 },
@@ -310,7 +310,7 @@ type SchemaV4R0 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
     items: [
       { date: new Date('2022-06-25'), a: 1 },
       { date: new Date('2022-06-25'), a: 1 },
@@ -341,7 +341,7 @@ type SchemaV4R0 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
     items: [
       { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
       { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
@@ -363,7 +363,7 @@ type SchemaV4R0 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
     items: [
       { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
       { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
@@ -406,8 +406,13 @@ type SchemaV4R1 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
-    report: { a: 6, n: 6, p: 6, r: 2 },
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
+    report: {
+      a: 6,
+      n: 6,
+      p: 6,
+      r: 2,
+    },
     items: [
       { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
       { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
@@ -445,7 +450,7 @@ type SchemaV5R0 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202306', 'hex'),
     items: {
       '15': { a: 2, n: 2, p: 3, r: 1 },
       '25': { a: 2, n: 2 },
@@ -466,7 +471,7 @@ type SchemaV5R0 = {
 
   ```ts
   const doc = {
-    _id: Buffer.from('...00000000120230615', 'hex'),
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
     items: {
       '0625': { a: 2, n: 2 },
       '0615': { a: 2, n: 2, p: 3, r: 1 },
@@ -499,3 +504,72 @@ type SchemaV5R1 = {
   };
 };
 ```
+
+#### Application Version 6 Revision 2
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
+    reports: {
+      a: 6,
+      n: 6,
+      p: 6,
+      r: 2,
+    },
+    items: {
+      '0625': { a: 2, n: 2 },
+      '0615': { a: 2, n: 2, p: 3, r: 1 },
+      '0515': { a: 2, n: 2, p: 3, r: 1 },
+    },
+  };
+  ```
+
+- Issue: To generate the reports, 5 aggregation pipelines are being executed;
+- Solution: Generate all the reports with just one aggregation pipeline.
+
+#### Application Version 6 Revision 3
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
+    items: {
+      '20220625': { a: 2, n: 2 },
+      '20220615': { a: 2, n: 2, p: 3, r: 1 },
+      '20220515': { a: 2, n: 2, p: 3, r: 1 },
+    },
+  };
+  ```
+
+- Issue: Disk is the limiting factor, change the compression algorithm;
+- Solution: Use zst compression.
+
+#### Application Version 6 Revision 4
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
+    items: {
+      '20220625': { a: 2, n: 2 },
+      '20220615': { a: 2, n: 2, p: 3, r: 1 },
+      '20220515': { a: 2, n: 2, p: 3, r: 1 },
+    },
+  };
+  ```

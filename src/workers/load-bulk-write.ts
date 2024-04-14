@@ -38,9 +38,7 @@ const main = async (): Promise<void> => {
     await P[config.APP.VERSION].bulkUpsert(base.transactions);
     const value = new Date().getTime() - timestamp.getTime();
 
-    P.measurements
-      .insertOne({ timestamp, type: 'bulkUpsert', value })
-      .catch(console.error);
+    P.measurements.insertOne({ timestamp, type: 'bulkUpsert', value }).catch(console.error);
 
     if (count % 100 === 0 && count !== 0) {
       const total = count * refs.base.batchSize;

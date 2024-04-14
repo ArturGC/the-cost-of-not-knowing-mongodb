@@ -1,14 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import {
-  buildKey,
-  getMMDD,
-  getQQ,
-  getReportsDates,
-  getYYYY,
-  ItemsObj,
-} from '../helpers';
+import { buildKey, getMMDD, getQQ, getReportsDates, getYYYY, ItemsObj } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: number, date: Date): Buffer => {
@@ -18,49 +11,44 @@ export const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5R1>>(
-    (doc) => {
-      const query = { _id: buildId(doc.key, doc.date) };
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5R1>>((doc) => {
+    const query = { _id: buildId(doc.key, doc.date) };
 
-      const MMDD = getMMDD(doc.date);
-      const incrementItems = {
-        [`items.${MMDD}.a`]: doc.a,
-        [`items.${MMDD}.n`]: doc.n,
-        [`items.${MMDD}.p`]: doc.p,
-        [`items.${MMDD}.r`]: doc.r,
-      };
-      const incrementReports = {
-        'report.a': doc.a,
-        'report.n': doc.n,
-        'report.p': doc.p,
-        'report.r': doc.r,
-      };
-      const mutation = {
-        $inc: {
-          ...incrementItems,
-          ...incrementReports,
-        },
-      };
+    const MMDD = getMMDD(doc.date);
+    const incrementItems = {
+      [`items.${MMDD}.a`]: doc.a,
+      [`items.${MMDD}.n`]: doc.n,
+      [`items.${MMDD}.p`]: doc.p,
+      [`items.${MMDD}.r`]: doc.r,
+    };
+    const incrementReports = {
+      'report.a': doc.a,
+      'report.n': doc.n,
+      'report.p': doc.p,
+      'report.r': doc.r,
+    };
+    const mutation = {
+      $inc: {
+        ...incrementItems,
+        ...incrementReports,
+      },
+    };
 
-      return {
-        updateOne: {
-          filter: query,
-          update: mutation,
-          upsert: true,
-        },
-      };
-    }
-  );
+    return {
+      updateOne: {
+        filter: query,
+        update: mutation,
+        upsert: true,
+      },
+    };
+  });
 
   return mdb.collections.appV6R2.bulkWrite(upsertOperations, {
     ordered: false,
   });
 };
 
-const buildLoopLogic = (
-  key: number,
-  date: { end: Date; start: Date }
-): Record<string, unknown> => {
+const buildLoopLogic = (key: number, date: { end: Date; start: Date }): Record<string, unknown> => {
   const [lowerId, lowerMMDD] = [buildId(key, date.start), getMMDD(date.start)];
   const [upperId, upperMMDD] = [buildId(key, date.end), getMMDD(date.end)];
 
@@ -77,11 +65,7 @@ const buildLoopLogic = (
   return {
     $cond: {
       if: {
-        $or: [
-          InLowerYYYYQQAndGteLowerMMDD,
-          BetweenLowerAndUpperYYYYQQ,
-          InUpperYYYYQQAndLtUpperMMDD,
-        ],
+        $or: [InLowerYYYYQQAndGteLowerMMDD, BetweenLowerAndUpperYYYYQQ, InUpperYYYYQQAndLtUpperMMDD],
       },
       then: {
         a: ItemsObj.buildFieldAccumulator('a'),

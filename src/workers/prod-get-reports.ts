@@ -30,9 +30,7 @@ const main = async (): Promise<void> => {
     await P[config.APP.VERSION].getReports({ date: dateRecent, key });
     const value = new Date().getTime() - timestamp.getTime();
 
-    P.measurements
-      .insertOne({ timestamp, type: 'getReports', value })
-      .catch((e) => print(JSON.stringify(e)));
+    P.measurements.insertOne({ timestamp, type: 'getReports', value }).catch((e) => print(JSON.stringify(e)));
 
     if (count % 1000 === 0 && count !== 0) {
       const rate = 1 / (value / 1000);
@@ -41,9 +39,7 @@ const main = async (): Promise<void> => {
 
     await Promise.all([
       refs.prod.sleep.getReports(value, dateStart),
-      P.base
-        .getCurrentDate(id)
-        .then((currentDate) => (dateRecent = currentDate)),
+      P.base.getCurrentDate(id).then((currentDate) => (dateRecent = currentDate)),
     ]);
 
     if (refs.prod.shouldBreak(dateStart)) break;

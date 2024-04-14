@@ -72,29 +72,19 @@ class Mongo {
   dropCollections = async (): Promise<void> => {
     await this.dbApp
       .collections()
-      .then(async (collections) =>
-        Promise.all(collections.map(async (c) => c.drop().catch((e) => e)))
-      );
+      .then(async (collections) => Promise.all(collections.map(async (c) => c.drop().catch((e) => e))));
 
     await this.dbBase
       .collections()
-      .then(async (collections) =>
-        Promise.all(collections.map(async (c) => c.drop().catch((e) => e)))
-      );
+      .then(async (collections) => Promise.all(collections.map(async (c) => c.drop().catch((e) => e))));
   };
 
   checkCollections = async (): Promise<void> => {
-    await this.collections.appV1
-      .createIndex({ '_id.key': 1, '_id.date': 1 }, { unique: true })
-      .catch(() => {});
+    await this.collections.appV1.createIndex({ '_id.key': 1, '_id.date': 1 }, { unique: true }).catch(() => {});
 
-    await this.collections.appV2
-      .createIndex({ key: 1, date: 1 }, { unique: true })
-      .catch(() => {});
+    await this.collections.appV2.createIndex({ key: 1, date: 1 }, { unique: true }).catch(() => {});
 
-    await this.collections.base
-      .createIndex({ worker: 1, date: 1, appSynced: 1 })
-      .catch(() => {});
+    await this.collections.base.createIndex({ worker: 1, date: 1, appSynced: 1 }).catch(() => {});
 
     await this.dbBase
       .createCollection('measurements', {

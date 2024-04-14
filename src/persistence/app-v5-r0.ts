@@ -11,19 +11,25 @@ export const buildId = (key: number, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R0>>(
-    (doc) => {
-      const { key, ...transaction } = doc;
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV4R0>>((doc) => {
+    const { key, ...transaction } = doc;
 
-      return {
-        updateOne: {
-          filter: { _id: buildId(doc.key, doc.date) },
-          update: { $push: { items: transaction } },
-          upsert: true,
-        },
-      };
-    }
-  );
+    const query = {
+      _id: buildId(doc.key, doc.date),
+    };
+
+    const mutation = {
+      $push: { items: transaction },
+    };
+
+    return {
+      updateOne: {
+        filter: query,
+        update: mutation,
+        upsert: true,
+      },
+    };
+  });
 
   return mdb.collections.appV5R0.bulkWrite(upsertOperations, {
     ordered: false,

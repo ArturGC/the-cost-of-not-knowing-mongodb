@@ -5,44 +5,32 @@ import mdb from '../mdb';
 export * as itemsArray from './items-array';
 export * as ItemsObj from './items-obj';
 
-export const getReportsDates = (
-  date: Date
-): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
+export const getReportsDates = (date: Date): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
   return [
     {
       id: 'oneYear',
       end: date,
-      start: new Date(
-        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 1)
-      ),
+      start: new Date(new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 1)),
     },
     {
       id: 'threeYears',
       end: date,
-      start: new Date(
-        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 3)
-      ),
+      start: new Date(new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 3)),
     },
     {
       id: 'fiveYears',
       end: date,
-      start: new Date(
-        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 5)
-      ),
+      start: new Date(new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 5)),
     },
     {
       id: 'sevenYears',
       end: date,
-      start: new Date(
-        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 7)
-      ),
+      start: new Date(new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 7)),
     },
     {
       id: 'tenYears',
       end: date,
-      start: new Date(
-        new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 10)
-      ),
+      start: new Date(new Date(date.getTime()).setUTCFullYear(date.getUTCFullYear() - 10)),
     },
   ];
 };
@@ -80,21 +68,14 @@ export const getMMDD = (date: Date): string => {
   return `${getMM(date)}${getDD(date)}`;
 };
 
-export const getSS = (date: Date): string => {
-  const month = Number(getMM(date));
-
-  return month <= 6 ? '01' : '02';
-};
-
 export const storeCollectionStats = async (
   appVersion: T.AppVersion,
   execution: 'load' | 'production'
 ): Promise<void> => {
-  const { avgObjSize, count, size, storageSize, totalIndexSize, totalSize } =
-    await mdb.dbApp.command({
-      collStats: config.APP.VERSION,
-      scale: 1024 * 1024,
-    });
+  const { avgObjSize, count, size, storageSize, totalIndexSize, totalSize } = await mdb.dbApp.command({
+    collStats: config.APP.VERSION,
+    scale: 1024 * 1024,
+  });
 
   await mdb.dbBase.collection('stats').insertOne({
     appVersion,

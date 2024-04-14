@@ -153,6 +153,20 @@ type SchemaV0 = {
 - Issue: The index and field `_id` is bigger than it needs to be and with no use by the application.
 - Solution: Change the `_id` field to be the native ObjectId and move the fields `key` and `date` to the document.
 
+### Schema Version 1
+
+```ts
+type SchemaV1 = {
+  _id: ObjectId;
+  key: string;
+  date: Date;
+  approved?: number;
+  noFunds?: number;
+  pending?: number;
+  rejected?: number;
+};
+```
+
 #### Application Version 2
 
 - Indexes:
@@ -175,12 +189,10 @@ type SchemaV0 = {
 - Solution: Change the `_id` field to be the concatenation of the fields `key` and `date`, and as its content is hexadecimal characters, store it as binary.
 
   ```ts
-  const keyString =
-    '0000000000000000000000000000000000000000000000000000000000000001';
-
   const day = new Date('2023-06-15');
   const dayDataString = day.toISOString().split('T')[0]; // "2023-06-15";
   const dayDataSemTracoString = dayDataString.replace(/-/g, ''); // "20230615"
+  const keyString = '...000000000000000000000000001';
 
   const _idString = keyString + dayDataSemTracoString;
   // _idString = "000000000000000000000000000000000000000000000000000000000000000120230615"
@@ -188,21 +200,7 @@ type SchemaV0 = {
   // _id = <Buffer 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 20 23 06 15>
   ```
 
-### Version 1
-
-```ts
-type SchemaV1 = {
-  _id: ObjectId;
-  key: string;
-  date: Date;
-  approved?: number;
-  noFunds?: number;
-  pending?: number;
-  rejected?: number;
-};
-```
-
-### Version 2
+### Schema Version 2
 
 ```ts
 type SchemaV2 = {
@@ -214,7 +212,24 @@ type SchemaV2 = {
 };
 ```
 
-### Version 3
+#### Application Version 3
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    approved: 1,
+    noFunds: 1,
+  };
+  ```
+- Issue: The data stored in each type of transaction is of type integer, which uses 32 bits/4 bytes. The name of field indicating each type of transaction is a string, that in some cases has 8 characters, which uses 8 bytes. We're using more storage with the name of the data than the data itself;
+- Solution: Reduce/shorthand the name of the fields.
+
+### Schema Version 3
 
 ```ts
 type SchemaV3 = {
@@ -226,7 +241,24 @@ type SchemaV3 = {
 };
 ```
 
-### Version 4 Revision 0
+#### Application Version 4
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    a: 1,
+    n: 1,
+  };
+  ```
+- Issue: Each document is around 59 bytes and has one index entry. The data that we are storing in it is on average 8 bytes. The ratio of storage is 8/59=0.136 and the ration of index is 8/1=8;
+- Solution: Implement bucket pattern to bucket the transactions by month.
+
+### Schema Version 4 Revision 0
 
 ```ts
 type SchemaV4R0 = {
@@ -241,7 +273,109 @@ type SchemaV4R0 = {
 };
 ```
 
-### Version 4 Revision 1
+#### Application Version 5 Revision 0
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    items: [
+      { date: new Date('2022-06-25'), a: 1 },
+      { date: new Date('2022-06-25'), a: 1 },
+      { date: new Date('2022-06-25'), n: 1 },
+      { date: new Date('2022-06-25'), n: 1 },
+      { date: new Date('2022-06-15'), a: 1, n: 1 },
+      { date: new Date('2022-06-15'), a: 1, p: 1 },
+      { date: new Date('2022-06-15'), n: 1, p: 1 },
+      { date: new Date('2022-06-15'), p: 1, r: 1 },
+    ],
+  };
+  ```
+
+- Issue: Maybe we can improve the storage density even more;
+- Solution: Implement the bucket pattern to bucket transactions by quarter.
+
+#### Application Version 5 Revision 1
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    items: [
+      { date: new Date('2022-06-25'), a: 1 },
+      { date: new Date('2022-06-25'), a: 1 },
+      { date: new Date('2022-06-25'), n: 1 },
+      { date: new Date('2022-06-25'), n: 1 },
+      { date: new Date('2022-06-15'), a: 1, n: 1 },
+      { date: new Date('2022-06-15'), a: 1, p: 1 },
+      { date: new Date('2022-06-15'), n: 1, p: 1 },
+      { date: new Date('2022-06-15'), p: 1, r: 1 },
+      { date: new Date('2022-05-15'), a: 1, n: 1 },
+      { date: new Date('2022-05-15'), a: 1, p: 1 },
+      { date: new Date('2022-05-15'), n: 1, p: 1 },
+      { date: new Date('2022-05-15'), p: 1, r: 1 },
+    ],
+  };
+  ```
+
+- Issue: Every transaction generate is being pushed to the items array, even if they have the same date;
+- Solution: When the items array already have an item for a specific date, instead of adding a new item, combine the transactions.
+
+#### Application Version 5 Revision 2
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    items: [
+      { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
+      { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
+      { date: new Date('2022-05-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
+    ],
+  };
+  ```
+
+- Issue: To generate the reports, the aggregation pipeline is using a $unwind followed by a $group, which generates a pipeline with a lot of documents and not making use of the bucketing;
+- Solution: Use a $addFields stage with $reduce operation to calculate the report of each document and then do a full report with a $group stage.
+
+#### Application Version 5 Revision 3
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    items: [
+      { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
+      { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
+      { date: new Date('2022-05-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
+    ],
+  };
+  ```
+
+- Issue: Every time a report is requested, all the transaction need to be summed;
+- Solution: Implement pre calculate parts of the reports on writing and store it in the document. Computed Pattern.
+
+### Schema Version 4 Revision 1
 
 ```ts
 type SchemaV4R1 = {
@@ -262,7 +396,30 @@ type SchemaV4R1 = {
 };
 ```
 
-### Version 5 Revision 0
+#### Application Version 5 Revision 4
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    report: { a: 6, n: 6, p: 6, r: 2 },
+    items: [
+      { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
+      { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
+      { date: new Date('2022-05-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
+    ],
+  };
+  ```
+
+- Issue: The logic to check the items array to see if it already has an item of a specific date and then merge the items is CPU intensive;
+- Solution: Instead of items be an array, it could be an object where the name of the fields in the object is the date of the transaction.
+
+### Schema Version 5 Revision 0
 
 ```ts
 type SchemaV5R0 = {
@@ -277,6 +434,49 @@ type SchemaV5R0 = {
   };
 };
 ```
+
+#### Application Version 6 Revision 0
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    items: {
+      '15': { a: 2, n: 2, p: 3, r: 1 },
+      '25': { a: 2, n: 2 },
+    },
+  };
+  ```
+
+- Issue: Improve the storage density;
+- Solution: Bucket the data by quarter.
+
+#### Application Version 6 Revision 1
+
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
+- Document:
+
+  ```ts
+  const doc = {
+    _id: Buffer.from('...00000000120230615', 'hex'),
+    items: {
+      '0625': { a: 2, n: 2 },
+      '0615': { a: 2, n: 2, p: 3, r: 1 },
+      '0515': { a: 2, n: 2, p: 3, r: 1 },
+    },
+  };
+  ```
+
+- Issue: Pre calculate report;
+- Solution: Computed Pattern.
 
 ### Version 5 Revision 1
 

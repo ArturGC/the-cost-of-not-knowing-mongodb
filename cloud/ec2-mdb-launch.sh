@@ -22,8 +22,7 @@ export DISK_DB='{
     "DeleteOnTermination": true,
     "Iops": 7500,
     "VolumeSize": 200,
-    "VolumeType": "gp3",
-    "Throughput": 200
+    "VolumeType": "io2"
   }
 }'
 export DISKS="[$DISK_OS, $DISK_DB]"

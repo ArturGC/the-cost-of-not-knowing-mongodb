@@ -4,13 +4,13 @@ module.exports = {
       autorestart: false,
       exec_mode: 'cluster',
       instances: 1,
-      max_memory_restart: '3072M',
+      max_memory_restart: '4096M',
       name: 'app',
       script: './build/index.js',
       watch: false,
 
       env: {
-        EXEC_ENV: 'prod',
+        EXEC_ENV: 'test',
       },
     },
   ],

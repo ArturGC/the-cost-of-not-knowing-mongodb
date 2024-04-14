@@ -88,20 +88,12 @@ class Mongo {
 
     await this.dbBase
       .createCollection('measurements', {
-        timeseries: {
-          granularity: 'seconds',
-          metaField: 'metadata',
-          timeField: 'timestamp',
-        },
+        timeseries: { granularity: 'seconds', metaField: 'metadata', timeField: 'timestamp' },
       })
       .catch(() => {});
 
     await this.dbApp
-      .createCollection('appV6R4', {
-        storageEngine: {
-          wiredTiger: { configString: 'block_compressor=zstd' },
-        },
-      })
+      .createCollection('appV6R4', { storageEngine: { wiredTiger: { configString: 'block_compressor=zstd' } } })
       .catch(() => {});
   };
 }

@@ -1,6 +1,6 @@
 # The cost of not knowing MongoDB
 
-### Schema Version 0 - Application Version 0
+### appV0 (SchemaV0)
 
 - Document:
 
@@ -63,7 +63,7 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 0 - Application Version 1
+### appV1 (SchemaV0)
 
 - Document:
 
@@ -84,8 +84,10 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      '_id.key': '0000000000000000000000000000000000000000000000000000000000000001',
-      '_id.date': new Date('2012-06-05T00:00:00.000Z'),
+      _id: {
+        key: '0000000000000000000000000000000000000000000000000000000000000001',
+        date: new Date('2012-06-05T00:00:00.000Z'),
+      },
     },
     update: {
       $inc: {
@@ -124,7 +126,7 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 1 - Application Version 2
+### appV2 (SchemaV1)
 
 - Document:
 
@@ -184,13 +186,13 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 2 - Application Version 3
+### appV3 (SchemaV2)
 
 - Document:
 
 ```ts
 const doc = {
-  _id: Buffer.from('...00000000120230615', 'hex'),
+  _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
   approved: 1,
   noFunds: 1,
 };
@@ -202,10 +204,7 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from(
-        '000000000000000000000000000000000000000000000000000000000000000120120605',
-        'hex'
-      ),
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
     },
     update: {
       $inc: {
@@ -225,14 +224,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120120615',
-          'hex'
-        ),
-        $lt: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120220615',
-          'hex'
-        ),
+        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120615', 'hex'),
+        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
       },
     },
   },
@@ -249,13 +242,13 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 3 - Application Version 4
+### appV4 (SchemaV3)
 
 - Document:
 
 ```ts
 const doc = {
-  _id: Buffer.from('...00000000120230615', 'hex'),
+  _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
   a: 1,
   n: 1,
 };
@@ -267,10 +260,7 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from(
-        '000000000000000000000000000000000000000000000000000000000000000120120605',
-        'hex'
-      ),
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
     },
     update: {
       $inc: {
@@ -290,14 +280,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120120615',
-          'hex'
-        ),
-        $lt: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120220615',
-          'hex'
-        ),
+        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120615', 'hex'),
+        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
       },
     },
   },
@@ -314,13 +298,13 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 4 Revision 0 - Application Version 5 Revision 0
+### appV5R0 (SchemaV4R0)
 
 - Document:
 
 ```ts
 const doc = {
-  _id: Buffer.from('...00000000120230615', 'hex'),
+  _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
   items: [
     { date: new Date('2022-06-25'), a: 1 },
     { date: new Date('2022-06-25'), a: 1 },
@@ -340,10 +324,7 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from(
-        '000000000000000000000000000000000000000000000000000000000000000120120605',
-        'hex'
-      ),
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
     },
     update: {
       $push: {
@@ -366,14 +347,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120120615',
-          'hex'
-        ),
-        $lt: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120220615',
-          'hex'
-        ),
+        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120615', 'hex'),
+        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
       },
     },
   },
@@ -404,13 +379,13 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 4 Revision 0 - Application Version 5 Revision 1
+### appV5R1 (SchemaV4R0)
 
 - Document:
 
 ```ts
 const doc = {
-  _id: Buffer.from('...00000000120230615', 'hex'),
+  _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
   items: [
     { date: new Date('2022-06-25'), a: 1 },
     { date: new Date('2022-06-25'), a: 1 },
@@ -434,10 +409,7 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from(
-        '000000000000000000000000000000000000000000000000000000000000000120120605',
-        'hex'
-      ),
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
     },
     update: {
       $push: {
@@ -460,14 +432,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120120615',
-          'hex'
-        ),
-        $lt: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120220615',
-          'hex'
-        ),
+        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120615', 'hex'),
+        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
       },
     },
   },
@@ -498,7 +464,7 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 4 Revision 1 - Application Version 5 Revision 2
+### appV5R2 - (SchemaV4R1)
 
 - Document:
 
@@ -519,10 +485,7 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from(
-        '000000000000000000000000000000000000000000000000000000000000000120120605',
-        'hex'
-      ),
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
     },
     update: [
       {
@@ -568,10 +531,7 @@ const bulkWriteOperation = {
               if: '$result.found',
               then: '$result.items',
               else: {
-                $concatArrays: [
-                  '$result.items',
-                  [{ date: new Date('2012-06-05T00:00:00.000Z'), a: 1, r: 1 }],
-                ],
+                $concatArrays: ['$result.items', [{ date: new Date('2012-06-05T00:00:00.000Z'), a: 1, r: 1 }]],
               },
             },
           },
@@ -591,14 +551,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120120615',
-          'hex'
-        ),
-        $lt: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120220615',
-          'hex'
-        ),
+        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120615', 'hex'),
+        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
       },
     },
   },
@@ -629,7 +583,7 @@ const pipeline = [
 ];
 ```
 
-### Schema Version 4 Revision 1 - Application Version 5 Revision 3
+### appV5R3 - (SchemaV4R1)
 
 - Document:
 
@@ -650,10 +604,7 @@ const doc = {
 const bulkWriteOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from(
-        '000000000000000000000000000000000000000000000000000000000000000120120605',
-        'hex'
-      ),
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
     },
     update: [
       {
@@ -699,10 +650,7 @@ const bulkWriteOperation = {
               if: '$result.found',
               then: '$result.items',
               else: {
-                $concatArrays: [
-                  '$result.items',
-                  [{ date: new Date('2012-06-05T00:00:00.000Z'), a: 1, r: 1 }],
-                ],
+                $concatArrays: ['$result.items', [{ date: new Date('2012-06-05T00:00:00.000Z'), a: 1, r: 1 }]],
               },
             },
           },
@@ -722,14 +670,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120120615',
-          'hex'
-        ),
-        $lt: Buffer.from(
-          '000000000000000000000000000000000000000000000000000000000000000120220615',
-          'hex'
-        ),
+        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120615', 'hex'),
+        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
       },
     },
   },
@@ -767,6 +709,129 @@ const pipeline = [
       noFunds: { $sum: '$items.n' },
       pending: { $sum: '$items.p' },
       rejected: { $sum: '$items.r' },
+    },
+  },
+  { $project: { _id: 0 } },
+];
+```
+
+### appV6R1 (SchemaV5R0)
+
+- Document:
+
+```ts
+const doc = {
+  _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
+  items: {
+    '0625': { a: 1 },
+    '0615': { a: 1, n: 1 },
+    '0610': { a: 1, p: 1 },
+    '0605': { a: 1, r: 1 },
+  },
+};
+```
+
+- Bulk Write:
+
+```ts
+const bulkWriteOperation = {
+  updateOne: {
+    filter: {
+      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120120605', 'hex'),
+    },
+    update: {
+      $inc: {
+        'items.0605.a': 1,
+        'items.0605.r': 1,
+      },
+    },
+    upsert: true,
+  },
+};
+```
+
+- Report Pipeline:
+
+```ts
+const pipeline = [
+  {
+    $match: {
+      _id: {
+        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001201202', 'hex'),
+        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      },
+    },
+  },
+  {
+    $addFields: {
+      report: {
+        $reduce: {
+          input: { $objectToArray: '$items' },
+          initialValue: { a: 0, n: 0, p: 0, r: 0 },
+          in: {
+            $cond: {
+              if: {
+                $or: [
+                  {
+                    $and: [
+                      {
+                        $eq: [
+                          '$_id',
+                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001201202', 'hex'),
+                        ],
+                      },
+                      { $gte: ['$$this.k', '0615'] },
+                    ],
+                  },
+                  {
+                    $and: [
+                      {
+                        $gt: [
+                          '$_id',
+                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001201202', 'hex'),
+                        ],
+                      },
+                      {
+                        $lt: [
+                          '$_id',
+                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    $and: [
+                      {
+                        $eq: [
+                          '$_id',
+                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+                        ],
+                      },
+                      { $lt: ['$$this.k', '0615'] },
+                    ],
+                  },
+                ],
+              },
+              then: {
+                a: { $add: ['$$value.a', { $cond: ['$$this.v.a', '$$this.v.a', 0] }] },
+                n: { $add: ['$$value.n', { $cond: ['$$this.v.n', '$$this.v.n', 0] }] },
+                p: { $add: ['$$value.p', { $cond: ['$$this.v.p', '$$this.v.p', 0] }] },
+                r: { $add: ['$$value.r', { $cond: ['$$this.v.r', '$$this.v.r', 0] }] },
+              },
+              else: '$$value',
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      approved: { $sum: '$report.a' },
+      noFunds: { $sum: '$report.n' },
+      pending: { $sum: '$report.p' },
+      rejected: { $sum: '$report.r' },
     },
   },
   { $project: { _id: 0 } },

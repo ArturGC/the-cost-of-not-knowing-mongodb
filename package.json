@@ -6,7 +6,7 @@
   "scripts": {
     "base": "pm2 start src/base/ecosystem.config.js",
     "start": "npx tsc && pm2 start src/ecosystem.config.js",
-    "test": "jest --detectOpenHandles"
+    "test": "jest"
   },
   "keywords": [
     "mongodb",
@@ -23,7 +23,7 @@
   "devDependencies": {
     "@tsconfig/node18": "18.2.4",
     "@types/jest": "29.5.12",
-    "@types/node": "20.12.5",
+    "@types/node": "20.12.7",
     "@typescript-eslint/eslint-plugin": "6.19.0",
     "@typescript-eslint/parser": "6.19.0",
     "eslint": "8.56.0",
@@ -39,7 +39,7 @@
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
-    "typescript": "5.4.4"
+    "typescript": "5.4.5"
   },
   "jest": {
     "collectCoverageFrom": [

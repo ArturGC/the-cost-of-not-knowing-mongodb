@@ -565,3 +565,23 @@ type SchemaV5R1 = {
     },
   };
   ```
+
+## Storage
+
+| Application | Documents | Doc Size | Logical Size | Storage Size | Index Size | Total Size |
+| :---------- | --------: | -------: | -----------: | -----------: | ---------: | ---------: |
+| appV0       | 7.190.826 |    118 B |       810 MB |       209 MB |     418 MB |     628 MB |
+| appV1       | 7.190.826 |    118 B |       810 MB |       215 MB |   1.463 MB |   1.679 MB |
+| appV2       | 7.190.826 |    125 B |       858 MB |       276 MB |     989 MB |   1.265 MB |
+| appV3       | 7.190.826 |     66 B |       453 MB |       173 MB |     562 MB |     736 MB |
+| appV4       | 7.190.826 |     58 B |       402 MB |       168 MB |     411 MB |     580 MB |
+| appV5R0     | 1.905.029 |    216 B |       392 MB |       129 MB |     112 MB |     241 MB |
+| appV5R1     |   666.641 |    507 B |       322 MB |       104 MB |      39 MB |     143 MB |
+| appV5R2     |   666.641 |    385 B |       244 MB |        86 MB |      35 MB |     122 MB |
+| appV5R3     |   666.641 |    385 B |       244 MB |        90 MB |      36 MB |     126 MB |
+| appV5R4     |   666.641 |    414 B |       263 MB |       105 MB |      33 MB |     139 MB |
+| appV6R0     | 1.905.029 |    125 B |       227 MB |        90 MB |     113 MB |     203 MB |
+| appV6R1     |   666.641 |    263 B |       167 MB |        61 MB |      36 MB |      97 MB |
+| appV6R2     |   666.641 |    293 B |       186 MB |        73 MB |      43 MB |     116 MB |
+| appV6R3     |   666.641 |    306 B |       195 MB |        68 MB |      43 MB |     111 MB |
+| appV6R4     |   666.641 |    306 B |       195 MB |        43 MB |      39 MB |      83 MB |

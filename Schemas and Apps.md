@@ -23,35 +23,35 @@ type Report = {
 };
 
 const transactions: Transaction = [
-  { date: new Date('2022-06-25'), key: 1, a: 1 },
-  { date: new Date('2022-06-15'), key: 1, a: 1, n: 1 },
-  { date: new Date('2022-06-10'), key: 1, a: 1, p: 1 },
-  { date: new Date('2022-06-05'), key: 1, a: 1, r: 1 },
+  { date: new Date('2022-06-25'), key: '1'.padStart(64, '0'), a: 1 },
+  { date: new Date('2022-06-15'), key: '1'.padStart(64, '0'), a: 1, n: 1 },
+  { date: new Date('2022-06-10'), key: '1'.padStart(64, '0'), a: 1, p: 1 },
+  { date: new Date('2022-06-05'), key: '1'.padStart(64, '0'), a: 1, r: 1 },
 
-  { date: new Date('2021-06-25'), key: 1, a: 1 },
-  { date: new Date('2021-06-15'), key: 1, a: 1, n: 1 },
-  { date: new Date('2021-06-10'), key: 1, a: 1, p: 1 },
-  { date: new Date('2021-06-05'), key: 1, a: 1, r: 1 },
+  { date: new Date('2021-06-25'), key: '1'.padStart(64, '0'), a: 1 },
+  { date: new Date('2021-06-15'), key: '1'.padStart(64, '0'), a: 1, n: 1 },
+  { date: new Date('2021-06-10'), key: '1'.padStart(64, '0'), a: 1, p: 1 },
+  { date: new Date('2021-06-05'), key: '1'.padStart(64, '0'), a: 1, r: 1 },
 
-  { date: new Date('2019-06-25'), key: 1, a: 1 },
-  { date: new Date('2019-06-15'), key: 1, a: 1, n: 1 },
-  { date: new Date('2019-06-10'), key: 1, a: 1, p: 1 },
-  { date: new Date('2019-06-05'), key: 1, a: 1, r: 1 },
+  { date: new Date('2019-06-25'), key: '1'.padStart(64, '0'), a: 1 },
+  { date: new Date('2019-06-15'), key: '1'.padStart(64, '0'), a: 1, n: 1 },
+  { date: new Date('2019-06-10'), key: '1'.padStart(64, '0'), a: 1, p: 1 },
+  { date: new Date('2019-06-05'), key: '1'.padStart(64, '0'), a: 1, r: 1 },
 
-  { date: new Date('2017-06-25'), key: 1, a: 1 },
-  { date: new Date('2017-06-15'), key: 1, a: 1, n: 1 },
-  { date: new Date('2017-06-10'), key: 1, a: 1, p: 1 },
-  { date: new Date('2017-06-05'), key: 1, a: 1, r: 1 },
+  { date: new Date('2017-06-25'), key: '1'.padStart(64, '0'), a: 1 },
+  { date: new Date('2017-06-15'), key: '1'.padStart(64, '0'), a: 1, n: 1 },
+  { date: new Date('2017-06-10'), key: '1'.padStart(64, '0'), a: 1, p: 1 },
+  { date: new Date('2017-06-05'), key: '1'.padStart(64, '0'), a: 1, r: 1 },
 
-  { date: new Date('2015-06-25'), key: 1, a: 1 },
-  { date: new Date('2015-06-15'), key: 1, a: 1, n: 1 },
-  { date: new Date('2015-06-10'), key: 1, a: 1, p: 1 },
-  { date: new Date('2015-06-05'), key: 1, a: 1, r: 1 },
+  { date: new Date('2015-06-25'), key: '1'.padStart(64, '0'), a: 1 },
+  { date: new Date('2015-06-15'), key: '1'.padStart(64, '0'), a: 1, n: 1 },
+  { date: new Date('2015-06-10'), key: '1'.padStart(64, '0'), a: 1, p: 1 },
+  { date: new Date('2015-06-05'), key: '1'.padStart(64, '0'), a: 1, r: 1 },
 
-  { date: new Date('2012-06-25'), key: 1, a: 1 },
-  { date: new Date('2012-06-15'), key: 1, a: 1, n: 1 },
-  { date: new Date('2012-06-10'), key: 1, a: 1, p: 1 },
-  { date: new Date('2012-06-05'), key: 1, a: 1, r: 1 },
+  { date: new Date('2012-06-25'), key: '1'.padStart(64, '0'), a: 1 },
+  { date: new Date('2012-06-15'), key: '1'.padStart(64, '0'), a: 1, n: 1 },
+  { date: new Date('2012-06-10'), key: '1'.padStart(64, '0'), a: 1, p: 1 },
+  { date: new Date('2012-06-05'), key: '1'.padStart(64, '0'), a: 1, r: 1 },
 ];
 
 const reports = [
@@ -221,10 +221,6 @@ type SchemaV5R1 = {
 
 ### Application Version 0 (SchemaV0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
   ```ts
   const doc = {
@@ -235,6 +231,10 @@ type SchemaV5R1 = {
     approved: 1,
     noFunds: 1,
   };
+  ```
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
   ```
 - Issue: The index in the `_id` field doesn't work for queries that filters by fields inside the document of `_id`.
   ```ts
@@ -249,10 +249,6 @@ type SchemaV5R1 = {
 
 ### Application Version 1 (SchemaV0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }, { '_id.key': 1, '_id.date': 1 }];
-  ```
 - Document:
   ```ts
   const doc = {
@@ -264,15 +260,15 @@ type SchemaV5R1 = {
     noFunds: 1,
   };
   ```
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }, { '_id.key': 1, '_id.date': 1 }];
+  ```
 - Issue: The index and field `_id` is bigger than it needs to be and with no use by the application.
 - Solution: Change the `_id` field to be the native ObjectId and move the fields `key` and `date` to the document.
 
 ### Application Version 2 (SchemaV1)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }, { key: 1, date: 1 }];
-  ```
 - Document:
   ```ts
   const doc = {
@@ -282,6 +278,10 @@ type SchemaV5R1 = {
     approved: 1,
     noFunds: 1,
   };
+  ```
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }, { key: 1, date: 1 }];
   ```
 - Issue:
   1. The field `key` has hexadecimal data but it's being stored as string, using more storage than it really needs;
@@ -302,10 +302,6 @@ type SchemaV5R1 = {
 
 ### Application Version 3 (SchemaV2)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
   ```ts
   const doc = {
@@ -314,15 +310,15 @@ type SchemaV5R1 = {
     noFunds: 1,
   };
   ```
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: The data stored in each type of transaction is of type integer, which uses 32 bits/4 bytes. The name of field indicating each type of transaction is a string, that in some cases has 8 characters, which uses 8 bytes. We're using more storage with the name of the data than the data itself;
 - Solution: Reduce/shorthand the name of the fields.
 
 ### Application Version 4 (SchemaV3)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
   ```ts
   const doc = {
@@ -331,17 +327,16 @@ type SchemaV5R1 = {
     n: 1,
   };
   ```
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Each document is around 59 bytes and has one index entry. The data that we are storing in it is on average 8 bytes. The ratio of storage is 8/59=0.136 and the ration of index is 8/1=8;
 - Solution: Implement bucket pattern to bucket the transactions by month.
 
 ### Application Version 5 Revision 0 (SchemaV4R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202306', 'hex'),
@@ -357,18 +352,16 @@ type SchemaV5R1 = {
     ],
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Maybe we can improve the storage density even more;
 - Solution: Implement the bucket pattern to bucket transactions by quarter.
 
 ### Application Version 5 Revision 1 (SchemaV4R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -388,18 +381,16 @@ type SchemaV5R1 = {
     ],
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Every transaction generate is being pushed to the items array, even if they have the same date;
 - Solution: When the items array already have an item for a specific date, instead of adding a new item, combine the transactions.
 
 ### Application Version 5 Revision 2 (SchemaV4R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -409,19 +400,18 @@ type SchemaV5R1 = {
       { date: new Date('2022-05-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
     ],
   };
+  ``;
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: To generate the reports, the aggregation pipeline is using a $unwind followed by a $group, which generates a pipeline with a lot of documents and not making use of the bucketing;
 - Solution: Use a $addFields stage with $reduce operation to calculate the report of each document and then do a full report with a $group stage.
 
 ### Application Version 5 Revision 3 (SchemaV4R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -432,18 +422,16 @@ type SchemaV5R1 = {
     ],
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Every time a report is requested, all the transaction need to be summed;
 - Solution: Implement pre calculate parts of the reports on writing and store it in the document. Computed Pattern.
 
 ### Application Version 5 Revision 4 (SchemaV4R1)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -455,18 +443,16 @@ type SchemaV5R1 = {
     ],
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: The logic to check the items array to see if it already has an item of a specific date and then merge the items is CPU intensive;
 - Solution: Instead of items be an array, it could be an object where the name of the fields in the object is the date of the transaction.
 
 ### Application Version 6 Revision 0 (SchemaV5R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202306', 'hex'),
@@ -476,18 +462,16 @@ type SchemaV5R1 = {
     },
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Improve the storage density;
 - Solution: Bucket the data by quarter.
 
 ### Application Version 6 Revision 1 (SchemaV5R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -498,18 +482,16 @@ type SchemaV5R1 = {
     },
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Pre calculate report;
 - Solution: Computed Pattern.
 
 ### Application Version 6 Revision 2 (SchemaV5R1)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -521,18 +503,16 @@ type SchemaV5R1 = {
     },
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: To generate the reports, 5 aggregation pipelines are being executed;
 - Solution: Generate all the reports with just one aggregation pipeline.
 
 ### Application Version 6 Revision 3 (SchemaV5R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -543,18 +523,16 @@ type SchemaV5R1 = {
     },
   };
   ```
-
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
+  ```
 - Issue: Disk is the limiting factor, change the compression algorithm;
 - Solution: Use zst compression.
 
 ### Application Version 6 Revision 4 (SchemaV5R0)
 
-- Indexes:
-  ```ts
-  const indexes = [{ _id: 1 }];
-  ```
 - Document:
-
   ```ts
   const doc = {
     _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202302', 'hex'),
@@ -564,6 +542,10 @@ type SchemaV5R1 = {
       '20220515': { a: 2, n: 2, p: 3, r: 1 },
     },
   };
+  ```
+- Indexes:
+  ```ts
+  const indexes = [{ _id: 1 }];
   ```
 
 ## Storage

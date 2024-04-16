@@ -1,9 +1,9 @@
 const oneMinuteInMs = 60 * 1000;
 const OneYearInMs = 365 * 24 * 60 * 60 * 1000;
-const workersTotal = 20;
+const workersTotal = 10;
 
 const base = {
-  batchSize: 500,
+  batchSize: 1000,
   transactionsPerYear: 50 * Math.pow(10, 6),
   userTransactionsPerYear: 60,
 } as const;

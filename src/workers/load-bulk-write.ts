@@ -10,7 +10,7 @@ const buildPrint = (id: number): ((m: string) => void) => {
 
   return (m: string) => {
     const time = new Date().toISOString().slice(11, 19);
-    parentPort?.postMessage(`[${time}]${_id}: ${m}`);
+    parentPort?.postMessage(`[${time}]${_id} ${m}`);
   };
 };
 

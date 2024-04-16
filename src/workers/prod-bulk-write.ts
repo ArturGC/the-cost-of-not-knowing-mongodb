@@ -31,8 +31,6 @@ const main = async (): Promise<void> => {
     await P[config.APP.VERSION].bulkUpsert(base.transactions);
     const value = new Date().getTime() - timestamp.getTime();
 
-    P.measurements.insertOne({ timestamp, type: 'bulkUpsert', value }).catch(console.error);
-
     if (count % 100 === 0 && count !== 0) {
       const total = count * refs.base.batchSize;
       const rate = refs.base.batchSize / (value / 1000);
@@ -40,7 +38,10 @@ const main = async (): Promise<void> => {
       print(`Total: ${total.toExponential(2)}, Rate: ${rate.toFixed(2)}/s`);
     }
 
-    await refs.prod.sleep.bulkUpsert(value, dateStart);
+    await Promise.all([
+      refs.prod.sleep.bulkUpsert(value, dateStart),
+      P.measurements.insertOne({ timestamp, type: 'bulkUpsert', value }),
+    ]);
 
     if (refs.prod.shouldBreak(dateStart)) break;
   }

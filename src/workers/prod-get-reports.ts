@@ -6,6 +6,12 @@ import generator from '../generator';
 import mdb from '../mdb';
 import refs from '../references';
 
+const getId = (): number => {
+  const { id } = workerData as { id: number };
+
+  return id % 10;
+};
+
 const buildPrint = (id: number): ((m: string) => void) => {
   const _id = `[${config.APP.VERSION}][GetReports][${id.toString().padStart(2, '0')}]`;
 
@@ -17,7 +23,7 @@ const buildPrint = (id: number): ((m: string) => void) => {
 
 const main = async (): Promise<void> => {
   const dateStart = new Date();
-  const { id } = workerData as { id: number };
+  const id = getId();
   const print = buildPrint(id);
   let dateRecent = refs.prod.dateStart;
 
@@ -32,15 +38,21 @@ const main = async (): Promise<void> => {
 
     P.measurements.insertOne({ timestamp, type: 'getReports', value }).catch((e) => print(JSON.stringify(e)));
 
-    if (count % 1000 === 0 && count !== 0) {
+    if (count % 250 === 0 && count !== 0) {
       const rate = 1 / (value / 1000);
       print(`Total: ${count}, Rate: ${rate.toFixed(2)}/s`);
-    }
 
-    await Promise.all([
-      refs.prod.sleep.getReports(value, dateStart),
-      P.base.getCurrentDate(id).then((currentDate) => (dateRecent = currentDate)),
-    ]);
+      await Promise.all([
+        refs.prod.sleep.getReports(value, dateStart),
+        P.measurements.insertOne({ timestamp, type: 'getReports', value }),
+        P.base.getCurrentDate(id).then((currentDate) => (dateRecent = currentDate)),
+      ]);
+    } else {
+      await Promise.all([
+        refs.prod.sleep.getReports(value, dateStart),
+        P.measurements.insertOne({ timestamp, type: 'getReports', value }),
+      ]);
+    }
 
     if (refs.prod.shouldBreak(dateStart)) break;
   }

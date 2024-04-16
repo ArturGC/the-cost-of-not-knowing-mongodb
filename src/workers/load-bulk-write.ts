@@ -14,9 +14,9 @@ const buildPrint = (id: number): ((m: string) => void) => {
   };
 };
 
-const ids = Array.from({ length: refs.workersTotal }).map((_, i) => i);
-
 const main = async (): Promise<void> => {
+  const ids = Array.from({ length: refs.workersTotal }).map((_, i) => i);
+
   let { id } = workerData as { id: number };
   const print = buildPrint(id);
 
@@ -27,9 +27,11 @@ const main = async (): Promise<void> => {
     const base = await P.base.getNotUsed(filter);
 
     if (base == null) {
-      if (ids.length === 0) break;
+      const newId = ids.pop();
 
-      id = ids.pop()!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      if (newId == null) break;
+
+      id = newId;
 
       continue;
     }

@@ -5,14 +5,14 @@ export YOUR_NAME="Artur Costa"
 export REGION="us-east-1"
 export KEY_NAME="arturgc_mdb_us_east_1"
 export AMI="ami-07d9b9ddc6cd8dd30" # Ubuntu Server 22.04 LTS
-export INSTANCE_TYPE="c7a.large"
+export INSTANCE_TYPE="m6a.xlarge"
 export SECURITY_GROUP="sg-0e0aa6f8d2c9744e1" # Allow All Traffic
 export SUBNET="subnet-08713b04009fe35ff"
 export DISK_OS='{
   "DeviceName": "/dev/sda1", 
   "Ebs": {
     "DeleteOnTermination": true, 
-    "VolumeSize": 10, 
+    "VolumeSize": 15, 
     "VolumeType": "gp3"
   }
 }'
@@ -22,8 +22,7 @@ export DISK_DB='{
     "DeleteOnTermination": true,
     "Iops": 10000,
     "VolumeSize": 200,
-    "VolumeType": "gp3",
-    "Throughput": 500
+    "VolumeType": "io2"
   }
 }'
 export DISKS="[$DISK_OS, $DISK_DB]"

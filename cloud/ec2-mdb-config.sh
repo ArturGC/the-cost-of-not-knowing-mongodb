@@ -92,7 +92,7 @@ if [[ $? -eq 0 ]]; then
 	echo "Swap already configured"
 else
   echo "Configuring Swap"
-  sudo dd if=/dev/zero of=/root/swap.bin count=2048 bs=1M
+  sudo dd if=/dev/zero of=/root/swap.bin count=4096 bs=1M
   sudo chmod 600 /root/swap.bin
   sudo mkswap /root/swap.bin
   grep -q 'swap' /etc/fstab || echo "/root/swap.bin    none    swap    defaults 0 0" | sudo tee --append /etc/fstab

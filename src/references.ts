@@ -16,23 +16,31 @@ const load = {
 const production = {
   dateStart: new Date('2020-01-01'),
   dateEnd: new Date('2021-01-01'),
-  maxDuration: 60 * oneMinuteInMs,
+  maxDuration: 90 * oneMinuteInMs,
 } as const;
 
 const sleep = async (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-const getSleepFactor = (dateStart: Date): number => {
+const getSleepFactorBulkWrite = (dateStart: Date): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
-  const percentagePassed = msPassed / production.maxDuration;
+  const minutesPassed = msPassed / oneMinuteInMs;
 
-  if (percentagePassed < 0.17) return 1;
-  else if (percentagePassed < 0.33) return 2;
-  else if (percentagePassed < 0.5) return 3;
-  else if (percentagePassed < 0.67) return 4;
-  else if (percentagePassed < 0.84) return 5;
-  else return 6;
+  if (minutesPassed < 30) return 2;
+  else if (minutesPassed < 60) return 3;
+  else return 4;
+};
+
+const getSleepFactorGetReports = (dateStart: Date): number => {
+  const msPassed = new Date().getTime() - dateStart.getTime();
+  const minutesPassed = msPassed / oneMinuteInMs;
+  const reminder = minutesPassed % 30;
+
+  if (reminder < 7.5) return 2;
+  else if (reminder < 15) return 4;
+  else if (reminder < 22.5) return 6;
+  else return 8;
 };
 
 const shouldBreak = (dateStart: Date): boolean => {
@@ -54,8 +62,8 @@ export default {
     ...production,
     shouldBreak,
     sleep: {
-      bulkUpsert: async (ms: number, dateStart: Date) => sleep(10000 / getSleepFactor(dateStart) - ms),
-      getReports: async (ms: number, dateStart: Date) => sleep(200 / getSleepFactor(dateStart) - ms),
+      bulkUpsert: async (ms: number, dateStart: Date) => sleep(10000 / getSleepFactorBulkWrite(dateStart) - ms),
+      getReports: async (ms: number, dateStart: Date) => sleep(200 / getSleepFactorGetReports(dateStart) - ms),
     },
   },
   sleep,

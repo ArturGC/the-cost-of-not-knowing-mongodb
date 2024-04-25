@@ -36,3 +36,23 @@ const PROD = {
 };
 
 export default process.env.EXEC_ENV === 'prod' ? PROD : TEST;
+
+let pipeline = [
+  {
+    $addFields: {
+      _id: {
+        key: '$key',
+        date: '$date',
+      },
+    },
+  },
+  {
+    $project: {
+      key: 0,
+      date: 0,
+    },
+  },
+  {
+    $out: 'appV0',
+  },
+];

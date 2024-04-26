@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { buildKey, getDD, getMM, getReportsDates, getYYYY, ItemsObj } from '../helpers';
+import { getMMDD, getQQ, getReportsDates, getYYYY, ItemsObj } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: number, date: Date): Buffer => {
-  const id = `${buildKey(key)}${getYYYY(date)}${getMM(date)}`;
+export const buildId = (key: string, date: Date): Buffer => {
+  const id = `${key}${getYYYY(date)}${getQQ(date)}`;
 
   return Buffer.from(id, 'hex');
 };
@@ -16,13 +16,13 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
       _id: buildId(doc.key, doc.date),
     };
 
-    const DD = getDD(doc.date);
+    const MMDD = getMMDD(doc.date);
     const mutation = {
       $inc: {
-        [`items.${DD}.a`]: doc.a,
-        [`items.${DD}.n`]: doc.n,
-        [`items.${DD}.p`]: doc.p,
-        [`items.${DD}.r`]: doc.r,
+        [`items.${MMDD}.a`]: doc.approved,
+        [`items.${MMDD}.n`]: doc.noFunds,
+        [`items.${MMDD}.p`]: doc.pending,
+        [`items.${MMDD}.r`]: doc.rejected,
       },
     };
 
@@ -35,29 +35,29 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     };
   });
 
-  return mdb.collections.appV6R0.bulkWrite(upsertOperations, {
+  return mdb.collections.appV6R1.bulkWrite(upsertOperations, {
     ordered: false,
   });
 };
 
-const buildReduceLoopLogic = (key: number, date: { end: Date; start: Date }): Record<string, unknown> => {
-  const [lowerId, lowerDD] = [buildId(key, date.start), getDD(date.start)];
-  const [upperId, upperDD] = [buildId(key, date.end), getDD(date.end)];
+const buildLoopLogic = (key: string, date: { end: Date; start: Date }): Record<string, unknown> => {
+  const [lowerId, lowerMMDD] = [buildId(key, date.start), getMMDD(date.start)];
+  const [upperId, upperMMDD] = [buildId(key, date.end), getMMDD(date.end)];
 
-  const InLowerYYYYMMAndGteLowerDD = {
-    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerDD] }],
+  const InLowerYYYYQQAndGteLowerMMDD = {
+    $and: [{ $eq: ['$_id', lowerId] }, { $gte: ['$$this.k', lowerMMDD] }],
   };
-  const InUpperYYYYMMAndLtUpperDD = {
-    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperDD] }],
+  const InUpperYYYYQQAndLtUpperMMDD = {
+    $and: [{ $eq: ['$_id', upperId] }, { $lt: ['$$this.k', upperMMDD] }],
   };
-  const BetweenLowerAndUpperYYYYMM = {
+  const BetweenLowerAndUpperYYYYQQ = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
   };
 
   return {
     $cond: {
       if: {
-        $or: [InLowerYYYYMMAndGteLowerDD, BetweenLowerAndUpperYYYYMM, InUpperYYYYMMAndLtUpperDD],
+        $or: [InLowerYYYYQQAndGteLowerMMDD, BetweenLowerAndUpperYYYYQQ, InUpperYYYYQQAndLtUpperMMDD],
       },
       then: {
         a: ItemsObj.buildFieldAccumulator('a'),
@@ -69,6 +69,7 @@ const buildReduceLoopLogic = (key: number, date: { end: Date; start: Date }): Re
     },
   };
 };
+
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
@@ -78,7 +79,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     $reduce: {
       input: { $objectToArray: '$items' },
       initialValue: { a: 0, n: 0, p: 0, r: 0 },
-      in: buildReduceLoopLogic(key, date),
+      in: buildLoopLogic(key, date),
     },
   };
 
@@ -97,7 +98,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     { $project: { _id: 0 } },
   ];
 
-  return mdb.collections.appV6R0
+  return mdb.collections.appV6R1
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

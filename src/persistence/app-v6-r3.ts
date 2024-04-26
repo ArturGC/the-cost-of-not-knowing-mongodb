@@ -1,11 +1,13 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
+import * as H from '../helpers';
 import type * as T from '../types';
-import { buildKey, getQQ, getReportsDates, getYYYY, getYYYYMMDD } from '../helpers';
+
+import { getQQ, getYYYY, getYYYYMMDD } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: number, date: Date): Buffer => {
-  const id = `${buildKey(key)}${getYYYY(date)}${getQQ(date)}`;
+export const buildId = (key: string, date: Date): Buffer => {
+  const id = `${key}${getYYYY(date)}${getQQ(date)}`;
 
   return Buffer.from(id, 'hex');
 };
@@ -17,10 +19,10 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     const YYYYMMDD = getYYYYMMDD(doc.date);
     const mutation = {
       $inc: {
-        [`items.${YYYYMMDD}.a`]: doc.a,
-        [`items.${YYYYMMDD}.n`]: doc.n,
-        [`items.${YYYYMMDD}.p`]: doc.p,
-        [`items.${YYYYMMDD}.r`]: doc.r,
+        [`items.${YYYYMMDD}.a`]: doc.approved,
+        [`items.${YYYYMMDD}.n`]: doc.noFunds,
+        [`items.${YYYYMMDD}.p`]: doc.pending,
+        [`items.${YYYYMMDD}.r`]: doc.rejected,
       },
     };
 
@@ -33,7 +35,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     };
   });
 
-  return mdb.collections.appV6R4.bulkWrite(upsertOperations, {
+  return mdb.collections.appV6R3.bulkWrite(upsertOperations, {
     ordered: false,
   });
 };
@@ -146,7 +148,7 @@ const buildReportInitialValue = (): Record<string, unknown> => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = getReportsDates(date);
+  const reportsDates = H.getReportsDates(date);
   const [lowerId, upperId] = [buildId(key, reportsDates[4].start), buildId(key, reportsDates[4].end)];
 
   const docsFromKeyBetweenDate = {
@@ -231,7 +233,7 @@ export const getReports: T.GetReports = async ({ date, key }) => {
     { $project: format },
   ];
 
-  const result = await mdb.collections.appV6R4
+  const result = await mdb.collections.appV6R3
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

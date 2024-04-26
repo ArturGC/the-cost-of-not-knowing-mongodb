@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { buildKey, getQQ, getReportsDates, getYYYY, itemsArray } from '../helpers';
+import { getMM, getReportsDates, getYYYY } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: number, date: Date): Buffer => {
-  const id = `${buildKey(key)}${getYYYY(date)}${getQQ(date)}`;
+export const buildId = (key: string, date: Date): Buffer => {
+  const id = `${key}${getYYYY(date)}${getMM(date)}`;
 
   return Buffer.from(id, 'hex');
 };
@@ -16,13 +16,17 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
       _id: buildId(doc.key, doc.date),
     };
 
-    const sumIfItemExists = itemsArray.buildResultIfItemExists(doc);
-    const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(doc);
-    const mutation = [
-      { $set: { result: sumIfItemExists } },
-      { $set: { items: returnItemsOrCreateNew } },
-      { $unset: ['result'] },
-    ];
+    const mutation = {
+      $push: {
+        items: {
+          date: doc.date,
+          a: doc.approved,
+          n: doc.noFunds,
+          p: doc.pending,
+          r: doc.rejected,
+        },
+      },
+    };
 
     return {
       updateOne: {
@@ -33,9 +37,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
     };
   });
 
-  return mdb.collections.appV5R2.bulkWrite(upsertOperations, {
-    ordered: false,
-  });
+  return mdb.collections.appV5R0.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const getReport: T.GetReport = async ({ date, key }) => {
@@ -68,7 +70,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     { $project: { _id: 0 } },
   ];
 
-  return mdb.collections.appV5R2
+  return mdb.collections.appV5R0
     .aggregate(pipeline)
     .toArray()
     .then(([result]) => result);

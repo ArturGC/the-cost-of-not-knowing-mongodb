@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { buildKey, getMMDD, getQQ, getReportsDates, getYYYY, ItemsObj } from '../helpers';
+import { getMMDD, getQQ, getReportsDates, getYYYY, ItemsObj } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: number, date: Date): Buffer => {
-  const id = `${buildKey(key)}${getYYYY(date)}${getQQ(date)}`;
+export const buildId = (key: string, date: Date): Buffer => {
+  const id = `${key}${getYYYY(date)}${getQQ(date)}`;
 
   return Buffer.from(id, 'hex');
 };
@@ -16,16 +16,16 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
 
     const MMDD = getMMDD(doc.date);
     const incrementItems = {
-      [`items.${MMDD}.a`]: doc.a,
-      [`items.${MMDD}.n`]: doc.n,
-      [`items.${MMDD}.p`]: doc.p,
-      [`items.${MMDD}.r`]: doc.r,
+      [`items.${MMDD}.a`]: doc.approved,
+      [`items.${MMDD}.n`]: doc.noFunds,
+      [`items.${MMDD}.p`]: doc.pending,
+      [`items.${MMDD}.r`]: doc.rejected,
     };
     const incrementReports = {
-      'report.a': doc.a,
-      'report.n': doc.n,
-      'report.p': doc.p,
-      'report.r': doc.r,
+      'report.a': doc.approved,
+      'report.n': doc.noFunds,
+      'report.p': doc.pending,
+      'report.r': doc.rejected,
     };
     const mutation = {
       $inc: {
@@ -48,7 +48,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
   });
 };
 
-const buildLoopLogic = (key: number, date: { end: Date; start: Date }): Record<string, unknown> => {
+const buildLoopLogic = (key: string, date: { end: Date; start: Date }): Record<string, unknown> => {
   const [lowerId, lowerMMDD] = [buildId(key, date.start), getMMDD(date.start)];
   const [upperId, upperMMDD] = [buildId(key, date.end), getMMDD(date.end)];
 

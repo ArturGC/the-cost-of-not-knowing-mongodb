@@ -1,6 +1,6 @@
 import type * as T from '../types';
 
-const buildItemSum = (doc: T.TransactionShort): Record<string, unknown> => {
+const buildItemSum = (doc: T.Event): Record<string, unknown> => {
   const newDoc: Record<string, unknown> = {
     date: '$$this.date',
     a: '$$this.a',
@@ -9,15 +9,15 @@ const buildItemSum = (doc: T.TransactionShort): Record<string, unknown> => {
     r: '$$this.r',
   };
 
-  if (doc.a != null) newDoc.a = { $add: [doc.a, { $cond: ['$$this.a', '$$this.a', 0] }] };
-  if (doc.n != null) newDoc.n = { $add: [doc.n, { $cond: ['$$this.n', '$$this.n', 0] }] };
-  if (doc.p != null) newDoc.p = { $add: [doc.p, { $cond: ['$$this.p', '$$this.p', 0] }] };
-  if (doc.r != null) newDoc.r = { $add: [doc.r, { $cond: ['$$this.r', '$$this.r', 0] }] };
+  if (doc.approved != null) newDoc.a = { $add: [doc.approved, { $cond: ['$$this.a', '$$this.a', 0] }] };
+  if (doc.noFunds != null) newDoc.n = { $add: [doc.noFunds, { $cond: ['$$this.n', '$$this.n', 0] }] };
+  if (doc.pending != null) newDoc.p = { $add: [doc.pending, { $cond: ['$$this.p', '$$this.p', 0] }] };
+  if (doc.rejected != null) newDoc.r = { $add: [doc.rejected, { $cond: ['$$this.r', '$$this.r', 0] }] };
 
   return newDoc;
 };
 
-export const buildResultIfItemExists = (doc: T.TransactionShort): Record<string, unknown> => {
+export const buildResultIfItemExists = (doc: T.Event): Record<string, unknown> => {
   const itemsOrEmptyArray = {
     $cond: ['$items', '$items', []],
   };
@@ -53,25 +53,36 @@ export const buildResultIfItemExists = (doc: T.TransactionShort): Record<string,
   };
 };
 
-export const buildNewReport = (doc: T.TransactionShort): Record<string, unknown> => {
+export const buildNewReport = (doc: T.Event): Record<string, unknown> => {
   const newReport: Record<string, unknown> = {};
 
-  if (doc.a != null) newReport['report.a'] = { $add: [doc.a, { $cond: ['$report.a', '$report.a', 0] }] };
-  if (doc.n != null) newReport['report.n'] = { $add: [doc.n, { $cond: ['$report.n', '$report.n', 0] }] };
-  if (doc.p != null) newReport['report.p'] = { $add: [doc.p, { $cond: ['$report.p', '$report.p', 0] }] };
-  if (doc.r != null) newReport['report.r'] = { $add: [doc.r, { $cond: ['$report.r', '$report.r', 0] }] };
+  if (doc.approved != null) newReport['report.a'] = { $add: [doc.approved, { $cond: ['$report.a', '$report.a', 0] }] };
+  if (doc.noFunds != null) newReport['report.n'] = { $add: [doc.noFunds, { $cond: ['$report.n', '$report.n', 0] }] };
+  if (doc.pending != null) newReport['report.p'] = { $add: [doc.pending, { $cond: ['$report.p', '$report.p', 0] }] };
+  if (doc.rejected != null) newReport['report.r'] = { $add: [doc.rejected, { $cond: ['$report.r', '$report.r', 0] }] };
 
   return newReport;
 };
 
-export const buildItemsOrCreateNew = (doc: T.TransactionShort): Record<string, unknown> => {
-  const { key, ...newDoc } = doc;
-
+export const buildItemsOrCreateNew = (doc: T.Event): Record<string, unknown> => {
   return {
     $cond: {
       if: '$result.found',
       then: '$result.items',
-      else: { $concatArrays: ['$result.items', [newDoc]] },
+      else: {
+        $concatArrays: [
+          '$result.items',
+          [
+            {
+              date: doc.date,
+              a: doc.approved,
+              n: doc.noFunds,
+              p: doc.pending,
+              r: doc.rejected,
+            },
+          ],
+        ],
+      },
     },
   };
 };

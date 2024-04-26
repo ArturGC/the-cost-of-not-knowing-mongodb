@@ -1,8 +1,6 @@
 import mdb from '../src/mdb';
 import { withDb } from './helpers';
-import * as T from '../src/types';
 import * as P from '../src/persistence';
-import generator from '../src/generator';
 import * as fixtures from './fixtures';
 
 withDb(() => {
@@ -15,9 +13,7 @@ withDb(() => {
 
       const doc0V5R3 = await mdb.collections.appV5R3.findOne({ _id: idDocs0 });
 
-      expect(doc0V5R3?.items).toEqual([
-        { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
-      ]);
+      expect(doc0V5R3?.items).toEqual([{ date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 }]);
 
       const docs1 = fixtures.eventsBulkUpsert[1];
       const idDocs1 = P.appV5R3.buildId(docs1[0].key, docs1[0].date);

@@ -19,7 +19,27 @@ export type Event = {
   date: Date;
 } & Operations;
 
-export type AppVersion = 'appV6R4';
+export type EventShort = {
+  key: string;
+  date: Date;
+} & OperationsShort;
+
+export type AppVersion =
+  | 'appV0'
+  | 'appV1'
+  | 'appV2'
+  | 'appV3'
+  | 'appV4'
+  | 'appV5R0'
+  | 'appV5R1'
+  | 'appV5R2'
+  | 'appV5R3'
+  | 'appV5R4'
+  | 'appV6R0'
+  | 'appV6R1'
+  | 'appV6R2'
+  | 'appV6R3'
+  | 'appV6R4';
 
 export type EventsScenarios = {
   _id: ObjectId;
@@ -29,8 +49,46 @@ export type EventsScenarios = {
   events: Event[];
 };
 
+export type SchemaV0 = {
+  _id: {
+    key: string;
+    date: Date;
+  };
+} & Operations;
+
+export type SchemaV1 = {
+  _id: ObjectId;
+  key: string;
+  date: Date;
+} & Operations;
+
+export type SchemaV2 = {
+  _id: Buffer;
+} & Operations;
+
+export type SchemaV3 = {
+  _id: Buffer;
+} & OperationsShort;
+
+export type SchemaV4R0 = {
+  _id: Buffer;
+  items: Array<{ date: Date } & OperationsShort>;
+};
+
+export type SchemaV4R1 = {
+  _id: Buffer;
+  report: OperationsShort;
+  items: Array<{ date: Date } & OperationsShort>;
+};
+
 export type SchemaV5R0 = {
   _id: Buffer;
+  items: Record<string, OperationsShort>;
+};
+
+export type SchemaV5R1 = {
+  _id: Buffer;
+  report: OperationsShort;
   items: Record<string, OperationsShort>;
 };
 
@@ -48,4 +106,5 @@ export type Measurement = {
 };
 
 export type ReportYear = 'oneYear' | 'threeYears' | 'fiveYears' | 'sevenYears' | 'tenYears';
+export type GetReport = (filter: { date: { end: Date; start: Date }; key: Event['key'] }) => Promise<Document>;
 export type GetReports = (filter: { date: Date; key: Event['key'] }) => Promise<Document[]>;

@@ -1,22 +1,22 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { buildKey, getReportsDates } from '../helpers';
+import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV1>>((doc) => {
     const query = {
-      key: buildKey(doc.key),
+      key: doc.key,
       date: doc.date,
     };
 
     const mutation = {
       $inc: {
-        approved: doc.a,
-        noFunds: doc.n,
-        pending: doc.p,
-        rejected: doc.r,
+        approved: doc.approved,
+        noFunds: doc.noFunds,
+        pending: doc.pending,
+        rejected: doc.rejected,
       },
     };
 
@@ -34,7 +34,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
 
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
-    key: buildKey(key),
+    key,
     date: { $gte: date.start, $lt: date.end },
   };
 

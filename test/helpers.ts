@@ -16,7 +16,7 @@ export async function dropAllCollections(db: Db) {
 
 export function withDb(test: () => void): void {
   beforeAll(async () => {
-    await mdb.checkCollections();
+    await mdb.verifyCollections();
   });
 
   beforeEach(async () => {

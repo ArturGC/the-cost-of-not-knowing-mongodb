@@ -2,14 +2,13 @@ import mdb from '../src/mdb';
 import { withDb } from './helpers';
 import * as fixtures from './fixtures';
 import * as P from '../src/persistence';
-import { buildKey } from '../src/helpers';
 
 withDb(() => {
   describe('appV2', () => {
     test('Bulk Upsert', async () => {
       const docs0 = fixtures.eventsBulkUpsert[0];
       const idDocs0 = {
-        key: buildKey(docs0[0].key),
+        key: docs0[0].key,
         date: docs0[0].date,
       };
 
@@ -24,7 +23,7 @@ withDb(() => {
 
       const docs1 = fixtures.eventsBulkUpsert[1];
       const idDocs1 = {
-        key: buildKey(docs1[0].key),
+        key: docs1[0].key,
         date: docs1[0].date,
       };
 
@@ -39,7 +38,7 @@ withDb(() => {
 
       const docs2 = fixtures.eventsBulkUpsert[2];
       const idDocs2 = {
-        key: buildKey(docs2[0].key),
+        key: docs2[0].key,
         date: docs2[0].date,
       };
 

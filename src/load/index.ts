@@ -21,14 +21,32 @@ const buildWorker = async (workerData: { appVersion: T.AppVersion; id: number })
   });
 };
 
+const appVersions: T.AppVersion[] = [
+  'appV1',
+  'appV2',
+  'appV3',
+  'appV4',
+  'appV5R0',
+  'appV5R1',
+  'appV5R2',
+  'appV5R3',
+  'appV5R4',
+  'appV6R0',
+  'appV6R1',
+  'appV6R2',
+  'appV6R3',
+  'appV6R4',
+];
+
 const main = async (): Promise<void | never> => {
   await mdb.verifyCollections();
 
-  const appVersion: T.AppVersion = 'appV6R4';
-  const list = Array.from({ length: refs.general.workers });
-  const promises = list.map(async (_, id) => buildWorker({ appVersion, id }));
+  for (const appVersion of appVersions) {
+    const list = Array.from({ length: refs.general.workers });
+    const promises = list.map(async (_, id) => buildWorker({ appVersion, id }));
 
-  await Promise.all(promises);
+    await Promise.all(promises);
+  }
 
   await mdb.close();
 };

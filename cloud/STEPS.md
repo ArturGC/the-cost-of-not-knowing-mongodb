@@ -42,3 +42,7 @@ nvm install v20
 npm install -g pm2 bun typescript ts-node
 pm2 install typescript
 ```
+
+## Others
+
+`rm -rf node_modules && scp -r -i ~/.ssh/strigo  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* arturgc@192.168.31.171:/home/arturgc/Documents/app`

@@ -1,5 +1,9 @@
 import type * as T from '../types';
-import refs from '../references';
+import config from '../config';
+import mdb from '../mdb';
+
+export * as itemsArray from './items-array';
+export * as ItemsObj from './items-obj';
 
 export const getReportsDates = (date: Date): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
   return [
@@ -64,12 +68,18 @@ export const getMMDD = (date: Date): string => {
   return `${getMM(date)}${getDD(date)}`;
 };
 
-export const sleep = async (ms: number): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+export const storeCollectionStats = async (
+  appVersion: T.AppVersion,
+  execution: 'load' | 'production'
+): Promise<void> => {
+  const { avgObjSize, count, size, storageSize, totalIndexSize, totalSize } = await mdb.dbApp.command({
+    collStats: config.APP.VERSION,
+    scale: 1024 * 1024,
+  });
 
-export const shouldBreakProd = (dateStart: Date): boolean => {
-  const msPassed = new Date().getTime() - dateStart.getTime();
-
-  return msPassed > refs.prod.duration;
+  await mdb.dbBase.collection('stats').insertOne({
+    appVersion,
+    execution,
+    stats: { avgObjSize, count, size, storageSize, totalIndexSize, totalSize },
+  });
 };

@@ -4,8 +4,10 @@
   "description": "The cost of not knowing MongoDB",
   "main": "./server/index.ts",
   "scripts": {
-    "base": "pm2 start src/base/ecosystem.config.js",
-    "start": "npx tsc && pm2 start src/ecosystem.config.js",
+    "app:load": "npx tsc && pm2 start src/load/ecosystem.config.js",
+    "app:prod": "npx tsc && pm2 start src/prod/ecosystem.config.js",
+    "scenarios:load": "pm2 start src/scenarios/load-ecosystem.config.js",
+    "scenarios:prod": "pm2 start src/scenarios/prod-ecosystem.config.js",
     "test": "jest"
   },
   "keywords": [

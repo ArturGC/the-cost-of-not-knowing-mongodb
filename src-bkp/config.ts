@@ -1,6 +1,10 @@
+import { type AppVersion } from './types';
 import { type MongoClientOptions } from 'mongodb';
 
 const TEST = {
+  APP: {
+    VERSION: (process.env.APP_VERSION as AppVersion) ?? ('appV4' satisfies AppVersion),
+  },
   MDB: {
     DB_NAME: 'test',
     OPTIONS: {
@@ -15,6 +19,9 @@ const TEST = {
 };
 
 const PROD = {
+  APP: {
+    VERSION: (process.env.APP_VERSION as AppVersion) ?? ('appV0' satisfies AppVersion),
+  },
   MDB: {
     DB_NAME: 'prod',
     OPTIONS: {

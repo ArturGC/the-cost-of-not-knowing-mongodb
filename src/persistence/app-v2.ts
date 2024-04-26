@@ -5,7 +5,7 @@ import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV1>>((doc) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV2>>((doc) => {
     const query = {
       key: doc.key,
       date: doc.date,

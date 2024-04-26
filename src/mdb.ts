@@ -5,21 +5,20 @@ import type * as T from './types';
 import config from './config';
 
 type Collections = {
-  appV0: Collection<T.SchemaV0>;
-  appV1: Collection<T.SchemaV0>;
-  appV2: Collection<T.SchemaV1>;
-  appV3: Collection<T.SchemaV2>;
-  appV4: Collection<T.SchemaV3>;
-  appV5R0: Collection<T.SchemaV4R0>;
-  appV5R1: Collection<T.SchemaV4R0>;
-  appV5R2: Collection<T.SchemaV4R0>;
-  appV5R3: Collection<T.SchemaV4R1>;
-  appV5R4: Collection<T.SchemaV4R1>;
-  appV6R0: Collection<T.SchemaV5R0>;
-  appV6R1: Collection<T.SchemaV5R0>;
-  appV6R2: Collection<T.SchemaV5R1>;
-  appV6R3: Collection<T.SchemaV5R0>;
-  appV6R4: Collection<T.SchemaV5R0>;
+  appV1: Collection<T.SchemaV1>;
+  appV2: Collection<T.SchemaV2>;
+  appV3: Collection<T.SchemaV3>;
+  appV4: Collection<T.SchemaV4>;
+  appV5R0: Collection<T.SchemaV5R0>;
+  appV5R1: Collection<T.SchemaV5R0>;
+  appV5R2: Collection<T.SchemaV5R0>;
+  appV5R3: Collection<T.SchemaV5R1>;
+  appV5R4: Collection<T.SchemaV5R1>;
+  appV6R0: Collection<T.SchemaV6R0>;
+  appV6R1: Collection<T.SchemaV6R0>;
+  appV6R2: Collection<T.SchemaV6R1>;
+  appV6R3: Collection<T.SchemaV6R0>;
+  appV6R4: Collection<T.SchemaV6R0>;
   eventsScenariosLoad: Collection<T.EventsScenarios>;
   eventsScenariosProd: Collection<T.EventsScenarios>;
   measurements: Collection<T.Measurement>;
@@ -42,7 +41,6 @@ class Mongo {
     this.dbBase = this.clientBase.db(config.MDB.DB_NAME);
 
     this.collections = {
-      appV0: this.dbApp.collection('appV0'),
       appV1: this.dbApp.collection('appV1'),
       appV2: this.dbApp.collection('appV2'),
       appV3: this.dbApp.collection('appV3'),
@@ -79,6 +77,9 @@ class Mongo {
 
     const indexV2 = { key: 1, date: 1 };
     await this.collections.appV2.createIndex(indexV2, { unique: true }).catch(() => {});
+
+    const indexV3 = { key: 1, date: 1 };
+    await this.collections.appV3.createIndex(indexV3, { unique: true }).catch(() => {});
   };
 
   close = async (): Promise<void> => {

@@ -13,7 +13,7 @@ export const buildId = (key: string, date: Date): Buffer => {
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV5R0>>((doc) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV6R0>>((doc) => {
     const query = { _id: buildId(doc.key, doc.date) };
 
     const YYYYMMDD = getYYYYMMDD(doc.date);

@@ -1,25 +1,26 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportsDates, getYYYYMMDD } from '../helpers';
+import { getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: string, date: Date): Buffer => {
-  return Buffer.from(`${key}${getYYYYMMDD(date)}`, 'hex');
+export const buildKey = (key: string): Buffer => {
+  return Buffer.from(key, 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
-  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV2>>((doc) => {
+  const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV3>>((doc) => {
     const query = {
-      _id: buildId(doc.key, doc.date),
+      key: buildKey(doc.key),
+      date: doc.date,
     };
 
     const mutation = {
       $inc: {
-        approved: doc.approved,
-        noFunds: doc.noFunds,
-        pending: doc.pending,
-        rejected: doc.rejected,
+        a: doc.approved,
+        n: doc.noFunds,
+        p: doc.pending,
+        r: doc.rejected,
       },
     };
 
@@ -37,15 +38,16 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
 
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
-    _id: { $gte: buildId(key, date.start), $lt: buildId(key, date.end) },
+    key: buildKey(key),
+    date: { $gte: date.start, $lt: date.end },
   };
 
   const groupCountItems = {
     _id: null,
-    approved: { $sum: '$approved' },
-    noFunds: { $sum: '$noFunds' },
-    pending: { $sum: '$pending' },
-    rejected: { $sum: '$rejected' },
+    approved: { $sum: '$a' },
+    noFunds: { $sum: '$n' },
+    pending: { $sum: '$p' },
+    rejected: { $sum: '$r' },
   };
 
   const pipeline = [{ $match: docsFromKeyBetweenDate }, { $group: groupCountItems }, { $project: { _id: 0 } }];

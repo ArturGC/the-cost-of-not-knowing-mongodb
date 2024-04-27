@@ -63,8 +63,8 @@ class Mongo {
 
   verifyCollections = async (): Promise<void> => {
     const indexEventsScenarios = { worker: 1, date: 1, appSynced: 1 };
-    await this.collections.eventsScenariosLoad.createIndex(indexEventsScenarios).catch(console.error);
-    await this.collections.eventsScenariosProd.createIndex(indexEventsScenarios).catch(console.error);
+    await this.collections.eventsScenariosLoad.createIndex(indexEventsScenarios).catch(() => {});
+    await this.collections.eventsScenariosProd.createIndex(indexEventsScenarios).catch(() => {});
 
     const timeseries = { granularity: 'seconds', metaField: 'metadata', timeField: 'timestamp' };
     await this.dbBase.createCollection('measurements', { timeseries }).catch(() => {});

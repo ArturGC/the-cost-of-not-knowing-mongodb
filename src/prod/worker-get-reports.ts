@@ -37,36 +37,33 @@ const sleep = async ({ value, dateStart }: { value: number; dateStart: Date }): 
 };
 
 const main = async (): Promise<void> => {
-  const data = workerData as T.WorkerData;
+  if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
+
+  const print = buildPrint(workerData);
   const dateStart = new Date();
-  const print = buildPrint(data);
   let dateRecent = refs.prod.date.start;
 
   print('Starting');
 
-  for (let count = 0; count < 1_000_000; count += 1) {
+  for (let i = 0; i < 1_000_000; i += 1) {
     const key = generator.getReportKey();
 
     const timestamp = new Date();
-    await P[data.appVersion].getReports({ date: dateRecent, key });
+    await P[workerData.appVersion].getReports({ date: dateRecent, key });
     const value = new Date().getTime() - timestamp.getTime();
 
-    const measurement = { app: data.appVersion, timestamp, type: 'getReports', value } as const;
-
-    if (count % 250 === 0 && count !== 0) {
-      const rate = 1 / (value / 1000);
-      print(`Total: ${count}, Rate: ${rate.toFixed(2)}/s`);
-
-      await Promise.all([
-        sleep({ value, dateStart }),
-        P.measurements.insertOne(measurement).catch(console.error),
-        P.eventsScenariosProd.getCurrentDate(data).then((currentDate) => (dateRecent = currentDate)),
-      ]);
-    } else {
-      await Promise.all([sleep({ value, dateStart }), P.measurements.insertOne(measurement).catch(console.error)]);
-    }
+    await Promise.all([
+      sleep({ value, dateStart }),
+      P.measurements.insertOne({ app: workerData.appVersion, timestamp, type: 'getReports', value }),
+    ]);
 
     if (H.shouldBreakProd(dateStart)) break;
+    if (i % 100 === 0) print(`Total: ${i}, Rate: ${(1 / (value / 1000)).toFixed(2)}/s`);
+    if (i % 200 === 0)
+      P.eventsScenariosProd
+        .getCurrentDate(workerData)
+        .then((currentDate) => (dateRecent = currentDate))
+        .catch(({ message }: Error) => print(message));
   }
 
   print('Finished');

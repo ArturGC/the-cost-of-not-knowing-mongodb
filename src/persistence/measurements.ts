@@ -12,5 +12,8 @@ export const insertOne = async ({
   type: T.Measurement['metadata']['type'];
   value: number;
 }): Promise<void> => {
-  await mdb.collections.measurements.insertOne({ metadata: { app, type }, timestamp, value });
+  await mdb.collections.measurements.insertOne(
+    { metadata: { app, type }, timestamp, value },
+    { writeConcern: { w: 0, j: false } }
+  );
 };

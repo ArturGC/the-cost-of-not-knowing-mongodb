@@ -6,8 +6,7 @@
   "scripts": {
     "app:load": "npx tsc && pm2 start src/load/ecosystem.config.js",
     "app:prod": "npx tsc && pm2 start src/prod/ecosystem.config.js",
-    "scenarios:load": "pm2 start src/scenarios/load-ecosystem.config.js",
-    "scenarios:prod": "pm2 start src/scenarios/prod-ecosystem.config.js",
+    "scenarios": "pm2 start src/scenarios/ecosystem.config.js",
     "test": "jest"
   },
   "keywords": [

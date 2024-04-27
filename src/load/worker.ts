@@ -1,5 +1,6 @@
 import { parentPort, workerData } from 'worker_threads';
 
+import * as H from '../helpers';
 import * as P from '../persistence';
 import type * as T from '../types';
 import mdb from '../mdb';
@@ -17,28 +18,27 @@ const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => 
 };
 
 const main = async (): Promise<void> => {
-  const data = workerData as T.WorkerData;
+  if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
 
-  const print = buildPrint(data);
+  const print = buildPrint(workerData);
 
   print('Starting');
 
-  for (let count = 0; count < 100_000; count += 1) {
-    const eventsScenarios = await P.eventsScenariosLoad.getNotUsed(data);
+  for (let i = 0; i < 100_000; i += 1) {
+    const eventsScenarios = await P.eventsScenariosLoad.getNotUsed(workerData);
 
     if (eventsScenarios == null) {
-      const newId = ids.pop();
+      const id = ids.pop();
 
-      if (newId == null) break;
-
-      data.id = newId;
+      if (id == null) break;
+      else workerData.id = id;
 
       continue;
     }
 
-    await P[data.appVersion].bulkUpsert(eventsScenarios.events);
+    await P[workerData.appVersion].bulkUpsert(eventsScenarios.events);
 
-    if (count % 100 === 0) print(`Total: ${(count * refs.general.batchSize).toExponential(2)}`);
+    if (i % 100 === 0) print(`Total: ${(i * refs.general.batchSize).toExponential(2)}`);
   }
 
   print('Finished');

@@ -26,12 +26,13 @@ const main = async (): Promise<void | never> => {
 
   const appVersion: T.AppVersion = 'appV6R4';
 
-  const listBulkUpsert = Array.from({ length: refs.general.workers });
-  const listGetReports = Array.from({ length: refs.general.workers });
-
   await Promise.all([
-    ...listBulkUpsert.map(async (_, id) => buildWorker({ appVersion, id }, 'worker-bulk-upsert')),
-    ...listGetReports.map(async (_, id) => buildWorker({ appVersion, id }, 'worker-get-reports')),
+    ...Array.from({ length: refs.general.workers }).map(async (_, id) =>
+      buildWorker({ appVersion, id }, 'worker-bulk-upsert')
+    ),
+    ...Array.from({ length: refs.general.workers }).map(async (_, id) =>
+      buildWorker({ appVersion, id }, 'worker-get-reports')
+    ),
   ]);
 
   await mdb.close();

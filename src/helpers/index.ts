@@ -76,3 +76,7 @@ export const shouldBreakProd = (dateStart: Date): boolean => {
 
   return msPassed > refs.prod.duration;
 };
+
+export const checkWorkerData = (workerData: unknown): workerData is T.WorkerData => {
+  return typeof workerData === 'object' && workerData != null && 'appVersion' in workerData && 'id' in workerData;
+};

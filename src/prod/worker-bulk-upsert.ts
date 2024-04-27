@@ -34,25 +34,29 @@ const sleep = async ({ value, dateStart }: { value: number; dateStart: Date }): 
 };
 
 const main = async (): Promise<void> => {
-  const data = workerData as T.WorkerData;
+  if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
+
+  const print = buildPrint(workerData);
   const dateStart = new Date();
-  const print = buildPrint(data);
+  const batchSize = refs.general.batchSize;
 
   print('Starting');
 
-  for (let count = 0; count < 100_000; count += 1) {
-    const eventsScenarios = await P.eventsScenariosProd.getNotUsed(data);
+  for (let i = 0; i < 100_000; i += 1) {
+    const eventsScenarios = await P.eventsScenariosProd.getNotUsed(workerData);
 
     if (eventsScenarios == null) break;
 
     const timestamp = new Date();
-    await P[data.appVersion].bulkUpsert(eventsScenarios.events);
+    await P[workerData.appVersion].bulkUpsert(eventsScenarios.events);
     const value = new Date().getTime() - timestamp.getTime();
-    const measurement = { app: data.appVersion, timestamp, type: 'bulkUpsert', value } as const;
 
-    await Promise.all([sleep({ value, dateStart }), P.measurements.insertOne(measurement).catch(console.error)]);
+    await Promise.all([
+      sleep({ value, dateStart }),
+      P.measurements.insertOne({ app: workerData.appVersion, timestamp, type: 'bulkUpsert', value }),
+    ]);
 
-    if (count % 25 === 0) print(`Total: ${(count * refs.general.batchSize).toExponential(2)}`);
+    if (i % 25 === 0) print(`Total: ${i * batchSize},Rate: ${(batchSize / (value / 1000)).toFixed(2)}/s`);
     if (H.shouldBreakProd(dateStart)) break;
   }
 

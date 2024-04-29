@@ -5,7 +5,7 @@ export YOUR_NAME="Artur Costa"
 export REGION="us-east-1"
 export KEY_NAME="arturgc_mdb_us_east_1"
 export AMI="ami-07d9b9ddc6cd8dd30" # Ubuntu Server 22.04 LTS
-export INSTANCE_TYPE="c7a.large"
+export INSTANCE_TYPE="m6a.xlarge"
 export SECURITY_GROUP="sg-0e0aa6f8d2c9744e1" # Allow All Traffic
 export SUBNET="subnet-08713b04009fe35ff"
 export DISK_OS='{
@@ -31,6 +31,7 @@ export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+5 days" +%Y-%m-%d)\"}"
 export TAG_TYPE="{Key=type,Value=\"node\"}"
 export TAG_NAME="{Key=Name,  Value='$YOUR_NAME Article Test MongoDB'}"
 export TAGS="ResourceType=instance,Tags=[$TAG_NAME, $TAG_OWNER, $TAG_EXPIRE, $TAG_TYPE]"
+export MARKET_OPTIONS='MarketType="spot",SpotOptions={MaxPrice="0.2",SpotInstanceType="one-time",InstanceInterruptionBehavior="terminate"}'
 
 aws ec2 run-instances \
   --profile $PROFILE \
@@ -42,4 +43,5 @@ aws ec2 run-instances \
   --security-group-ids $SECURITY_GROUP \
   --subnet-id $SUBNET \
   --block-device-mappings "$DISKS" \
-  --tag-specification "$TAGS"
+  --tag-specification "$TAGS" \
+  --instance-market-options "$MARKET_OPTIONS"

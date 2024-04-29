@@ -15,12 +15,12 @@ export type OperationsShort = {
 };
 
 export type Event = {
-  key: string;
+  key: number;
   date: Date;
 } & Operations;
 
 export type EventShort = {
-  key: string;
+  key: number;
   date: Date;
 } & OperationsShort;
 

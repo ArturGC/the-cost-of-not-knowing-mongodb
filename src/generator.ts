@@ -36,11 +36,10 @@ export class Generator {
     return new Date(this.date.current.toISOString().split('T')[0]);
   }
 
-  private getKey(): string {
+  private getKey(): number {
     const keyNumber = Math.random() < 0.6 ? Math.random() : this.gaussianRandom();
-    const keyHex = Math.ceil(refs.general.users * keyNumber).toString(16);
 
-    return keyHex.toUpperCase().padStart(64, '0');
+    return Math.ceil(refs.general.users * keyNumber);
   }
 
   private gaussianRandom(): number {
@@ -51,9 +50,7 @@ export class Generator {
     return Math.abs(z * stdev + mean);
   }
 
-  getReportKey(): string {
-    const keyHex = Math.ceil(refs.general.users * Math.random()).toString(16);
-
-    return keyHex.toUpperCase().padStart(64, '0');
+  getReportKey(): number {
+    return Math.ceil(refs.general.users * Math.random());
   }
 }

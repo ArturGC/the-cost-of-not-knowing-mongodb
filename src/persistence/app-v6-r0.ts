@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getDD, getMM, getReportsDates, getYYYY, ItemsObj } from '../helpers';
+import { buildKeyHex, getDD, getMM, getReportsDates, getYYYY, ItemsObj } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: string, date: Date): Buffer => {
-  const id = `${key}${getYYYY(date)}${getMM(date)}`;
+export const buildId = (key: number, date: Date): Buffer => {
+  const id = `${buildKeyHex(key)}${getYYYY(date)}${getMM(date)}`;
 
   return Buffer.from(id, 'hex');
 };
@@ -40,7 +40,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
   });
 };
 
-const buildReduceLoopLogic = (key: string, date: { end: Date; start: Date }): Record<string, unknown> => {
+const buildReduceLoopLogic = (key: number, date: { end: Date; start: Date }): Record<string, unknown> => {
   const [lowerId, lowerDD] = [buildId(key, date.start), getDD(date.start)];
   const [upperId, upperDD] = [buildId(key, date.end), getDD(date.end)];
 

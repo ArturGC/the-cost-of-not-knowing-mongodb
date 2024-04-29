@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getMM, getReportsDates, getYYYY } from '../helpers';
+import { buildKeyHex, getMM, getReportsDates, getYYYY } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: string, date: Date): Buffer => {
-  const id = `${key}${getYYYY(date)}${getMM(date)}`;
+export const buildId = (key: number, date: Date): Buffer => {
+  const id = `${buildKeyHex(key)}${getYYYY(date)}${getMM(date)}`;
 
   return Buffer.from(id, 'hex');
 };

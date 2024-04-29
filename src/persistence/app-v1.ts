@@ -1,14 +1,14 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportsDates } from '../helpers';
+import { buildKeyHex, getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV1>>((doc) => {
     const query = {
       _id: {
-        key: doc.key,
+        key: buildKeyHex(doc.key),
         date: doc.date,
       },
     };
@@ -36,7 +36,7 @@ export const bulkUpsert: T.BulkUpsert = async (docs) => {
 
 const getReport: T.GetReport = async ({ date, key }) => {
   const docsFromKeyBetweenDate = {
-    '_id.key': key,
+    '_id.key': buildKeyHex(key),
     '_id.date': { $gte: date.start, $lt: date.end },
   };
 

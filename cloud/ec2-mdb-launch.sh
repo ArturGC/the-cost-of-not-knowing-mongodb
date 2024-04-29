@@ -31,7 +31,6 @@ export TAG_EXPIRE="{Key=expire-on,Value=\"$(date -d "+5 days" +%Y-%m-%d)\"}"
 export TAG_TYPE="{Key=type,Value=\"node\"}"
 export TAG_NAME="{Key=Name,  Value='$YOUR_NAME Article Test MongoDB'}"
 export TAGS="ResourceType=instance,Tags=[$TAG_NAME, $TAG_OWNER, $TAG_EXPIRE, $TAG_TYPE]"
-export MARKET_OPTIONS='MarketType="spot",SpotOptions={MaxPrice="0.2",SpotInstanceType="one-time",InstanceInterruptionBehavior="terminate"}'
 
 aws ec2 run-instances \
   --profile $PROFILE \
@@ -43,5 +42,4 @@ aws ec2 run-instances \
   --security-group-ids $SECURITY_GROUP \
   --subnet-id $SUBNET \
   --block-device-mappings "$DISKS" \
-  --tag-specification "$TAGS" \
-  --instance-market-options "$MARKET_OPTIONS"
+  --tag-specification "$TAGS"

@@ -6,8 +6,8 @@ import type * as T from '../types';
 import { getQQ, getYYYY, getYYYYMMDD } from '../helpers';
 import mdb from '../mdb';
 
-export const buildId = (key: string, date: Date): Buffer => {
-  const id = `${key}${getYYYY(date)}${getQQ(date)}`;
+export const buildId = (key: number, date: Date): Buffer => {
+  const id = `${H.buildKeyHex(key)}${getYYYY(date)}${getQQ(date)}`;
 
   return Buffer.from(id, 'hex');
 };

@@ -80,3 +80,7 @@ export const shouldBreakProd = (dateStart: Date): boolean => {
 export const checkWorkerData = (workerData: unknown): workerData is T.WorkerData => {
   return typeof workerData === 'object' && workerData != null && 'appVersion' in workerData && 'id' in workerData;
 };
+
+export const buildKeyHex = (keyNumber: number): string => {
+  return keyNumber.toString(16).toUpperCase().padStart(64, '0');
+};

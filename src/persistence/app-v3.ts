@@ -1,11 +1,11 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getReportsDates } from '../helpers';
+import { buildKeyHex, getReportsDates } from '../helpers';
 import mdb from '../mdb';
 
-export const buildKey = (key: string): Buffer => {
-  return Buffer.from(key, 'hex');
+export const buildKey = (key: number): Buffer => {
+  return Buffer.from(buildKeyHex(key), 'hex');
 };
 
 export const bulkUpsert: T.BulkUpsert = async (docs) => {

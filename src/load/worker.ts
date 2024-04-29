@@ -21,6 +21,7 @@ const main = async (): Promise<void> => {
   if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
 
   const print = buildPrint(workerData);
+  const batchSize = refs.general.batchSize;
 
   print('Starting');
 
@@ -36,9 +37,11 @@ const main = async (): Promise<void> => {
       continue;
     }
 
+    const timestamp = new Date();
     await P[workerData.appVersion].bulkUpsert(eventsScenarios.events);
+    const value = new Date().getTime() - timestamp.getTime();
 
-    if (i % 100 === 0) print(`Total: ${(i * refs.general.batchSize).toExponential(2)}`);
+    if (i % 100 === 0) print(`Total: ${i * batchSize},Rate: ${(batchSize / (value / 1000)).toFixed(2)}/s`);
   }
 
   print('Finished');

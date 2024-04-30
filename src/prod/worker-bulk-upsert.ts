@@ -45,12 +45,12 @@ const main = async (): Promise<void> => {
   print('Starting');
 
   for (let i = 0; i < 100_000; i += 1) {
-    const eventsScenarios = generator.getEventsScenarios(workerData.id);
+    const events = generator.getEventsScenarios();
 
-    if (eventsScenarios == null) break;
+    if (events == null) break;
 
     const timestamp = new Date();
-    await P[workerData.appVersion].bulkUpsert(eventsScenarios.events);
+    await P[workerData.appVersion].bulkUpsert(events);
     const value = new Date().getTime() - timestamp.getTime();
 
     await Promise.all([

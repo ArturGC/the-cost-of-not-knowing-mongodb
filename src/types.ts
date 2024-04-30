@@ -40,14 +40,6 @@ export type AppVersion =
   | 'appV6R3'
   | 'appV6R4';
 
-export type EventsScenarios = {
-  _id: ObjectId;
-  app?: AppVersion;
-  date: Date;
-  worker: number;
-  events: Event[];
-};
-
 export type SchemaV1 = {
   _id: {
     key: string;

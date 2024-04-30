@@ -19,8 +19,6 @@ type Collections = {
   appV6R2: Collection<T.SchemaV6R1>;
   appV6R3: Collection<T.SchemaV6R0>;
   appV6R4: Collection<T.SchemaV6R0>;
-  eventsScenariosLoad: Collection<T.EventsScenarios>;
-  eventsScenariosProd: Collection<T.EventsScenarios>;
   measurements: Collection<T.Measurement>;
 };
 
@@ -55,17 +53,11 @@ class Mongo {
       appV6R2: this.dbApp.collection('appV6R2'),
       appV6R3: this.dbApp.collection('appV6R3'),
       appV6R4: this.dbApp.collection('appV6R4'),
-      eventsScenariosLoad: this.dbBase.collection('eventsScenariosLoad'),
-      eventsScenariosProd: this.dbBase.collection('eventsScenariosProd'),
       measurements: this.dbBase.collection('measurements'),
     };
   }
 
   verifyCollections = async (): Promise<void> => {
-    const indexEventsScenarios = { worker: 1, date: 1, appSynced: 1 };
-    await this.collections.eventsScenariosLoad.createIndex(indexEventsScenarios).catch(() => {});
-    await this.collections.eventsScenariosProd.createIndex(indexEventsScenarios).catch(() => {});
-
     const timeseries = { granularity: 'seconds', metaField: 'metadata', timeField: 'timestamp' };
     await this.dbBase.createCollection('measurements', { timeseries }).catch(() => {});
 

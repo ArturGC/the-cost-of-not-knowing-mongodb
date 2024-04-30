@@ -1,6 +1,4 @@
-import { ObjectId } from 'mongodb';
-
-import { type Event, type EventsScenarios } from './types';
+import { type Event } from './types';
 import refs from './references';
 
 export class Generator {
@@ -10,12 +8,12 @@ export class Generator {
     this.date = { current: date.start, end: date.end };
   }
 
-  getEventsScenarios(worker: number): EventsScenarios | undefined {
+  getEventsScenarios(): Event[] | undefined {
     const events = Array.from({ length: refs.general.batchSize }).map(() => this.getEvent());
 
     if (events[0].date > this.date.end) return undefined;
 
-    return { _id: new ObjectId(), date: events[0].date, events, worker };
+    return events;
   }
 
   getEvent(): Event {

@@ -21,9 +21,9 @@ const buildWorker = async (workerData: { appVersion: T.AppVersion; id: number })
   });
 };
 
-// const appVersions: T.AppVersion[] = ['appV1', 'appV2', 'appV3', 'appV4'];
-// const appVersions: T.AppVersion[] = ['appV5R0', 'appV5R1', 'appV5R2', 'appV5R3', 'appV5R4'];
-const appVersions: T.AppVersion[] = ['appV6R0', 'appV6R1', 'appV6R2', 'appV6R3', 'appV6R4'];
+const appVersions: T.AppVersion[] = ['appV1', 'appV2', 'appV3', 'appV4'];
+appVersions.push('appV5R0', 'appV5R1', 'appV5R2', 'appV5R3', 'appV5R4');
+appVersions.push('appV6R0', 'appV6R1', 'appV6R2', 'appV6R3', 'appV6R4');
 
 const main = async (): Promise<void | never> => {
   await mdb.verifyCollections();

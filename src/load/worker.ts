@@ -3,13 +3,12 @@ import { parentPort, workerData } from 'worker_threads';
 import * as H from '../helpers';
 import * as P from '../persistence';
 import type * as T from '../types';
+import { Generator } from '../generator';
 import mdb from '../mdb';
 import refs from '../references';
 
-const ids = Array.from({ length: refs.general.workers }).map((_, i) => i);
-
 const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => {
-  const header = `[${appVersion}][BulkUpsert][${id.toString().padStart(2, '0')}]`;
+  const header = `[${appVersion.replace('app', '')}][BU][${id.toString().padStart(2, '0')}]`;
 
   return (m: string) => {
     const time = new Date().toISOString().slice(11, 19);
@@ -20,22 +19,16 @@ const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => 
 const main = async (): Promise<void> => {
   if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
 
+  const generator = new Generator(refs.load.date);
   const print = buildPrint(workerData);
   const batchSize = refs.general.batchSize;
 
   print('Starting');
 
   for (let i = 0; i < 100_000; i += 1) {
-    const eventsScenarios = await P.eventsScenariosLoad.getNotUsed(workerData);
+    const eventsScenarios = generator.getEventsScenarios(workerData.id);
 
-    if (eventsScenarios == null) {
-      const id = ids.pop();
-
-      if (id == null) break;
-      else workerData.id = id;
-
-      continue;
-    }
+    if (eventsScenarios == null) break;
 
     const timestamp = new Date();
     await P[workerData.appVersion].bulkUpsert(eventsScenarios.events);

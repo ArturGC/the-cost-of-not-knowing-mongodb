@@ -25,7 +25,7 @@ const prod = {
 export default {
   general: {
     ...general,
-    eventDeltaTime: Math.ceil(OneYearInMs / general.eventsPerYear),
+    eventDeltaTime: Math.ceil((general.workers * OneYearInMs) / general.eventsPerYear),
     users: Math.ceil(general.eventsPerYear / general.eventsPerUserPerYear),
   },
   load: {

@@ -7,10 +7,8 @@ import { Generator } from '../generator';
 import mdb from '../mdb';
 import refs from '../references';
 
-const generator = new Generator(refs.prod.date);
-
 const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => {
-  const header = `[${appVersion}][GetReports][${id.toString().padStart(2, '0')}]`;
+  const header = `[${appVersion.replace('app', '')}][GR][${id.toString().padStart(2, '0')}]`;
 
   return (m: string) => {
     const time = new Date().toISOString().slice(11, 19);
@@ -39,17 +37,17 @@ const sleep = async ({ value, dateStart }: { value: number; dateStart: Date }): 
 const main = async (): Promise<void> => {
   if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
 
+  const generator = new Generator(refs.prod.date);
   const print = buildPrint(workerData);
   const dateStart = new Date();
-  let dateRecent = refs.prod.date.start;
 
   print('Starting');
 
   for (let i = 0; i < 1_000_000; i += 1) {
-    const key = generator.getReportKey();
+    const { date, key } = generator.getReportValues();
 
     const timestamp = new Date();
-    await P[workerData.appVersion].getReports({ date: dateRecent, key });
+    await P[workerData.appVersion].getReports({ date, key });
     const value = new Date().getTime() - timestamp.getTime();
 
     await Promise.all([
@@ -58,12 +56,7 @@ const main = async (): Promise<void> => {
     ]);
 
     if (H.shouldBreakProd(dateStart)) break;
-    if (i % 100 === 0) print(`Total: ${i}, Rate: ${(1 / (value / 1000)).toFixed(2)}/s`);
-    if (i % 200 === 0)
-      P.eventsScenariosProd
-        .getCurrentDate(workerData)
-        .then((currentDate) => (dateRecent = currentDate))
-        .catch(({ message }: Error) => print(message));
+    if (i % 25 === 0) print(`Total: ${i}, Rate: ${(1 / (value / 1000)).toFixed(2)}/s`);
   }
 
   print('Finished');

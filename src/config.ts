@@ -24,7 +24,7 @@ const PROD = {
       writeConcern: { journal: true, w: 'majority' },
     } satisfies MongoClientOptions,
     URI_APP: 'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
-    URI_BASE: 'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
+    URI_BASE: 'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
   },
 };
 

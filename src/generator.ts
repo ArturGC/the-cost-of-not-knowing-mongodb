@@ -50,7 +50,12 @@ export class Generator {
     return Math.abs(z * stdev + mean);
   }
 
-  getReportKey(): number {
-    return Math.ceil(refs.general.users * Math.random());
+  getReportValues(): { date: Date; key: number } {
+    const delta = Math.random() * (this.date.end.getTime() - this.date.current.getTime());
+
+    return {
+      date: new Date(this.date.current.getTime() + delta),
+      key: Math.ceil(refs.general.users * Math.random()),
+    };
   }
 }

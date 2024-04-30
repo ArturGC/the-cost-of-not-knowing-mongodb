@@ -8,7 +8,7 @@ sudo apt upgrade -y
 export PARTITION_DISK="/dev/nvme1n1"
 export PARTITION_PATH="/dev/nvme1n1p1"
 export FOLDER_PATH="/data"
-export DISK_SIZE_GB=20
+export DISK_SIZE_GB=10
 export DISK_FORMAT="xfs"
 
 # Configure Partition

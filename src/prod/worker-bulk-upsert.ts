@@ -3,11 +3,12 @@ import { parentPort, workerData } from 'worker_threads';
 import * as H from '../helpers';
 import * as P from '../persistence';
 import type * as T from '../types';
+import { Generator } from '../generator';
 import mdb from '../mdb';
 import refs from '../references';
 
 const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => {
-  const header = `[${appVersion}][BulkUpsert][${id.toString().padStart(2, '0')}]`;
+  const header = `[${appVersion.replace('app', '')}][BU][${id.toString().padStart(2, '0')}]`;
 
   return (m: string) => {
     const time = new Date().toISOString().slice(11, 19);
@@ -36,6 +37,7 @@ const sleep = async ({ value, dateStart }: { value: number; dateStart: Date }): 
 const main = async (): Promise<void> => {
   if (!H.checkWorkerData(workerData)) throw new Error('Wrong Worker Data');
 
+  const generator = new Generator(refs.prod.date);
   const print = buildPrint(workerData);
   const dateStart = new Date();
   const batchSize = refs.general.batchSize;
@@ -43,7 +45,7 @@ const main = async (): Promise<void> => {
   print('Starting');
 
   for (let i = 0; i < 100_000; i += 1) {
-    const eventsScenarios = await P.eventsScenariosProd.getNotUsed(workerData);
+    const eventsScenarios = generator.getEventsScenarios(workerData.id);
 
     if (eventsScenarios == null) break;
 

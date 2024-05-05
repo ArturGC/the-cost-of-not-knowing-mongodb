@@ -21,12 +21,7 @@
 1. [`CloudManager`] Start Monitor Agent
 1. [`CloudManager`] Configure and Start Replica Set
 1. [`Instance|Local`] Configure VSCode Remote Access
-1. [`Local`] Copy client code: `rm -rf node_modules && scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* ubuntu@agc.node.public.mdbtraining.net:/home/ubuntu/app/`
-
-## Others
-
-- Dump a collection: `mongodump --uri="mongodb://arturgc:arturgc_123@agc.node.public.mdbtraining.net/?directConnection=true" --db=prod --collection=appV1 --gzip --archive=appV1.gz --numParallelCollections=8 --authenticationDatabase=admin`
-- Restore a collection: `mongorestore --uri="mongodb://arturgc:arturgc_123@agc.node.public.mdbtraining.net/?directConnection=true" --db=prod --collection=appV1 --gzip --archive=appV1.gz --numParallelCollections=8 --numInsertionWorkersPerCollection=40 --authenticationDatabase=admin`
+1. [`Local`] Copy client code: `rm -rf node_modules && scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* ubuntu@agc.client.public.mdbtraining.net:/home/ubuntu/app/`
 
 ## TypeScript and Node
 
@@ -43,6 +38,15 @@ npm install -g pm2 bun typescript ts-node
 pm2 install typescript
 ```
 
-## Others
+# Steps to execute production
 
-`rm -rf node_modules && scp -r -i ~/.ssh/strigo  /home/arturgc/Documents/the-cost-of-not-knowing-mongodb/* arturgc@192.168.31.171:/home/arturgc/Documents/app`
+1. [`node`] Drop `prod` collection
+1. [`client`] Drop `measurements` collection
+1. [`local`] Update `scripts/app-restore.sh` with the `appVersion` to be restored
+1. [`local`] Restore collection with `scripts/app-restore.sh`
+1. [`node`] Get collection information
+1. [`client`] Update `src/prod/index.ts` with the `appVersion` to be tested
+1. [`client`] Execute production test with `npm run app:prod`
+1. [`local`] Update `scripts/base-dump.sh` with the `appVersion` to be dumped
+1. [`local`] Dump collection with `scripts/base-dump.sh`
+1. [`node`] Get database metrics

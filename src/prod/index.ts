@@ -25,14 +25,13 @@ const main = async (): Promise<void | never> => {
   await mdb.verifyCollections();
 
   const appVersion: T.AppVersion = 'appV6R4';
+  const length = refs.general.workers;
+
+  await Promise.all(Array.from({ length }).map(async (_, id) => buildWorker({ appVersion, id }, 'worker-warm')));
 
   await Promise.all([
-    ...Array.from({ length: refs.general.workers }).map(async (_, id) =>
-      buildWorker({ appVersion, id }, 'worker-bulk-upsert')
-    ),
-    ...Array.from({ length: refs.general.workers }).map(async (_, id) =>
-      buildWorker({ appVersion, id }, 'worker-get-reports')
-    ),
+    ...Array.from({ length }).map(async (_, id) => buildWorker({ appVersion, id }, 'worker-bulk-upsert')),
+    ...Array.from({ length }).map(async (_, id) => buildWorker({ appVersion, id }, 'worker-get-reports')),
   ]);
 
   await mdb.close();

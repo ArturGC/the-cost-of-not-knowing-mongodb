@@ -17,7 +17,7 @@ const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => 
 };
 
 const sleep = async ({ value }: { value: number; dateStart: Date }): Promise<void> => {
-  const rate = 50;
+  const rate = 100;
   const ms = (1000 * refs.general.workers) / rate;
 
   await H.sleep(2 * Math.random() * ms - value);

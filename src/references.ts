@@ -19,7 +19,7 @@ const load = {
 
 const prod = {
   date: { start: new Date('2020-01-01'), end: new Date('2021-01-01') },
-  duration: 120 * oneMinuteInMs,
+  duration: 125 * oneMinuteInMs,
 } as const;
 
 export default {

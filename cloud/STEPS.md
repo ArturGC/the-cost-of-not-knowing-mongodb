@@ -28,6 +28,7 @@
 ```bash
 # App folder
 mkdir app
+mkdir dumps
 
 # Node and TypeScript
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
@@ -50,3 +51,7 @@ pm2 install typescript
 1. [`local`] Update `scripts/base-dump.sh` with the `appVersion` to be dumped
 1. [`local`] Dump collection with `scripts/base-dump.sh`
 1. [`node`] Get database metrics
+
+```bash
+scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem /media/arturgc/ArturGC/Article/app_v5_v6.gzip ubuntu@agc.client.public.mdbtraining.net:/home/ubuntu/dumps/
+```

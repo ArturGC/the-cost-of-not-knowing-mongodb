@@ -20,11 +20,11 @@ const getRate = ({ dateStart }: { dateStart: Date }): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
   const percentPassed = msPassed / refs.prod.duration;
 
-  if (percentPassed < 0.2) return 1000;
-  else if (percentPassed < 0.4) return 1250;
-  else if (percentPassed < 0.6) return 1500;
-  else if (percentPassed < 0.8) return 1750;
-  else return 2000;
+  if (percentPassed < 0.2) return 500;
+  else if (percentPassed < 0.4) return 750;
+  else if (percentPassed < 0.6) return 1000;
+  else if (percentPassed < 0.8) return 1250;
+  else return 1500;
 };
 
 const sleep = async ({ value, dateStart }: { value: number; dateStart: Date }): Promise<void> => {

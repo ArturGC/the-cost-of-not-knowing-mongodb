@@ -19,11 +19,12 @@ const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => 
 const getRate = ({ dateStart }: { dateStart: Date }): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
   const percentPassed = msPassed / refs.prod.duration;
-  const stage = (percentPassed % 0.2) / 0.24;
+  const stage = (percentPassed % 0.2) / 0.2;
 
-  if (stage < 0.25) return 75;
-  else if (stage < 0.5) return 150;
-  else if (stage < 0.75) return 225;
+  if (stage < 0.2) return 100;
+  else if (stage < 0.4) return 150;
+  else if (stage < 0.6) return 200;
+  else if (stage < 0.8) return 250;
   else return 300;
 };
 

@@ -17,7 +17,7 @@ const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => 
 };
 
 const sleep = async ({ value }: { value: number; dateStart: Date }): Promise<void> => {
-  const rate = 100;
+  const rate = 25;
   const ms = (1000 * refs.general.workers) / rate;
 
   await H.sleep(2 * Math.random() * ms - value);
@@ -47,8 +47,8 @@ const main = async (): Promise<void> => {
 
     await sleep({ value, dateStart });
 
-    if (shouldBreak(dateStart)) break;
     if (i % 25 === 0) print(`Total: ${i}, Rate: ${(1 / (value / 1000)).toFixed(2)}/s`);
+    if (shouldBreak(dateStart)) break;
   }
 
   print('Finished');

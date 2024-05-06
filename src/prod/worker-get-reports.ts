@@ -19,13 +19,18 @@ const buildPrint = ({ appVersion, id }: T.WorkerData): ((m: string) => void) => 
 const getRate = ({ dateStart }: { dateStart: Date }): number => {
   const msPassed = new Date().getTime() - dateStart.getTime();
   const percentPassed = msPassed / refs.prod.duration;
-  const stage = (percentPassed % 0.2) / 0.2;
+  const stage = (percentPassed % 0.25) / 0.25;
 
-  if (stage < 0.2) return 100;
-  else if (stage < 0.4) return 150;
-  else if (stage < 0.6) return 200;
-  else if (stage < 0.8) return 250;
-  else return 300;
+  if (stage < 0.1) return 25;
+  else if (stage < 0.2) return 50;
+  else if (stage < 0.3) return 75;
+  else if (stage < 0.4) return 100;
+  else if (stage < 0.5) return 125;
+  else if (stage < 0.6) return 150;
+  else if (stage < 0.7) return 175;
+  else if (stage < 0.8) return 200;
+  else if (stage < 0.9) return 225;
+  else return 250;
 };
 
 const sleep = async ({ value, dateStart }: { value: number; dateStart: Date }): Promise<void> => {

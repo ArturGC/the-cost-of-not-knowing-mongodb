@@ -1,6 +1,8 @@
+import { exec } from 'child_process';
 import { Worker } from 'worker_threads';
 
 import type * as T from '../types';
+import config from '../config';
 import mdb from '../mdb';
 import refs from '../references';
 import { sleep } from '../helpers';
@@ -23,13 +25,13 @@ const buildWorker = async (workerData: { appVersion: T.AppVersion; id: number },
 };
 
 const main = async (): Promise<void | never> => {
-  // const appVersions: T.AppVersion[] = ['appV1', 'appV2', 'appV3', 'appV4'];
-  const appVersions: T.AppVersion[] = ['appV5R0', 'appV5R1', 'appV5R2', 'appV5R3', 'appV5R4'];
-  // const appVersions: T.AppVersion[] = ['appV6R0', 'appV6R1', 'appV6R2', 'appV6R3', 'appV6R4'];
+  const appVersions: T.AppVersion[] = ['appV1', 'appV2', 'appV3', 'appV4'];
+  appVersions.push('appV5R0', 'appV5R1', 'appV5R2', 'appV5R3', 'appV5R4');
+  appVersions.push('appV6R0', 'appV6R1', 'appV6R2', 'appV6R3', 'appV6R4');
 
   await mdb.verifyCollections();
 
-  for (const appVersion of appVersions.reverse()) {
+  for (const appVersion of appVersions) {
     const length = refs.general.workers;
 
     await Promise.all(Array.from({ length }).map(async (_, id) => buildWorker({ appVersion, id }, 'worker-warm')));
@@ -39,7 +41,9 @@ const main = async (): Promise<void | never> => {
       ...Array.from({ length }).map(async (_, id) => buildWorker({ appVersion, id }, 'worker-get-reports')),
     ]);
 
-    await sleep(5 * 6 * 1000);
+    await sleep(5 * 60 * 1000);
+    exec(`mongosh "${config.MDB.URI_APP}" --eval "db.shutdownServer({force: true})"`);
+    await sleep(5 * 60 * 1000);
   }
 
   await mdb.close();

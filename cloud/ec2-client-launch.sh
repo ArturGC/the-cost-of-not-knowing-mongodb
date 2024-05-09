@@ -12,7 +12,7 @@ export DISK_OS='{
   "DeviceName": "/dev/sda1", 
   "Ebs": {
     "DeleteOnTermination": true, 
-    "VolumeSize": 50, 
+    "VolumeSize": 10, 
     "VolumeType": "gp3"
   }
 }'

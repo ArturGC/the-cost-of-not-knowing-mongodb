@@ -28,7 +28,6 @@
 ```bash
 # App folder
 mkdir app
-mkdir dumps
 
 # Node and TypeScript
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
@@ -54,4 +53,6 @@ pm2 install typescript
 
 ```bash
 scp -r -i ~/.ssh/arturgc_mdb_us_east_1.pem /media/arturgc/ArturGC/Article/app_v5_v6.gzip ubuntu@agc.client.public.mdbtraining.net:/home/ubuntu/dumps/
+
+curl -H 'Authorization: Bearer NGM3OWVjMjY3OGY4NDFhN2IxNWVlOGRhNDgxOGM1Njc=' https://restore-backup.us-east-1.mongodb.com/backup/restore/v3/pull/663a4573e1f7a66f13a4ac05/node-1715041380-663a4573e1f7a66f13a4ac05.tar.gz --output "bkp.tar.gz"
 ```

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export NAME="app_v1_v2_v3_v4"
-export URI="mongodb://arturgc:arturgc_123@3.90.245.246/?directConnection=true"
-export APP_VERSION="appV1"
+export NAME="app_dump_v5_v6"
+export URI="mongodb://arturgc:arturgc_123@agc.node.public.mdbtraining.net/?directConnection=true"
+export APP_VERSION="appV6R4"
 
 mongorestore  --gzip --numInsertionWorkersPerCollection=20 \
   --nsInclude=prod.$APP_VERSION --archive="$NAME.gzip"  --uri="$URI"

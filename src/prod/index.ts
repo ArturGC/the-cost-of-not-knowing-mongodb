@@ -31,7 +31,7 @@ const main = async (): Promise<void | never> => {
 
   await mdb.verifyCollections();
 
-  for (const appVersion of appVersions) {
+  for (const appVersion of appVersions.reverse()) {
     const length = refs.general.workers;
 
     await Promise.all(Array.from({ length }).map(async (_, id) => buildWorker({ appVersion, id }, 'worker-warm')));

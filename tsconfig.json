@@ -11,5 +11,5 @@
     "allowJs": true
   },
   "extends": "@tsconfig/node18/tsconfig.json",
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "graphs/result.ts", "graphs/values.ts"]
 }

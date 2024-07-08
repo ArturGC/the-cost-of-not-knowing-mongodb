@@ -7,10 +7,10 @@ const TEST = {
       appName: 'Application Test',
       ignoreUndefined: true,
       readPreference: 'primary',
-      writeConcern: { journal: true, w: 'majority' },
+      // writeConcern: { journal: true, w: 'majority' },
     } satisfies MongoClientOptions,
-    URI_APP: 'mongodb://localhost:27017/',
-    URI_BASE: 'mongodb://localhost:27017/',
+    URI_APP: 'mongodb://localhost:27018/',
+    URI_BASE: 'mongodb://localhost:27018/',
   },
 };
 
@@ -21,10 +21,10 @@ const PROD = {
       appName: 'Application Prod',
       ignoreUndefined: true,
       readPreference: 'primary',
-      writeConcern: { journal: true, w: 'majority' },
+      // writeConcern: { journal: true, w: 'majority' },
     } satisfies MongoClientOptions,
-    URI_APP: 'mongodb://arturgc:arturgc_123@agc.node.internal.mdbtraining.net/?directConnection=true',
-    URI_BASE: 'mongodb://arturgc:arturgc_123@agc.client.internal.mdbtraining.net/?directConnection=true',
+    URI_APP: 'mongodb://localhost:27018/',
+    URI_BASE: 'mongodb://localhost:27018/',
   },
 };
 

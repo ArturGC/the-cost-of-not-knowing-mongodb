@@ -48,7 +48,7 @@ export type SchemaV1 = {
 } & Operations;
 
 export type SchemaV2 = {
-  _id: Buffer;
+  _id: ObjectId;
   key: string;
   date: Date;
 } & Operations;

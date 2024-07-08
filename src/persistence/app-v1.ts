@@ -7,10 +7,8 @@ import mdb from '../mdb';
 export const bulkUpsert: T.BulkUpsert = async (docs) => {
   const upsertOperations = docs.map<AnyBulkWriteOperation<T.SchemaV1>>((doc) => {
     const query = {
-      _id: {
-        key: buildKeyHex(doc.key),
-        date: doc.date,
-      },
+      '_id.date': doc.date,
+      '_id.key': buildKeyHex(doc.key),
     };
 
     const mutation = {

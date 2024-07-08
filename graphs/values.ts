@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { type Document, MongoClient } from 'mongodb';
 
-import type * as T from '../types';
-import refs from '../references';
+import type * as T from '../src/types';
+import refs from '../src/references';
 
 const getGroupPipeline = (filter: Document, { t0 }: { t0: Date }): Document[] => {
   return [

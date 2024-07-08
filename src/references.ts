@@ -10,13 +10,11 @@ const general = {
 };
 
 // Load
-
 const load = {
   date: { start: new Date('2010-01-01'), end: new Date('2020-01-01') },
 } as const;
 
 // Prod
-
 const prod = {
   date: { start: new Date('2020-01-01'), end: new Date('2021-01-01') },
   duration: 200 * oneMinuteInMs,

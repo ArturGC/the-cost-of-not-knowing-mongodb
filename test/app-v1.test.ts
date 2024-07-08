@@ -15,7 +15,10 @@ withDb(() => {
 
       await P.appV1.bulkUpsert(docs0);
 
-      const doc0V1 = await mdb.collections.appV1.findOne({ _id: idDocs0 });
+      const doc0V1 = await mdb.collections.appV1.findOne({
+        '_id.key': idDocs0.key,
+        '_id.date': idDocs0.date,
+      });
 
       expect(doc0V1?.approved).toBe(2);
       expect(doc0V1?.noFunds).toBe(2);
@@ -30,7 +33,10 @@ withDb(() => {
 
       await P.appV1.bulkUpsert(docs1);
 
-      const doc1V1 = await mdb.collections.appV1.findOne({ _id: idDocs1 });
+      const doc1V1 = await mdb.collections.appV1.findOne({
+        '_id.key': idDocs1.key,
+        '_id.date': idDocs1.date,
+      });
 
       expect(doc1V1?.approved).toBe(2);
       expect(doc1V1?.noFunds).toBe(2);
@@ -45,7 +51,10 @@ withDb(() => {
 
       await P.appV1.bulkUpsert(docs2);
 
-      const doc2V1 = await mdb.collections.appV1.findOne({ _id: idDocs2 });
+      const doc2V1 = await mdb.collections.appV1.findOne({
+        '_id.key': idDocs2.key,
+        '_id.date': idDocs2.date,
+      });
 
       expect(doc2V1?.approved).toBe(2);
       expect(doc2V1?.noFunds).toBe(2);

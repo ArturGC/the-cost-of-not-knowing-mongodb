@@ -28,19 +28,19 @@ export class Generator {
     return event;
   }
 
-  private getDate(): Date {
+  getDate(): Date {
     this.date.current = new Date(this.date.current.getTime() + refs.general.eventDeltaTime);
 
     return new Date(this.date.current.toISOString().split('T')[0]);
   }
 
-  private getKey(): number {
+  getKey(): number {
     const keyNumber = Math.random() < 0.6 ? Math.random() : this.gaussianRandom();
 
     return Math.ceil(refs.general.users * keyNumber);
   }
 
-  private gaussianRandom(): number {
+  gaussianRandom(): number {
     const [mean, stdev] = [0, 0.015];
     const [u, v] = [1 - Math.random(), Math.random()];
     const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);

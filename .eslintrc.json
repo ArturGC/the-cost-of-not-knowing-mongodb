@@ -1,0 +1,56 @@
+{
+  "env": {
+    "commonjs": true,
+    "es2022": true,
+    "jest": true,
+    "mongo": true,
+    "node": true
+  },
+  "extends": ["standard-with-typescript", "eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "ignorePatterns": ["/test/**/*.ts", "/client/**/*.js"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "jest", "prettier"],
+  "root": true,
+  "rules": {
+    "arrow-parens": "error",
+    "camelcase": "error",
+    "max-len": [
+      "error",
+      {
+        "code": 120,
+        "ignoreTrailingComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true,
+        "tabWidth": 2
+      }
+    ],
+    "no-magic-numbers": [
+      "off",
+      {
+        "ignoreArrayIndexes": true,
+        "ignoreDefaultValues": true,
+        "ignoreClassFieldInitialValues": true,
+        "enforceConst": true,
+        "detectObjects": false
+      }
+    ],
+    "no-param-reassign": "error",
+    "no-plusplus": "error",
+    "no-return-await": "off",
+    "no-var": "error",
+    "prettier/prettier": "error",
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "sort-imports": ["error", { "allowSeparatedGroups": true, "ignoreCase": true }],
+    "sort-keys": ["off", "asc", { "allowLineSeparatedGroups": true }],
+    "@typescript-eslint/return-await": "off",
+    "@typescript-eslint/no-confusing-void-expression": "off",
+    "@typescript-eslint/consistent-type-definitions": "off"
+  }
+}

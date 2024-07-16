@@ -32,7 +32,7 @@ const getGroupPipeline = (filter: Document, { t0 }: { t0: Date }): Document[] =>
           $dateTrunc: {
             date: '$timestamp',
             unit: 'minute',
-            binSize: 1,
+            binSize: 5,
           },
         },
       },

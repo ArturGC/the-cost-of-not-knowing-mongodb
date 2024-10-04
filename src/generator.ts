@@ -8,8 +8,10 @@ export class Generator {
     this.date = { current: date.start, end: date.end };
   }
 
-  getEventsScenarios(): Event[] | undefined {
-    const events = Array.from({ length: refs.general.batchSize }).map(() => this.getEvent());
+  getBatchEvents(): Event[] | undefined {
+    const events = Array.from({
+      length: refs.general.batchSize,
+    }).map(() => this.getEvent());
 
     if (events[0].date > this.date.end) return undefined;
 
@@ -17,8 +19,8 @@ export class Generator {
   }
 
   getEvent(): Event {
-    const value = Math.random();
     const event: Event = { date: this.getDate(), key: this.getKey() };
+    const value = Math.random();
 
     if (value < 0.8) event.approved = 1;
     else if (value < 0.9) event.noFunds = 1;
@@ -34,10 +36,11 @@ export class Generator {
     return new Date(this.date.current.toISOString().split('T')[0]);
   }
 
-  getKey(): number {
+  getKey(): string {
     const keyNumber = Math.random() < 0.6 ? Math.random() : this.gaussianRandom();
+    const keyNumberRounded = Math.ceil(refs.general.users * keyNumber);
 
-    return Math.ceil(refs.general.users * keyNumber);
+    return keyNumberRounded.toString(16).toUpperCase().padStart(64, '0');
   }
 
   gaussianRandom(): number {
@@ -48,12 +51,13 @@ export class Generator {
     return Math.abs(z * stdev + mean);
   }
 
-  getReportValues(): { date: Date; key: number } {
+  getReportsValue(): { date: Date; key: string } {
     const delta = Math.random() * (this.date.end.getTime() - this.date.current.getTime());
+    const keyNumber = Math.ceil(refs.general.users * Math.random());
 
     return {
       date: new Date(this.date.current.getTime() + delta),
-      key: Math.ceil(refs.general.users * Math.random()),
+      key: keyNumber.toString(16).toUpperCase().padStart(64, '0'),
     };
   }
 }

@@ -1,6 +1,6 @@
 import mdb from '../src/mdb';
 import { withDb } from './helpers';
-import * as P from '../src/persistence';
+import * as P from '../src/applications';
 import * as fixtures from './fixtures';
 
 withDb(() => {

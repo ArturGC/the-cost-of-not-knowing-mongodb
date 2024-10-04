@@ -6,7 +6,7 @@
   "scripts": {
     "app:load": "npx tsc && pm2 start src/load/ecosystem.config.js",
     "app:prod": "npx tsc && pm2 start src/prod/ecosystem.config.js",
-    "scenarios": "pm2 start src/scenarios/ecosystem.config.js",
+    "app:scenario": "npx tsc && pm2 start src/scenario/ecosystem.config.js",
     "test": "jest"
   },
   "keywords": [
@@ -19,7 +19,7 @@
   "author": "ArturGC",
   "license": "MIT",
   "dependencies": {
-    "mongodb": "6.5.0"
+    "mongodb": "6.9.0"
   },
   "devDependencies": {
     "@tsconfig/node18": "18.2.4",

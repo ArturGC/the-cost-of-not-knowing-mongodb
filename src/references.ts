@@ -9,13 +9,16 @@ const general = {
   eventsPerUserPerYear: 60,
 };
 
-// Load
-const load = {
-  date: { start: new Date('2010-01-01'), end: new Date('2020-01-01') },
+// Scenario
+const scenario = {
+  date: {
+    start: new Date('2010-01-01'),
+    end: new Date('2020-01-01'),
+  },
 } as const;
 
-// Prod
-const prod = {
+// Load Test
+const loadTest = {
   date: { start: new Date('2020-01-01'), end: new Date('2021-01-01') },
   duration: 200 * oneMinuteInMs,
 } as const;
@@ -26,10 +29,10 @@ export default {
     eventDeltaTime: Math.ceil((general.workers * OneYearInMs) / general.eventsPerYear),
     users: Math.ceil(general.eventsPerYear / general.eventsPerUserPerYear),
   },
-  load: {
-    ...load,
+  loadTest: {
+    ...loadTest,
   },
-  prod: {
-    ...prod,
+  scenario: {
+    ...scenario,
   },
 } as const;

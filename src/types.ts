@@ -15,12 +15,12 @@ export type OperationsShort = {
 };
 
 export type Event = {
-  key: number;
+  key: string;
   date: Date;
 } & Operations;
 
 export type EventShort = {
-  key: number;
+  key: string;
   date: Date;
 } & OperationsShort;
 
@@ -87,13 +87,10 @@ export type SchemaV6R1 = {
 
 export type WorkerData = { appVersion: AppVersion; id: number };
 
-export type BulkUpsert = (docs: Event[]) => Promise<BulkWriteResult>;
+export type BulkUpsert = (events: Event[]) => Promise<BulkWriteResult>;
 
 export type Measurement = {
-  metadata: {
-    app: AppVersion;
-    type: 'bulkUpsert' | 'getReports';
-  };
+  metadata: { app: AppVersion; type: 'bulkUpsert' | 'getReports' };
   timestamp: Date;
   value: number;
 };

@@ -34,10 +34,6 @@ export const getReportsDates = (date: Date): Array<{ id: T.ReportYear; end: Date
   ];
 };
 
-export const buildKey = (key: number): string => {
-  return key.toString().padStart(64, '0');
-};
-
 export const getYYYYMMDD = (date: Date): string => {
   return date.toISOString().split('T')[0].replace(/-/g, '');
 };
@@ -74,13 +70,9 @@ export const sleep = async (ms: number): Promise<void> => {
 export const shouldBreakProd = (dateStart: Date): boolean => {
   const msPassed = new Date().getTime() - dateStart.getTime();
 
-  return msPassed > refs.prod.duration;
+  return msPassed > refs.loadTest.duration;
 };
 
 export const checkWorkerData = (workerData: unknown): workerData is T.WorkerData => {
   return typeof workerData === 'object' && workerData != null && 'appVersion' in workerData && 'id' in workerData;
-};
-
-export const buildKeyHex = (keyNumber: number): string => {
-  return keyNumber.toString(16).toUpperCase().padStart(64, '0');
 };

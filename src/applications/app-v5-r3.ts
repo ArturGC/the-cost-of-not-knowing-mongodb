@@ -1,0 +1,80 @@
+import { type AnyBulkWriteOperation } from 'mongodb';
+
+import type * as T from '../types';
+import { getQQ, getReportsDates, getYYYY, itemsArray } from '../helpers';
+import mdb from '../mdb';
+
+export const buildId = (key: string, date: Date): Buffer => {
+  return Buffer.from(`${key}${getYYYY(date)}${getQQ(date)}`, 'hex');
+};
+
+export const bulkUpsert: T.BulkUpsert = async (events) => {
+  const upsertOperations = events.map<AnyBulkWriteOperation<T.SchemaV5R1>>((event) => {
+    const query = {
+      _id: buildId(event.key, event.date),
+    };
+
+    const sumIfItemExists = itemsArray.buildResultIfItemExists(event);
+    const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(event);
+    const mutation = [
+      { $set: { result: sumIfItemExists } },
+      { $set: { items: returnItemsOrCreateNew } },
+      { $unset: ['result'] },
+    ];
+
+    return {
+      updateOne: {
+        filter: query,
+        update: mutation,
+        upsert: true,
+      },
+    };
+  });
+
+  return mdb.collections.appV5R3.bulkWrite(upsertOperations, {
+    ordered: false,
+  });
+};
+
+const getReport: T.GetReport = async ({ date, key }) => {
+  const docsFromKeyBetweenDate = {
+    _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
+  };
+
+  const itemsReduceAccumulator = itemsArray.buildItemsReduceAccumulator({
+    date,
+  });
+
+  const groupSumReports = {
+    _id: null,
+    approved: { $sum: '$report.a' },
+    noFunds: { $sum: '$report.n' },
+    pending: { $sum: '$report.p' },
+    rejected: { $sum: '$report.r' },
+  };
+
+  const pipeline = [
+    { $match: docsFromKeyBetweenDate },
+    { $addFields: { report: itemsReduceAccumulator } },
+    { $group: groupSumReports },
+    { $project: { _id: 0 } },
+  ];
+
+  return mdb.collections.appV5R3
+    .aggregate(pipeline)
+    .toArray()
+    .then(([result]) => result);
+};
+
+export const getReports: T.GetReports = async ({ date, key }) => {
+  const reportsDates = getReportsDates(date);
+
+  const reports = reportsDates.map(async (date) => {
+    return {
+      ...date,
+      report: await getReport({ date, key }),
+    };
+  });
+
+  return Promise.all(reports);
+};

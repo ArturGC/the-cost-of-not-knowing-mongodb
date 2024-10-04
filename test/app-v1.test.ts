@@ -1,15 +1,14 @@
 import mdb from '../src/mdb';
 import { withDb } from './helpers';
 import * as fixtures from './fixtures';
-import * as P from '../src/persistence';
-import { buildKeyHex } from '../src/helpers';
+import * as P from '../src/applications';
 
 withDb(() => {
   describe('appV1', () => {
     test('Bulk Upsert', async () => {
       const docs0 = fixtures.eventsBulkUpsert[0];
       const idDocs0 = {
-        key: buildKeyHex(docs0[0].key),
+        key: docs0[0].key,
         date: docs0[0].date,
       };
 
@@ -27,7 +26,7 @@ withDb(() => {
 
       const docs1 = fixtures.eventsBulkUpsert[1];
       const idDocs1 = {
-        key: buildKeyHex(docs1[0].key),
+        key: docs1[0].key,
         date: docs1[0].date,
       };
 
@@ -45,7 +44,7 @@ withDb(() => {
 
       const docs2 = fixtures.eventsBulkUpsert[2];
       const idDocs2 = {
-        key: buildKeyHex(docs2[0].key),
+        key: docs2[0].key,
         date: docs2[0].date,
       };
 

@@ -1,28 +1,29 @@
 import * as T from '../src/types';
 
+export const bulkKey = (1).toString(16).toUpperCase().padStart(64, '0');
 export const eventsBulkUpsert: T.Event[][] = [
   [
-    { date: new Date('2022-06-25'), key: 1, approved: 1 },
-    { date: new Date('2022-06-25'), key: 1, approved: 1 },
-    { date: new Date('2022-06-25'), key: 1, noFunds: 1 },
-    { date: new Date('2022-06-25'), key: 1, noFunds: 1 },
+    { date: new Date('2022-06-25'), key: bulkKey, approved: 1 },
+    { date: new Date('2022-06-25'), key: bulkKey, approved: 1 },
+    { date: new Date('2022-06-25'), key: bulkKey, noFunds: 1 },
+    { date: new Date('2022-06-25'), key: bulkKey, noFunds: 1 },
   ],
   [
-    { date: new Date('2022-06-15'), key: 1, approved: 1, noFunds: 1 },
-    { date: new Date('2022-06-15'), key: 1, approved: 1, pending: 1 },
-    { date: new Date('2022-06-15'), key: 1, noFunds: 1, pending: 1 },
-    { date: new Date('2022-06-15'), key: 1, pending: 1, rejected: 1 },
+    { date: new Date('2022-06-15'), key: bulkKey, approved: 1, noFunds: 1 },
+    { date: new Date('2022-06-15'), key: bulkKey, approved: 1, pending: 1 },
+    { date: new Date('2022-06-15'), key: bulkKey, noFunds: 1, pending: 1 },
+    { date: new Date('2022-06-15'), key: bulkKey, pending: 1, rejected: 1 },
   ],
   [
-    { date: new Date('2022-05-15'), key: 1, approved: 1, noFunds: 1 },
-    { date: new Date('2022-05-15'), key: 1, approved: 1, pending: 1 },
-    { date: new Date('2022-05-15'), key: 1, noFunds: 1, pending: 1 },
-    { date: new Date('2022-05-15'), key: 1, pending: 1, rejected: 1 },
+    { date: new Date('2022-05-15'), key: bulkKey, approved: 1, noFunds: 1 },
+    { date: new Date('2022-05-15'), key: bulkKey, approved: 1, pending: 1 },
+    { date: new Date('2022-05-15'), key: bulkKey, noFunds: 1, pending: 1 },
+    { date: new Date('2022-05-15'), key: bulkKey, pending: 1, rejected: 1 },
   ],
 ];
 
 export const reportDate = new Date('2022-06-15');
-export const reportKey = 1;
+export const reportKey = (1).toString(16).toUpperCase().padStart(64, '0');
 
 export const eventsGetReports: T.Event[] = [
   { date: new Date('2022-06-25'), key: reportKey, approved: 1 },

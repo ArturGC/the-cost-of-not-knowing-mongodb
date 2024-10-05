@@ -33,9 +33,7 @@ export const bulkUpsert: T.BulkUpsert = async (events) => {
     };
   });
 
-  return mdb.collections.appV6R4.bulkWrite(upsertOperations, {
-    ordered: false,
-  });
+  return mdb.collections.appV6R4.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const buildFieldAccumulator = (field: string, reportYear: string): Record<string, unknown> => {
@@ -146,48 +144,50 @@ const buildReportInitialValue = (): Record<string, unknown> => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = H.getReportsDates(date);
+  const reportsDates = H.getReportsInfo(date);
   const [lowerId, upperId] = [buildId(key, reportsDates[4].start), buildId(key, reportsDates[4].end)];
 
   const docsFromKeyBetweenDate = {
     _id: { $gte: lowerId, $lte: upperId },
   };
 
-  const buildReportField = {
-    $reduce: {
-      input: { $objectToArray: '$items' },
-      initialValue: buildReportInitialValue(),
-      in: buildLoopLogic(reportsDates),
+  const buildTotalsField = {
+    totals: {
+      $reduce: {
+        input: { $objectToArray: '$items' },
+        initialValue: buildReportInitialValue(),
+        in: buildLoopLogic(reportsDates),
+      },
     },
   };
 
-  const groupCountItems = {
+  const groupCountTotals = {
     _id: null,
 
-    oneYearApproved: { $sum: '$report.oneYear.a' },
-    oneYearNoFunds: { $sum: '$report.oneYear.n' },
-    oneYearPending: { $sum: '$report.oneYear.p' },
-    oneYearRejected: { $sum: '$report.oneYear.r' },
+    oneYearApproved: { $sum: '$totals.oneYear.a' },
+    oneYearNoFunds: { $sum: '$totals.oneYear.n' },
+    oneYearPending: { $sum: '$totals.oneYear.p' },
+    oneYearRejected: { $sum: '$totals.oneYear.r' },
 
-    threeYearsApproved: { $sum: '$report.threeYears.a' },
-    threeYearsNoFunds: { $sum: '$report.threeYears.n' },
-    threeYearsPending: { $sum: '$report.threeYears.p' },
-    threeYearsRejected: { $sum: '$report.threeYears.r' },
+    threeYearsApproved: { $sum: '$totals.threeYears.a' },
+    threeYearsNoFunds: { $sum: '$totals.threeYears.n' },
+    threeYearsPending: { $sum: '$totals.threeYears.p' },
+    threeYearsRejected: { $sum: '$totals.threeYears.r' },
 
-    fiveYearsApproved: { $sum: '$report.fiveYears.a' },
-    fiveYearsNoFunds: { $sum: '$report.fiveYears.n' },
-    fiveYearsPending: { $sum: '$report.fiveYears.p' },
-    fiveYearsRejected: { $sum: '$report.fiveYears.r' },
+    fiveYearsApproved: { $sum: '$totals.fiveYears.a' },
+    fiveYearsNoFunds: { $sum: '$totals.fiveYears.n' },
+    fiveYearsPending: { $sum: '$totals.fiveYears.p' },
+    fiveYearsRejected: { $sum: '$totals.fiveYears.r' },
 
-    sevenYearsApproved: { $sum: '$report.sevenYears.a' },
-    sevenYearsNoFunds: { $sum: '$report.sevenYears.n' },
-    sevenYearsPending: { $sum: '$report.sevenYears.p' },
-    sevenYearsRejected: { $sum: '$report.sevenYears.r' },
+    sevenYearsApproved: { $sum: '$totals.sevenYears.a' },
+    sevenYearsNoFunds: { $sum: '$totals.sevenYears.n' },
+    sevenYearsPending: { $sum: '$totals.sevenYears.p' },
+    sevenYearsRejected: { $sum: '$totals.sevenYears.r' },
 
-    tenYearsApproved: { $sum: '$report.tenYears.a' },
-    tenYearsNoFunds: { $sum: '$report.tenYears.n' },
-    tenYearsPending: { $sum: '$report.tenYears.p' },
-    tenYearsRejected: { $sum: '$report.tenYears.r' },
+    tenYearsApproved: { $sum: '$totals.tenYears.a' },
+    tenYearsNoFunds: { $sum: '$totals.tenYears.n' },
+    tenYearsPending: { $sum: '$totals.tenYears.p' },
+    tenYearsRejected: { $sum: '$totals.tenYears.r' },
   };
 
   const format = {
@@ -226,8 +226,8 @@ export const getReports: T.GetReports = async ({ date, key }) => {
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: buildReportField } },
-    { $group: groupCountItems },
+    { $addFields: buildTotalsField },
+    { $group: groupCountTotals },
     { $project: format },
   ];
 
@@ -241,31 +241,31 @@ export const getReports: T.GetReports = async ({ date, key }) => {
       id: 'oneYear',
       end: reportsDates[0].end,
       start: reportsDates[0].start,
-      report: result.oneYear,
+      totals: result.oneYear,
     },
     {
       id: 'threeYears',
       end: reportsDates[1].end,
       start: reportsDates[1].start,
-      report: result.threeYears,
+      totals: result.threeYears,
     },
     {
       id: 'fiveYears',
       end: reportsDates[2].end,
       start: reportsDates[2].start,
-      report: result.fiveYears,
+      totals: result.fiveYears,
     },
     {
       id: 'sevenYears',
       end: reportsDates[3].end,
       start: reportsDates[3].start,
-      report: result.sevenYears,
+      totals: result.sevenYears,
     },
     {
       id: 'tenYears',
       end: reportsDates[4].end,
       start: reportsDates[4].start,
-      report: result.tenYears,
+      totals: result.tenYears,
     },
   ];
 };

@@ -16,7 +16,7 @@ type Report = {
   id: 'oneYear' | 'threeYears' | 'fiveYears' | 'sevenYears' | 'tenYears';
   start: Date;
   end: Date;
-  report: {
+  totals: {
     approved: number;
     noFunds: number;
     pending: number;
@@ -102,7 +102,7 @@ type SchemaV5R0 = {
 ```ts
 type SchemaV5R1 = {
   _id: Buffer;
-  report: {
+  totals: {
     a?: number;
     n?: number;
     p?: number;
@@ -140,7 +140,7 @@ type SchemaV6R0 = {
 ```ts
 type SchemaV5R1 = {
   _id: Buffer;
-  report: {
+  totals: {
     a?: number;
     n?: number;
     p?: number;
@@ -160,7 +160,15 @@ type SchemaV5R1 = {
 
 ## Queries
 
-### Event for query
+### Event reference
+
+```ts
+const event = {
+  key: '0001',
+  date: new Date('2022-06-25T00:00:00.000Z'),
+  approved: 1,
+};
+```
 
 ### appV1
 
@@ -170,7 +178,7 @@ const bulkOperation = {
     filter: {
       _id: {
         date: new Date('2022-06-25T00:00:00.000Z'),
-        key: '0000000000000000000000000000000000000000000000000000000000000001',
+        key: '0001',
       },
     },
     update: {
@@ -188,7 +196,7 @@ const bulkOperation = {
 const pipeline = [
   {
     $match: {
-      '_id.key': '0000000000000000000000000000000000000000000000000000000000000001',
+      '_id.key': '0001',
       '_id.date': {
         $gte: new Date('2021-06-15T00:00:00.000Z'),
         $lt: new Date('2022-06-15T00:00:00.000Z'),
@@ -215,7 +223,7 @@ const bulkOperation = {
   updateOne: {
     filter: {
       date: new Date('2022-06-25T00:00:00.000Z'),
-      key: '0000000000000000000000000000000000000000000000000000000000000001',
+      key: '0001',
     },
     update: {
       $inc: {
@@ -232,7 +240,7 @@ const bulkOperation = {
 const pipeline = [
   {
     $match: {
-      key: '0000000000000000000000000000000000000000000000000000000000000001',
+      key: '0001',
       date: {
         $gte: new Date('2021-06-15T00:00:00.000Z'),
         $lt: new Date('2022-06-15T00:00:00.000Z'),
@@ -259,7 +267,7 @@ const bulkOperation = {
   updateOne: {
     filter: {
       date: new Date('2022-06-25T00:00:00.000Z'),
-      key: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'),
+      key: Buffer.from('0001', 'hex'),
     },
     update: {
       $inc: {
@@ -276,7 +284,7 @@ const bulkOperation = {
 const pipeline = [
   {
     $match: {
-      key: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001', 'hex'),
+      key: Buffer.from('0001', 'hex'),
       date: {
         $gte: new Date('2021-06-15T00:00:00.000Z'),
         $lt: new Date('2022-06-15T00:00:00.000Z'),
@@ -302,7 +310,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220625', 'hex'),
+      _id: Buffer.from('000120220625', 'hex'),
     },
     update: {
       $inc: {
@@ -320,8 +328,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120210615', 'hex'),
-        $lt: Buffer.from('000000000000000000000000000000000000000000000000000000000000000120220615', 'hex'),
+        $gte: Buffer.from('000120210615', 'hex'),
+        $lt: Buffer.from('000120220615', 'hex'),
       },
     },
   },
@@ -344,7 +352,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202206', 'hex'),
+      _id: Buffer.from('0001202206', 'hex'),
     },
     update: {
       $push: {
@@ -365,8 +373,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202106', 'hex'),
-        $lt: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202206', 'hex'),
+        $gte: Buffer.from('0001202106', 'hex'),
+        $lt: Buffer.from('0001202206', 'hex'),
       },
     },
   },
@@ -403,7 +411,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: {
       $push: {
@@ -424,8 +432,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
@@ -462,7 +470,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: [
       {
@@ -537,8 +545,8 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
@@ -575,7 +583,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: [
       {
@@ -648,14 +656,14 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
   {
     $addFields: {
-      report: {
+      totals: {
         $reduce: {
           input: '$items',
           initialValue: { a: 0, n: 0, p: 0, r: 0 },
@@ -683,10 +691,10 @@ const pipeline = [
   {
     $group: {
       _id: null,
-      approved: { $sum: '$report.a' },
-      noFunds: { $sum: '$report.n' },
-      pending: { $sum: '$report.p' },
-      rejected: { $sum: '$report.r' },
+      approved: { $sum: '$totals.a' },
+      noFunds: { $sum: '$totals.n' },
+      pending: { $sum: '$totals.p' },
+      rejected: { $sum: '$totals.r' },
     },
   },
   { $project: { _id: 0 } },
@@ -699,12 +707,12 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: [
       {
         $set: {
-          'report.a': { $add: [1, { $cond: ['$report.a', '$report.a', 0] }] },
+          'totals.a': { $add: [1, { $cond: ['$totals.a', '$totals.a', 0] }] },
           result: {
             $reduce: {
               input: { $cond: ['$items', '$items', []] },
@@ -773,32 +781,26 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
   {
     $addFields: {
-      report: {
+      totals: {
         $cond: {
           if: {
             $and: [
               {
-                $gt: [
-                  '$_id',
-                  Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-                ],
+                $gt: ['$_id', Buffer.from('0001202102', 'hex')],
               },
               {
-                $lt: [
-                  '$_id',
-                  Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
-                ],
+                $lt: ['$_id', Buffer.from('0001202202', 'hex')],
               },
             ],
           },
-          then: '$report',
+          then: '$totals',
           else: {
             $reduce: {
               input: '$items',
@@ -829,10 +831,10 @@ const pipeline = [
   {
     $group: {
       _id: null,
-      approved: { $sum: '$report.a' },
-      noFunds: { $sum: '$report.n' },
-      pending: { $sum: '$report.p' },
-      rejected: { $sum: '$report.r' },
+      approved: { $sum: '$totals.a' },
+      noFunds: { $sum: '$totals.n' },
+      pending: { $sum: '$totals.p' },
+      rejected: { $sum: '$totals.r' },
     },
   },
   { $project: { _id: 0 } },
@@ -845,7 +847,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: {
       $inc: {
@@ -863,14 +865,14 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
   {
     $addFields: {
-      report: {
+      totals: {
         $reduce: {
           input: { $objectToArray: '$items' },
           initialValue: { a: 0, n: 0, p: 0, r: 0 },
@@ -878,44 +880,14 @@ const pipeline = [
             $cond: {
               if: {
                 $or: [
+                  { $and: [{ $eq: ['$_id', Buffer.from('0001202206', 'hex')] }, { $gte: ['$$this.k', '15'] }] },
                   {
                     $and: [
-                      {
-                        $eq: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202206', 'hex'),
-                        ],
-                      },
-                      { $gte: ['$$this.k', '15'] },
+                      { $gt: ['$_id', Buffer.from('0001202206', 'hex')] },
+                      { $lt: ['$_id', Buffer.from('0001202206', 'hex')] },
                     ],
                   },
-                  {
-                    $and: [
-                      {
-                        $gt: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202206', 'hex'),
-                        ],
-                      },
-                      {
-                        $lt: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202206', 'hex'),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    $and: [
-                      {
-                        $eq: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202206', 'hex'),
-                        ],
-                      },
-                      { $lt: ['$$this.k', '15'] },
-                    ],
-                  },
+                  { $and: [{ $eq: ['$_id', Buffer.from('0001202206', 'hex')] }, { $lt: ['$$this.k', '15'] }] },
                 ],
               },
               then: {
@@ -934,10 +906,10 @@ const pipeline = [
   {
     $group: {
       _id: null,
-      approved: { $sum: '$report.a' },
-      noFunds: { $sum: '$report.n' },
-      pending: { $sum: '$report.p' },
-      rejected: { $sum: '$report.r' },
+      approved: { $sum: '$totals.a' },
+      noFunds: { $sum: '$totals.n' },
+      pending: { $sum: '$totals.p' },
+      rejected: { $sum: '$totals.r' },
     },
   },
   { $project: { _id: 0 } },
@@ -950,7 +922,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: {
       $inc: {
@@ -968,14 +940,14 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
   {
     $addFields: {
-      report: {
+      totals: {
         $reduce: {
           input: { $objectToArray: '$items' },
           initialValue: { a: 0, n: 0, p: 0, r: 0 },
@@ -983,44 +955,14 @@ const pipeline = [
             $cond: {
               if: {
                 $or: [
+                  { $and: [{ $eq: ['$_id', Buffer.from('0001202102', 'hex')] }, { $gte: ['$$this.k', '0615'] }] },
                   {
                     $and: [
-                      {
-                        $eq: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-                        ],
-                      },
-                      { $gte: ['$$this.k', '0615'] },
+                      { $gt: ['$_id', Buffer.from('0001202102', 'hex')] },
+                      { $lt: ['$_id', Buffer.from('0001202202', 'hex')] },
                     ],
                   },
-                  {
-                    $and: [
-                      {
-                        $gt: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-                        ],
-                      },
-                      {
-                        $lt: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    $and: [
-                      {
-                        $eq: [
-                          '$_id',
-                          Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
-                        ],
-                      },
-                      { $lt: ['$$this.k', '0615'] },
-                    ],
-                  },
+                  { $and: [{ $eq: ['$_id', Buffer.from('0001202202', 'hex')] }, { $lt: ['$$this.k', '0615'] }] },
                 ],
               },
               then: {
@@ -1039,10 +981,10 @@ const pipeline = [
   {
     $group: {
       _id: null,
-      approved: { $sum: '$report.a' },
-      noFunds: { $sum: '$report.n' },
-      pending: { $sum: '$report.p' },
-      rejected: { $sum: '$report.r' },
+      approved: { $sum: '$totals.a' },
+      noFunds: { $sum: '$totals.n' },
+      pending: { $sum: '$totals.p' },
+      rejected: { $sum: '$totals.r' },
     },
   },
   { $project: { _id: 0 } },
@@ -1055,7 +997,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: {
       $inc: {
@@ -1063,10 +1005,10 @@ const bulkOperation = {
         'items.0625.n': undefined,
         'items.0625.p': undefined,
         'items.0625.r': undefined,
-        'report.a': 1,
-        'report.n': undefined,
-        'report.p': undefined,
-        'report.r': undefined,
+        'totals.a': 1,
+        'totals.n': undefined,
+        'totals.p': undefined,
+        'totals.r': undefined,
       },
     },
     upsert: true,
@@ -1077,32 +1019,22 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
   {
     $addFields: {
-      report: {
+      totals: {
         $cond: {
           if: {
             $and: [
-              {
-                $gt: [
-                  '$_id',
-                  Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-                ],
-              },
-              {
-                $lt: [
-                  '$_id',
-                  Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
-                ],
-              },
+              { $gt: ['$_id', Buffer.from('0001202102', 'hex')] },
+              { $lt: ['$_id', Buffer.from('0001202202', 'hex')] },
             ],
           },
-          then: '$report',
+          then: '$totals',
           else: {
             $reduce: {
               input: { $objectToArray: '$items' },
@@ -1111,71 +1043,21 @@ const pipeline = [
                 $cond: {
                   if: {
                     $or: [
+                      { $and: [{ $eq: ['$_id', Buffer.from('0001202102', 'hex')] }, { $gte: ['$$this.k', '0615'] }] },
                       {
                         $and: [
-                          {
-                            $eq: [
-                              '$_id',
-                              Buffer.from(
-                                '0000000000000000000000000000000000000000000000000000000000000001202102',
-                                'hex'
-                              ),
-                            ],
-                          },
-                          { $gte: ['$$this.k', '0615'] },
+                          { $gt: ['$_id', Buffer.from('0001202102', 'hex')] },
+                          { $lt: ['$_id', Buffer.from('0001202202', 'hex')] },
                         ],
                       },
-                      {
-                        $and: [
-                          {
-                            $gt: [
-                              '$_id',
-                              Buffer.from(
-                                '0000000000000000000000000000000000000000000000000000000000000001202102',
-                                'hex'
-                              ),
-                            ],
-                          },
-                          {
-                            $lt: [
-                              '$_id',
-                              Buffer.from(
-                                '0000000000000000000000000000000000000000000000000000000000000001202202',
-                                'hex'
-                              ),
-                            ],
-                          },
-                        ],
-                      },
-                      {
-                        $and: [
-                          {
-                            $eq: [
-                              '$_id',
-                              Buffer.from(
-                                '0000000000000000000000000000000000000000000000000000000000000001202202',
-                                'hex'
-                              ),
-                            ],
-                          },
-                          { $lt: ['$$this.k', '0615'] },
-                        ],
-                      },
+                      { $and: [{ $eq: ['$_id', Buffer.from('0001202202', 'hex')] }, { $lt: ['$$this.k', '0615'] }] },
                     ],
                   },
                   then: {
-                    a: {
-                      $add: ['$$value.a', { $cond: ['$$this.v.a', '$$this.v.a', 0] }],
-                    },
-                    n: {
-                      $add: ['$$value.n', { $cond: ['$$this.v.n', '$$this.v.n', 0] }],
-                    },
-                    p: {
-                      $add: ['$$value.p', { $cond: ['$$this.v.p', '$$this.v.p', 0] }],
-                    },
-                    r: {
-                      $add: ['$$value.r', { $cond: ['$$this.v.r', '$$this.v.r', 0] }],
-                    },
+                    a: { $add: ['$$value.a', { $cond: ['$$this.v.a', '$$this.v.a', 0] }] },
+                    n: { $add: ['$$value.n', { $cond: ['$$this.v.n', '$$this.v.n', 0] }] },
+                    p: { $add: ['$$value.p', { $cond: ['$$this.v.p', '$$this.v.p', 0] }] },
+                    r: { $add: ['$$value.r', { $cond: ['$$this.v.r', '$$this.v.r', 0] }] },
                   },
                   else: '$$value',
                 },
@@ -1189,10 +1071,10 @@ const pipeline = [
   {
     $group: {
       _id: null,
-      approved: { $sum: '$report.a' },
-      noFunds: { $sum: '$report.n' },
-      pending: { $sum: '$report.p' },
-      rejected: { $sum: '$report.r' },
+      approved: { $sum: '$totals.a' },
+      noFunds: { $sum: '$totals.n' },
+      pending: { $sum: '$totals.p' },
+      rejected: { $sum: '$totals.r' },
     },
   },
   { $project: { _id: 0 } },
@@ -1205,7 +1087,7 @@ const pipeline = [
 const bulkOperation = {
   updateOne: {
     filter: {
-      _id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+      _id: Buffer.from('0001202202', 'hex'),
     },
     update: {
       $inc: {
@@ -1223,14 +1105,14 @@ const pipeline = [
   {
     $match: {
       _id: {
-        $gte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202102', 'hex'),
-        $lte: Buffer.from('0000000000000000000000000000000000000000000000000000000000000001202202', 'hex'),
+        $gte: Buffer.from('0001202102', 'hex'),
+        $lte: Buffer.from('0001202202', 'hex'),
       },
     },
   },
   {
     $addFields: {
-      report: {
+      totals: {
         $reduce: {
           input: { $objectToArray: '$items' },
           initialValue: {
@@ -1379,26 +1261,26 @@ const pipeline = [
   {
     $group: {
       _id: null,
-      oneYearApproved: { $sum: '$report.oneYear.a' },
-      oneYearNoFunds: { $sum: '$report.oneYear.n' },
-      oneYearPending: { $sum: '$report.oneYear.p' },
-      oneYearRejected: { $sum: '$report.oneYear.r' },
-      threeYearsApproved: { $sum: '$report.threeYears.a' },
-      threeYearsNoFunds: { $sum: '$report.threeYears.n' },
-      threeYearsPending: { $sum: '$report.threeYears.p' },
-      threeYearsRejected: { $sum: '$report.threeYears.r' },
-      fiveYearsApproved: { $sum: '$report.fiveYears.a' },
-      fiveYearsNoFunds: { $sum: '$report.fiveYears.n' },
-      fiveYearsPending: { $sum: '$report.fiveYears.p' },
-      fiveYearsRejected: { $sum: '$report.fiveYears.r' },
-      sevenYearsApproved: { $sum: '$report.sevenYears.a' },
-      sevenYearsNoFunds: { $sum: '$report.sevenYears.n' },
-      sevenYearsPending: { $sum: '$report.sevenYears.p' },
-      sevenYearsRejected: { $sum: '$report.sevenYears.r' },
-      tenYearsApproved: { $sum: '$report.tenYears.a' },
-      tenYearsNoFunds: { $sum: '$report.tenYears.n' },
-      tenYearsPending: { $sum: '$report.tenYears.p' },
-      tenYearsRejected: { $sum: '$report.tenYears.r' },
+      oneYearApproved: { $sum: '$totals.oneYear.a' },
+      oneYearNoFunds: { $sum: '$totals.oneYear.n' },
+      oneYearPending: { $sum: '$totals.oneYear.p' },
+      oneYearRejected: { $sum: '$totals.oneYear.r' },
+      threeYearsApproved: { $sum: '$totals.threeYears.a' },
+      threeYearsNoFunds: { $sum: '$totals.threeYears.n' },
+      threeYearsPending: { $sum: '$totals.threeYears.p' },
+      threeYearsRejected: { $sum: '$totals.threeYears.r' },
+      fiveYearsApproved: { $sum: '$totals.fiveYears.a' },
+      fiveYearsNoFunds: { $sum: '$totals.fiveYears.n' },
+      fiveYearsPending: { $sum: '$totals.fiveYears.p' },
+      fiveYearsRejected: { $sum: '$totals.fiveYears.r' },
+      sevenYearsApproved: { $sum: '$totals.sevenYears.a' },
+      sevenYearsNoFunds: { $sum: '$totals.sevenYears.n' },
+      sevenYearsPending: { $sum: '$totals.sevenYears.p' },
+      sevenYearsRejected: { $sum: '$totals.sevenYears.r' },
+      tenYearsApproved: { $sum: '$totals.tenYears.a' },
+      tenYearsNoFunds: { $sum: '$totals.tenYears.n' },
+      tenYearsPending: { $sum: '$totals.tenYears.p' },
+      tenYearsRejected: { $sum: '$totals.tenYears.r' },
     },
   },
   {

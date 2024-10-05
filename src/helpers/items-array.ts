@@ -53,15 +53,34 @@ export const buildResultIfItemExists = (doc: T.Event): Record<string, unknown> =
   };
 };
 
-export const buildNewReport = (doc: T.Event): Record<string, unknown> => {
-  const newReport: Record<string, unknown> = {};
+export const buildNewTotals = (doc: T.Event): Record<string, unknown> => {
+  const newTotals: Record<string, unknown> = {};
 
-  if (doc.approved != null) newReport['report.a'] = { $add: [doc.approved, { $cond: ['$report.a', '$report.a', 0] }] };
-  if (doc.noFunds != null) newReport['report.n'] = { $add: [doc.noFunds, { $cond: ['$report.n', '$report.n', 0] }] };
-  if (doc.pending != null) newReport['report.p'] = { $add: [doc.pending, { $cond: ['$report.p', '$report.p', 0] }] };
-  if (doc.rejected != null) newReport['report.r'] = { $add: [doc.rejected, { $cond: ['$report.r', '$report.r', 0] }] };
+  if (doc.approved != null) {
+    newTotals['totals.a'] = {
+      $add: [doc.approved, { $cond: ['$totals.a', '$totals.a', 0] }],
+    };
+  }
 
-  return newReport;
+  if (doc.noFunds != null) {
+    newTotals['totals.n'] = {
+      $add: [doc.noFunds, { $cond: ['$totals.n', '$totals.n', 0] }],
+    };
+  }
+
+  if (doc.pending != null) {
+    newTotals['totals.p'] = {
+      $add: [doc.pending, { $cond: ['$totals.p', '$totals.p', 0] }],
+    };
+  }
+
+  if (doc.rejected != null) {
+    newTotals['totals.r'] = {
+      $add: [doc.rejected, { $cond: ['$totals.r', '$totals.r', 0] }],
+    };
+  }
+
+  return newTotals;
 };
 
 export const buildItemsOrCreateNew = (doc: T.Event): Record<string, unknown> => {

@@ -1,7 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getQQ, getReportsDates, getYYYY, itemsArray } from '../helpers';
+import { getQQ, getReportsInfo, getYYYY, itemsArray } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: string, date: Date): Buffer => {
@@ -31,9 +31,7 @@ export const bulkUpsert: T.BulkUpsert = async (events) => {
     };
   });
 
-  return mdb.collections.appV5R3.bulkWrite(upsertOperations, {
-    ordered: false,
-  });
+  return mdb.collections.appV5R3.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const getReport: T.GetReport = async ({ date, key }) => {
@@ -41,22 +39,22 @@ const getReport: T.GetReport = async ({ date, key }) => {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const itemsReduceAccumulator = itemsArray.buildItemsReduceAccumulator({
-    date,
-  });
+  const itemsReduceAccumulator = {
+    totals: itemsArray.buildItemsReduceAccumulator({ date }),
+  };
 
-  const groupSumReports = {
+  const groupSumStatus = {
     _id: null,
-    approved: { $sum: '$report.a' },
-    noFunds: { $sum: '$report.n' },
-    pending: { $sum: '$report.p' },
-    rejected: { $sum: '$report.r' },
+    approved: { $sum: '$totals.a' },
+    noFunds: { $sum: '$totals.n' },
+    pending: { $sum: '$totals.p' },
+    rejected: { $sum: '$totals.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: itemsReduceAccumulator } },
-    { $group: groupSumReports },
+    { $addFields: itemsReduceAccumulator },
+    { $group: groupSumStatus },
     { $project: { _id: 0 } },
   ];
 
@@ -67,12 +65,13 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = getReportsDates(date);
+  const reportsInfo = getReportsInfo(date);
 
-  const reports = reportsDates.map(async (date) => {
+  const reports = reportsInfo.map(async ({ id, ...date }) => {
     return {
+      id,
       ...date,
-      report: await getReport({ date, key }),
+      totals: await getReport({ date, key }),
     };
   });
 

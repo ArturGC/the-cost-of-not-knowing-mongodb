@@ -1,7 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getQQ, getReportsDates, getYYYY } from '../helpers';
+import { getQQ, getReportsInfo, getYYYY } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: string, date: Date): Buffer => {
@@ -43,7 +43,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const openItemsArray = {
+  const unwindItemsArray = {
     path: '$items',
     preserveNullAndEmptyArrays: false,
   };
@@ -52,7 +52,7 @@ const getReport: T.GetReport = async ({ date, key }) => {
     'items.date': { $gte: date.start, $lt: date.end },
   };
 
-  const groupSumReports = {
+  const groupSumStatus = {
     _id: null,
     approved: { $sum: '$items.a' },
     noFunds: { $sum: '$items.n' },
@@ -62,9 +62,9 @@ const getReport: T.GetReport = async ({ date, key }) => {
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $unwind: openItemsArray },
+    { $unwind: unwindItemsArray },
     { $match: itemsBetweenDates },
-    { $group: groupSumReports },
+    { $group: groupSumStatus },
     { $project: { _id: 0 } },
   ];
 
@@ -75,12 +75,13 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = getReportsDates(date);
+  const reportsInfo = getReportsInfo(date);
 
-  const reports = reportsDates.map(async (date) => {
+  const reports = reportsInfo.map(async ({ id, ...date }) => {
     return {
+      id,
       ...date,
-      report: await getReport({ date, key }),
+      totals: await getReport({ date, key }),
     };
   });
 

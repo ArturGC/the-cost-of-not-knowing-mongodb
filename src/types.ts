@@ -70,7 +70,7 @@ export type SchemaV5R0 = {
 
 export type SchemaV5R1 = {
   _id: Buffer;
-  report: OperationsShort;
+  totals: OperationsShort;
   items: Array<{ date: Date } & OperationsShort>;
 };
 
@@ -81,7 +81,7 @@ export type SchemaV6R0 = {
 
 export type SchemaV6R1 = {
   _id: Buffer;
-  report: OperationsShort;
+  totals: OperationsShort;
   items: Record<string, OperationsShort>;
 };
 

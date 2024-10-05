@@ -1,7 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getQQ, getReportsDates, getYYYY, itemsArray } from '../helpers';
+import { getQQ, getReportsInfo, getYYYY, itemsArray } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: string, date: Date): Buffer => {
@@ -16,7 +16,7 @@ export const bulkUpsert: T.BulkUpsert = async (events) => {
 
     const sumIfItemExists = itemsArray.buildResultIfItemExists(event);
     const returnItemsOrCreateNew = itemsArray.buildItemsOrCreateNew(event);
-    const newReportFields = itemsArray.buildNewReport(event);
+    const newReportFields = itemsArray.buildNewTotals(event);
     const mutation = [
       { $set: { ...newReportFields, result: sumIfItemExists } },
       { $set: { items: returnItemsOrCreateNew } },
@@ -59,35 +59,37 @@ const getReport: T.GetReport = async ({ date, key }) => {
     _id: { $gte: lowerId, $lte: upperId },
   };
 
-  const BetweenLowerAndUpperYearQuarter = {
+  const betweenLowerAndUpperYearQuarter = {
     $and: [{ $gt: ['$_id', lowerId] }, { $lt: ['$_id', upperId] }],
   };
-  const buildReportField = {
-    $cond: {
-      if: BetweenLowerAndUpperYearQuarter,
-      then: '$report',
-      else: {
-        $reduce: {
-          input: '$items',
-          initialValue: { a: 0, n: 0, p: 0, r: 0 },
-          in: buildReduceLoopLogic(date),
+  const buildTotalsField = {
+    totals: {
+      $cond: {
+        if: betweenLowerAndUpperYearQuarter,
+        then: '$totals',
+        else: {
+          $reduce: {
+            input: '$items',
+            initialValue: { a: 0, n: 0, p: 0, r: 0 },
+            in: buildReduceLoopLogic(date),
+          },
         },
       },
     },
   };
 
-  const groupSumReports = {
+  const groupSumTotals = {
     _id: null,
-    approved: { $sum: '$report.a' },
-    noFunds: { $sum: '$report.n' },
-    pending: { $sum: '$report.p' },
-    rejected: { $sum: '$report.r' },
+    approved: { $sum: '$totals.a' },
+    noFunds: { $sum: '$totals.n' },
+    pending: { $sum: '$totals.p' },
+    rejected: { $sum: '$totals.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: buildReportField } },
-    { $group: groupSumReports },
+    { $addFields: buildTotalsField },
+    { $group: groupSumTotals },
     { $project: { _id: 0 } },
   ];
 
@@ -98,12 +100,13 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = getReportsDates(date);
+  const reportsInfo = getReportsInfo(date);
 
-  const reports = reportsDates.map(async (date) => {
+  const reports = reportsInfo.map(async ({ id, ...date }) => {
     return {
+      id,
       ...date,
-      report: await getReport({ date, key }),
+      totals: await getReport({ date, key }),
     };
   });
 

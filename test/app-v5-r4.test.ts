@@ -13,7 +13,7 @@ withDb(() => {
 
       const doc0V5R4 = await mdb.collections.appV5R4.findOne({ _id: idDocs0 });
 
-      expect(doc0V5R4?.report).toEqual({ a: 2, n: 2 });
+      expect(doc0V5R4?.totals).toEqual({ a: 2, n: 2 });
       expect(doc0V5R4?.items).toEqual([{ date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 }]);
 
       const docs1 = fixtures.eventsBulkUpsert[1];
@@ -23,7 +23,7 @@ withDb(() => {
 
       const doc1V5R4 = await mdb.collections.appV5R4.findOne({ _id: idDocs1 });
 
-      expect(doc1V5R4?.report).toEqual({ a: 4, n: 4, p: 3, r: 1 });
+      expect(doc1V5R4?.totals).toEqual({ a: 4, n: 4, p: 3, r: 1 });
       expect(doc1V5R4?.items).toEqual([
         { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
         { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },
@@ -36,7 +36,7 @@ withDb(() => {
 
       const doc2V5R4 = await mdb.collections.appV5R4.findOne({ _id: idDocs2 });
 
-      expect(doc2V5R4?.report).toEqual({ a: 6, n: 6, p: 6, r: 2 });
+      expect(doc2V5R4?.totals).toEqual({ a: 6, n: 6, p: 6, r: 2 });
       expect(doc2V5R4?.items).toEqual([
         { date: new Date('2022-06-25T00:00:00.000Z'), a: 2, n: 2 },
         { date: new Date('2022-06-15T00:00:00.000Z'), a: 2, n: 2, p: 3, r: 1 },

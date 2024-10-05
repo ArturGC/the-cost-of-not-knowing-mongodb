@@ -4,7 +4,7 @@ import refs from '../references';
 export * as itemsArray from './items-array';
 export * as ItemsObj from './items-obj';
 
-export const getReportsDates = (date: Date): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
+export const getReportsInfo = (date: Date): Array<{ id: T.ReportYear; end: Date; start: Date }> => {
   return [
     {
       id: 'oneYear',

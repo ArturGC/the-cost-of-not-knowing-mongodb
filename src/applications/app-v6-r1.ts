@@ -1,7 +1,7 @@
 import { type AnyBulkWriteOperation } from 'mongodb';
 
 import type * as T from '../types';
-import { getMMDD, getQQ, getReportsDates, getYYYY, ItemsObj } from '../helpers';
+import { getMMDD, getQQ, getReportsInfo, getYYYY, ItemsObj } from '../helpers';
 import mdb from '../mdb';
 
 export const buildId = (key: string, date: Date): Buffer => {
@@ -33,9 +33,7 @@ export const bulkUpsert: T.BulkUpsert = async (events) => {
     };
   });
 
-  return mdb.collections.appV6R1.bulkWrite(upsertOperations, {
-    ordered: false,
-  });
+  return mdb.collections.appV6R1.bulkWrite(upsertOperations, { ordered: false });
 };
 
 const buildLoopLogic = (key: string, date: { end: Date; start: Date }): Record<string, unknown> => {
@@ -73,26 +71,28 @@ const getReport: T.GetReport = async ({ date, key }) => {
     _id: { $gte: buildId(key, date.start), $lte: buildId(key, date.end) },
   };
 
-  const buildReportField = {
-    $reduce: {
-      input: { $objectToArray: '$items' },
-      initialValue: { a: 0, n: 0, p: 0, r: 0 },
-      in: buildLoopLogic(key, date),
+  const buildTotalsField = {
+    totals: {
+      $reduce: {
+        input: { $objectToArray: '$items' },
+        initialValue: { a: 0, n: 0, p: 0, r: 0 },
+        in: buildLoopLogic(key, date),
+      },
     },
   };
 
-  const groupCountItems = {
+  const groupSumTotals = {
     _id: null,
-    approved: { $sum: '$report.a' },
-    noFunds: { $sum: '$report.n' },
-    pending: { $sum: '$report.p' },
-    rejected: { $sum: '$report.r' },
+    approved: { $sum: '$totals.a' },
+    noFunds: { $sum: '$totals.n' },
+    pending: { $sum: '$totals.p' },
+    rejected: { $sum: '$totals.r' },
   };
 
   const pipeline = [
     { $match: docsFromKeyBetweenDate },
-    { $addFields: { report: buildReportField } },
-    { $group: groupCountItems },
+    { $addFields: buildTotalsField },
+    { $group: groupSumTotals },
     { $project: { _id: 0 } },
   ];
 
@@ -103,12 +103,13 @@ const getReport: T.GetReport = async ({ date, key }) => {
 };
 
 export const getReports: T.GetReports = async ({ date, key }) => {
-  const reportsDates = getReportsDates(date);
+  const reportsInfo = getReportsInfo(date);
 
-  const reports = reportsDates.map(async (date) => {
+  const reports = reportsInfo.map(async ({ id, ...date }) => {
     return {
+      id,
       ...date,
-      report: await getReport({ date, key }),
+      totals: await getReport({ date, key }),
     };
   });
 

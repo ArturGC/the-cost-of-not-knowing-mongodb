@@ -12,8 +12,8 @@ export FILTER_OWNER_BASE='{"Name": "tag:owner", "Values": ["YOUR_NAME_DOT"]}'
 export FILTER_OWNER="${FILTER_OWNER_BASE/YOUR_NAME_DOT/"$YOUR_NAME_DOT"}"
 export FILTERS="[$FILTER_OWNER, $FILTER_STATE, $FILTER_TYPE]"
 
-export HOST_PRIVATE_FQDN="agc.node.internal.mdbtraining.net"
-export HOST_PUBLIC_FQDN="agc.node.public.mdbtraining.net"
+export HOST_PRIVATE_FQDN="agc.mdb.internal.mdb.net"
+export HOST_PUBLIC_FQDN="agc.mdb.public.mdb.net"
 
 export HOSTS=$(aws ec2 describe-instances --profile agc-mdb --region $REGION --filters "$FILTERS")
 export HOSTS_PRIVATE_IP=$(echo $HOSTS | jq -r ' .Reservations[0].Instances[0].PrivateIpAddress ')

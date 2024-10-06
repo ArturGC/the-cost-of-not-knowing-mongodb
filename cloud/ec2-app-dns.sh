@@ -7,13 +7,13 @@ export REGION="us-east-1"
 export HOSTED_ZONE_ID="Z3TN0LEC3UB30X"
 
 export FILTER_STATE='{"Name": "instance-state-name", "Values": ["running"]}'
-export FILTER_TYPE='{"Name": "tag:type", "Values": ["client"]}'
+export FILTER_TYPE='{"Name": "tag:type", "Values": ["app"]}'
 export FILTER_OWNER_BASE='{"Name": "tag:owner", "Values": ["YOUR_NAME_DOT"]}'
 export FILTER_OWNER="${FILTER_OWNER_BASE/YOUR_NAME_DOT/"$YOUR_NAME_DOT"}"
 export FILTERS="[$FILTER_OWNER, $FILTER_STATE, $FILTER_TYPE]"
 
-export HOST_PRIVATE_FQDN="agc.client.internal.mdbtraining.net"
-export HOST_PUBLIC_FQDN="agc.client.public.mdbtraining.net"
+export HOST_PRIVATE_FQDN="agc.app.internal.mdb.net"
+export HOST_PUBLIC_FQDN="agc.app.public.mdb.net"
 
 export HOSTS=$(aws ec2 describe-instances --profile agc-mdb --region $REGION --filters "$FILTERS")
 export HOSTS_PRIVATE_IP=$(echo $HOSTS | jq -r ' .Reservations[0].Instances[0].PrivateIpAddress ')

@@ -193,7 +193,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       '_id.key': '0001',
@@ -237,7 +237,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       key: '0001',
@@ -281,7 +281,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       key: Buffer.from('0001', 'hex'),
@@ -324,7 +324,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -369,7 +369,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -428,7 +428,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -541,7 +541,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -652,7 +652,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -777,7 +777,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -861,7 +861,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -936,7 +936,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -1015,7 +1015,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
@@ -1101,7 +1101,7 @@ const bulkOperation = {
   },
 };
 
-const pipeline = [
+const getReport = [
   {
     $match: {
       _id: {
